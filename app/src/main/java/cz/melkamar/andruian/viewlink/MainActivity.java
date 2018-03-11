@@ -9,9 +9,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.Toast;
+
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -65,6 +71,7 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        Log.i("onOptionsItemSelected", id+"");
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -80,22 +87,47 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        } else if (id == R.id.nav_slideshow) {
+        if (id == R.id.nav_add_source) {
+            // TODO dialog
 
-        } else if (id == R.id.nav_manage) {
+            NavigationView navigationView = findViewById(R.id.nav_view);
+            Menu menu = navigationView.getMenu();
+            Random random = new Random();
+            int num = random.nextInt(10000)+10000;
+            MenuItem menuItem = menu.add(R.id.nav_group_datasources, num, Menu.NONE, num+"");
 
-        } else if (id == R.id.nav_share) {
+            View menuItemView = getLayoutInflater().inflate(R.layout.switch_item, null);
+            menuItem.setActionView(menuItemView);
+            menuItem.setCheckable(true);
 
-        } else if (id == R.id.nav_send) {
-
+            DrawerMenuClickListener listener = new DrawerMenuClickListener(num);
+            menuItem.setOnMenuItemClickListener(listener);
+            ((Switch) menuItemView.findViewById(R.id.nav_switch)).setOnCheckedChangeListener(listener);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+//        drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    class DrawerMenuClickListener implements MenuItem.OnMenuItemClickListener, CompoundButton.OnCheckedChangeListener{
+        private final int buttonId;
+
+        DrawerMenuClickListener(int buttonId) {
+            this.buttonId = buttonId;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            Toast.makeText(MainActivity.this, "Clicked "+buttonId, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//            int id = compoundButton.getpare;
+            Toast.makeText(MainActivity.this, b+" for "+buttonId, Toast.LENGTH_SHORT).show();
+        }
     }
 }
