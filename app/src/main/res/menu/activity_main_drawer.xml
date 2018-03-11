@@ -8,9 +8,9 @@
     <group android:orderInCategory="999">
         <item android:title="Configuration">
             <menu>
-                <item android:id="@+id/nav_add_source"
-                      android:title="Add data source"
-                      android:icon="@android:drawable/ic_menu_add"/>
+                <item android:id="@+id/nav_manage_sources"
+                      android:title="Manage data sources"
+                      android:icon="@drawable/ic_menu_manage"/>
             </menu>
         </item>
     </group>

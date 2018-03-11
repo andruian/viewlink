@@ -1,5 +1,6 @@
-package cz.melkamar.andruian.viewlink;
+package cz.melkamar.andruian.viewlink.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -14,13 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.Toast;
+import cz.melkamar.andruian.viewlink.R;
+import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 
-import java.util.Random;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , MainMvpView {
+
+    private MainMvpPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        presenter = new MainPresenter(this);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -81,6 +85,18 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -89,26 +105,37 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        if (id == R.id.nav_add_source) {
-            // TODO dialog
-
-            NavigationView navigationView = findViewById(R.id.nav_view);
-            Menu menu = navigationView.getMenu();
-            Random random = new Random();
-            int num = random.nextInt(10000)+10000;
-            MenuItem menuItem = menu.add(R.id.nav_group_datasources, num, Menu.NONE, num+"");
-
-            View menuItemView = getLayoutInflater().inflate(R.layout.switch_item, null);
-            menuItem.setActionView(menuItemView);
-            menuItem.setCheckable(true);
-
-            DrawerMenuClickListener listener = new DrawerMenuClickListener(num);
-            menuItem.setOnMenuItemClickListener(listener);
-            ((Switch) menuItemView.findViewById(R.id.nav_switch)).setOnCheckedChangeListener(listener);
+        if (id == R.id.nav_manage_sources) {
+            presenter.manageDataSources();
+//            // TODO dialog
+//
+//            NavigationView navigationView = findViewById(R.id.nav_view);
+//            Menu menu = navigationView.getMenu();
+//            Random random = new Random();
+//            int num = random.nextInt(10000)+10000;
+//            MenuItem menuItem = menu.add(R.id.nav_group_datasources, num, Menu.NONE, num+"");
+//
+//            View menuItemView = getLayoutInflater().inflate(R.layout.switch_item, null);
+//            menuItem.setActionView(menuItemView);
+//            menuItem.setCheckable(true);
+//
+//            DrawerMenuClickListener listener = new DrawerMenuClickListener(num);
+//            menuItem.setOnMenuItemClickListener(listener);
+//            ((Switch) menuItemView.findViewById(R.id.nav_switch)).setOnCheckedChangeListener(listener);
         }
 
 //        drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showManageDatasources() {
+        startActivity(new Intent(this, DatasourcesActivity.class));
     }
 
     class DrawerMenuClickListener implements MenuItem.OnMenuItemClickListener, CompoundButton.OnCheckedChangeListener{
