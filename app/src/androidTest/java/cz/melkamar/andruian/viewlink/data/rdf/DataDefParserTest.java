@@ -1,62 +1,59 @@
-package cz.melkamar.andruian.viewlink.ui;
+package cz.melkamar.andruian.viewlink.data.rdf;
 
+
+import android.support.test.filters.SmallTest;
 import android.util.Log;
-import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
-import cz.melkamar.andruian.viewlink.model.DataSource;
-import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Created by Martin Melka on 11.03.2018.
- */
-
-public class MainPresenter implements MainMvpPresenter {
-    private MainMvpView view;
-
-    public MainPresenter(MainMvpView view) {
-        this.view = view;
-    }
-
-    @Override
-    public void manageDataSources() {
-        Log.i("manageDataSources", "foo");
-//        view.showMessage("add datasource: "+ DataManagerProvider.getDataManager().getHttpFile("someUrl"));
-        view.showManageDatasources();
-    }
-
-    @Override
-    public void onResume() {
-
-    }
-
-    @Override
-    public void onDestroy() {
-        view = null;
-    }
-
-    @Override
-    public void onFabClicked() {
-//        view.setKeepMapCentered(true);
-        DataManagerProvider.getDataManager().getDataSource("https://raw.githubusercontent.com/andruian/example-data/master/ruian/ruian-datadef.ttl", this::dostuff
-        );
-    }
-
-    public void dostuff(DataSource dataSource){
-        Log.i(dataSource.getName(), dataSource.getContent());
-//        InputStream stream = new ByteArrayInputStream(dataSource.getContent().getBytes(StandardCharsets.UTF_8));
+@SmallTest
+public class DataDefParserTest {
+    @Test
+    public void foo() {
         InputStream stream = new ByteArrayInputStream(foostr().getBytes(StandardCharsets.UTF_8));
         String lines[] = foostr().split("\\r?\\n");
-        for (int i=0; i<lines.length; i++) Log.i((i+1)+"", lines[i]);
+        for (int i = 0; i < lines.length; i++) Log.i((i + 1) + "", lines[i]);
 
 
         try {
             Model model = Rio.parse(stream, "", RDFFormat.TURTLE);
+            IRI datadefClass = SimpleValueFactory.getInstance().createIRI("http://purl.org/net/andruian/datadef#DataDef");
+            Model dataDefs = model.filter(null, null, datadefClass);
+            for (Statement st: dataDefs){
+                // the subject is always `ex:VanGogh`, an IRI, so we can safely cast it
+                IRI subject = (IRI)st.getSubject();
+                // the property predicate is always an IRI
+                IRI predicate = st.getPredicate();
+
+                // the property value could be an IRI, a BNode, or a Literal. In RDF4J,
+                // Value is is the supertype of all possible kinds of RDF values.
+                Value object = st.getObject();
+
+                // let's print out the statement in a nice way. We ignore the namespaces
+                // and only print the local name of each IRI
+                System.out.print(subject.getLocalName() + " " + predicate.getLocalName() + " ");
+                if (object instanceof Literal) {
+                    // It's a literal. print it out nicely, in quotes, and without any ugly
+                    // datatype stuff
+                    System.out.println("\"" + ((Literal)object).getLabel() + "\"");
+                }
+                else if (object instanceof  IRI) {
+                    // It's an IRI. Print it out, but leave off the namespace part.
+                    System.out.println(((IRI)object).getLocalName());
+                }
+                else {
+                    // It's a blank node. Just print out the internal identifier.
+                    System.out.println(object);
+                }
+            }
             System.out.println("foo");
         } catch (IOException e) {
             Log.e("parse err", "x", e);
@@ -64,7 +61,7 @@ public class MainPresenter implements MainMvpPresenter {
         }
     }
 
-    public String foostr(){
+    public String foostr() {
         return "@prefix andr: <http://purl.org/net/andruian/datadef#> .\n" +
                 "@prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .\n" +
                 "@prefix sp: <http://spinrdf.org/sp#> .\n" +
