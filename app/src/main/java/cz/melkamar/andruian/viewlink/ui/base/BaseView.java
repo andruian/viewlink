@@ -1,4 +1,4 @@
-package cz.melkamar.andruian.viewlink.ui;
+package cz.melkamar.andruian.viewlink.ui.base;
 
 /**
  * Created by Martin Melka on 11.03.2018.

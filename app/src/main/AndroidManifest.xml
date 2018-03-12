@@ -29,9 +29,13 @@
                     android:value="cz.melkamar.andruian.viewlink.ui.MainActivity"/>
         </activity>
         <activity
-                android:name=".ui.srcmgr.Main2Activity"
-                android:label="@string/title_activity_main2"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:name=".ui.addsrc.AddEditSourceActivity"
+                android:label="@string/title_activity_add_edit_source"
+                android:theme="@style/AppTheme.NoActionBar"
+                android:parentActivityName=".ui.srcmgr.DatasourcesActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity"/>
         </activity>
     </application>
 

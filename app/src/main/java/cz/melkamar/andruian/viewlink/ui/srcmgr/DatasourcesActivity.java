@@ -1,16 +1,22 @@
 package cz.melkamar.andruian.viewlink.ui.srcmgr;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 import cz.melkamar.andruian.viewlink.R;
+import cz.melkamar.andruian.viewlink.model.DataSource;
+import cz.melkamar.andruian.viewlink.ui.addsrc.AddEditSourceActivity;
+import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 
-public class DatasourcesActivity extends AppCompatActivity implements DatasourcesView {
+public class DatasourcesActivity extends BaseActivity implements DatasourcesView {
 
     DatasourcesPresenter presenter;
+
+    private final int RESULT_ACTIVITY_NEW_DATASOURCE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,17 +38,32 @@ public class DatasourcesActivity extends AppCompatActivity implements Datasource
     }
 
     @Override
-    public void showNewResourceDialog() {
+    public void showAddNewResourceActivity() {
 //        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 //        AlertDialog dialog = builder.create();
 //        dialog.show();
-        NewDatasourceDialogFragment dialog = new NewDatasourceDialogFragment();
-        dialog.setListener(presenter);
-        dialog.show(getSupportFragmentManager(), "xxx");
+//        NewDatasourceDialogFragment dialog = new NewDatasourceDialogFragment();
+//        dialog.setListener(presenter);
+//        dialog.show(getSupportFragmentManager(), "xxx");
+        Intent intent = new Intent(this, AddEditSourceActivity.class);
+        startActivityForResult(intent, RESULT_ACTIVITY_NEW_DATASOURCE);
     }
 
     @Override
-    public void showMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case RESULT_ACTIVITY_NEW_DATASOURCE:
+                if (resultCode == Activity.RESULT_OK) {
+                    Log.d("onActivityResult", "Result ok");
+                    DataSource src = (DataSource) data.getSerializableExtra(AddEditSourceActivity.TAG_RESULT_DATASOURCE);
+                    presenter.onNewDatasrcAdded(src);
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    Log.d("onActivityResult", "Result cancelled");
+                }
+                break;
+
+            default:
+                Log.e("onActivityResult", "unknown requestCode: " + requestCode);
+        }
     }
 }

@@ -8,7 +8,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -17,10 +16,11 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import cz.melkamar.andruian.viewlink.R;
+import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , MainMvpView {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener , MainMvpView {
 
     private MainMvpPresenter presenter;
 
@@ -126,11 +126,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 //        drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @Override
-    public void showMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
