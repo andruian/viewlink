@@ -1,6 +1,8 @@
 package cz.melkamar.andruian.viewlink.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -14,9 +16,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.Toast;
+import butterknife.BindDrawable;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.LatLng;
 import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
@@ -24,36 +28,32 @@ import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener, OnMapReadyCallback {
 
     private MainMvpPresenter presenter;
     private LocationHelper locationHelper;
+    private GoogleMap map;
+    private boolean centerMapOnNextLocation = false;
+    private boolean keepMapCentered = false;
+
+    @BindView(R.id.fab) protected FloatingActionButton fab;
+
+    @BindDrawable(R.drawable.ic_location_searching_black_24dp) protected Drawable iconGpsSearching;
+    @BindDrawable(R.drawable.ic_gps_fixed_black_24dp) protected Drawable iconGpsLocked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (locationHelper.isReportingGps()) {
-                    showMessage(locationHelper.getLastKnownLocation().getLatitude() + " " + locationHelper.getLastKnownLocation().getLongitude());
-                } else {
-                    try {
-                        locationHelper.startReportingGps();
-                    } catch (PermissionException e) {
-                        Log.w("onclick fab", "GPS not permitted.", e);
-                        showMessage("GPS permission not granted. Cannot provide location.");
-                    }
-                }
-            }
-        });
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> setKeepMapCentered(true));
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -62,11 +62,54 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         presenter = new MainPresenter(this);
         locationHelper = new LocationHelper(this, this);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    public void centerCamera(){
+        if (!locationHelper.isReportingGps()) {
+            try {
+                locationHelper.startReportingGps();
+            } catch (PermissionException e) {
+                Log.w("centerMapOCLoc", "GPS not permitted", e);
+                showMessage("GPS permission not granted. Cannot provide location.");
+                return;
+            }
+        }
+
+        if (map != null && locationHelper.getLastKnownLocation() != null) {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(
+                    new LatLng(locationHelper.getLastKnownLocation().getLatitude(),
+                            locationHelper.getLastKnownLocation().getLongitude()));
+            map.animateCamera(cameraUpdate, 500, null);
+        } else {
+            centerMapOnNextLocation = true;
+        }
+    }
+
+    public void setKeepMapCentered(boolean keepCentered) {
+        keepMapCentered = keepCentered;
+
+        if (keepCentered) {
+            fab.setImageDrawable(iconGpsLocked);
+            centerCamera();
+        } else {
+            fab.setImageDrawable(iconGpsSearching);
+        }
     }
 
 
+    /**
+     * Method is called by the Android framework when permission request result is returned.
+     * <p>
+     * MissingPermission warnings are supressed, because if the code flow gets to the switch clause,
+     * we already have permissions. Otherwise the catch clause would be taken and method stopped earlier.
+     */
+    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         try {
@@ -74,6 +117,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } catch (PermissionException e) {
             Log.w("req perms result", "GPS not permitted.", e);
             showMessage("GPS permission not granted. Cannot provide location.");
+            return;
+        }
+
+        switch (requestCode) {
+            case LocationHelper.LOC_REQUEST_MAP:
+                if (map != null) map.setMyLocationEnabled(true);
+                break;
         }
     }
 
@@ -108,6 +158,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // TODO save map location and restore it onResume
     }
 
     @Override
@@ -158,33 +214,35 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         startActivity(new Intent(this, DatasourcesActivity.class));
     }
 
-    class DrawerMenuClickListener implements MenuItem.OnMenuItemClickListener, CompoundButton.OnCheckedChangeListener {
-        private final int buttonId;
-
-        DrawerMenuClickListener(int buttonId) {
-            this.buttonId = buttonId;
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.map = googleMap;
+        if (!locationHelper.checkPermissions()) {
+            locationHelper.requestPermissions();
+            Log.w("onMapReady", "Requesting permissions");
+            return;
         }
 
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            Toast.makeText(MainActivity.this, "Clicked " + buttonId, Toast.LENGTH_SHORT).show();
-            return true;
-        }
+        Log.d("onMapReady", "Permissions ok");
+        googleMap.setMyLocationEnabled(true); // Permissions are always granted here
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
 
-        @Override
-        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-//            int id = compoundButton.getpare;
-            Toast.makeText(MainActivity.this, b + " for " + buttonId, Toast.LENGTH_SHORT).show();
-        }
+        setKeepMapCentered(true);
+        googleMap.setOnCameraMoveStartedListener(reason -> {
+            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE){
+                Log.d("cameraMovedListener", "stopping centering camera");
+                setKeepMapCentered(false);
+            }
+        });
     }
 
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            Log.i("setupGpsM", location.getLatitude() + " " + location.getLongitude());
-            showMessage("Gps change: " + location.getLatitude() + " " + location.getLongitude());
-        } else {
-            showMessage("could not get location");
+            if (keepMapCentered) centerMapOnNextLocation = true;
+            if (centerMapOnNextLocation) centerCamera();
+            Log.v("onLocationChanged", location.getLatitude() + " " + location.getLongitude());
         }
     }
 

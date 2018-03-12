@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@drawable/ic_gps_fixed_black_24dp" app:backgroundTint="?attr/colorBackgroundFloating"/>
+            app:srcCompat="@drawable/ic_location_searching_black_24dp"
+            app:backgroundTint="?attr/colorBackgroundFloating"/>
 
 </android.support.design.widget.CoordinatorLayout>
