@@ -9,8 +9,17 @@ public class DataManagerProvider {
 
     public static DataManager getDataManager() {
         if (dataManager == null) {
-            dataManager = new DataManagerImpl(new NetHelperImpl());
+            dataManager = new DataManagerImpl(
+                    NetHelperProvider.getNetHelper()
+            );
         }
         return dataManager;
+    }
+
+    /**
+     * Used for mocking in tests.
+     */
+    public static void setDataManager(DataManager dataManager){
+        DataManagerProvider.dataManager = dataManager;
     }
 }
