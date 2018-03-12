@@ -1,6 +1,5 @@
 package cz.melkamar.andruian.viewlink.ui.addsrc;
 
-import android.os.AsyncTask;
 import android.util.Log;
 import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
 import cz.melkamar.andruian.viewlink.model.DataSource;
@@ -21,7 +20,8 @@ public class AddEditSourcePresenterImpl implements AddEditSourcePresenter {
         String uri = view.getSrcUri();
 
         view.showLoadingDialog("Fetching data source", "Contacting URI: "+uri);
-        new FetchDatasourceTask(this).execute(uri);
+//        new FetchDatasourceTask(this).execute(uri);
+        DataManagerProvider.getDataManager().getDataSource(uri, dataSource -> onNewDatasourceFetched(dataSource));
     }
 
     @Override
@@ -37,22 +37,5 @@ public class AddEditSourcePresenterImpl implements AddEditSourcePresenter {
         }
     }
 
-    private class FetchDatasourceTask extends AsyncTask<String, Void, DataSource> {
-        private final AddEditSourcePresenter presenter;
 
-        private FetchDatasourceTask(AddEditSourcePresenter presenter) {
-            this.presenter = presenter;
-        }
-
-        @Override
-        protected DataSource doInBackground(String... strings) {
-            DataSource dataSource = DataManagerProvider.getDataManager().getDataSource(strings[0]);
-            return dataSource;
-        }
-
-        @Override
-        protected void onPostExecute(DataSource dataSource) {
-            presenter.onNewDatasourceFetched(dataSource);
-        }
-    }
 }

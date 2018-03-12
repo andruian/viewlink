@@ -1,6 +1,7 @@
 package cz.melkamar.andruian.viewlink.ui;
 
 import android.util.Log;
+import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -28,5 +29,13 @@ public class MainPresenter implements MainMvpPresenter {
     @Override
     public void onDestroy() {
         view = null;
+    }
+
+    @Override
+    public void onFabClicked() {
+//        view.setKeepMapCentered(true);
+        DataManagerProvider.getDataManager().getDataSource("https://raw.githubusercontent.com/andruian/example-data/master/ruian/ruian-datadef.ttl", dataSource ->
+            Log.i(dataSource.getName(), dataSource.getContent())
+        );
     }
 }

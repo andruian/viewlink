@@ -40,6 +40,8 @@ dependencies {
     // required if you want to use Mockito for Android tests
     androidTestCompile 'org.mockito:mockito-android:2.7.22'
 
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+
 
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'

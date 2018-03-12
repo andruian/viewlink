@@ -8,4 +8,5 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 public interface MainMvpView extends BaseView {
     void showManageDatasources();
+    void setKeepMapCentered(boolean keepCentered);
 }

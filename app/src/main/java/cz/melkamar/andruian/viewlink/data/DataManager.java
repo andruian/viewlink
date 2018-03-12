@@ -7,5 +7,9 @@ import cz.melkamar.andruian.viewlink.model.DataSource;
  */
 
 public interface DataManager extends NetHelper {
-    DataSource getDataSource(String url);
+    void getDataSource(String url, GetDataSourceCallback callback);
+
+    interface GetDataSourceCallback {
+        void onDataSourceFetched(DataSource dataSource);
+    }
 }

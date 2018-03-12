@@ -8,4 +8,5 @@ public interface MainMvpPresenter {
     void manageDataSources();
     void onResume();
     void onDestroy();
+    void onFabClicked();
 }

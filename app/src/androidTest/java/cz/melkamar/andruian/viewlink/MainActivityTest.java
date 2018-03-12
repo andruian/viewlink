@@ -1,5 +1,6 @@
 package cz.melkamar.andruian.viewlink;
 
+import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.DrawerMatchers;
 import android.support.test.espresso.contrib.NavigationViewActions;
@@ -39,5 +40,11 @@ public class MainActivityTest {
                 .perform(NavigationViewActions.navigateTo(R.id.nav_manage_sources));
 
         intended(hasComponent(DatasourcesActivity.class.getName()));
+    }
+
+    @Test
+    public void foobar(){
+        onView(withId(R.id.fab))
+                .perform(ViewActions.click());
     }
 }
