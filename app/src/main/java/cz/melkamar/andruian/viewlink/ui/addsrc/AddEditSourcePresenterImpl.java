@@ -28,7 +28,7 @@ public class AddEditSourcePresenterImpl implements AddEditSourcePresenter {
             @Override
             public void onDataDefsFetched(List<DataDef> dataDefs) {
                 Log.d("onDataDefsFetched", "Saving "+ dataDefs.size()+" entries");
-                DataManagerProvider.getDataManager().getDataDefDao().saveDataDefs(dataDefs);
+                DataManagerProvider.getDataManager().getDataDefDao().saveDataDefs(view.getActivity() ,dataDefs);
             }
 
             @Override

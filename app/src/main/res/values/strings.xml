@@ -8,4 +8,6 @@
     <string name="title_activity_main2">Main2Activity</string>
     <string name="title_activity_datasources">Manage datasources</string>
     <string name="title_activity_add_edit_source">Add datasource</string>
+
+    <string name="database_id">cz.melkamar.andruian.viewlink.db</string>
 </resources>

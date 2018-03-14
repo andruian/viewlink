@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 26
@@ -19,6 +20,17 @@ android {
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
+    }
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2' // add plugin
     }
 }
 
@@ -65,4 +77,6 @@ dependencies {
     implementation group: 'xerces', name: 'xercesImpl', version: '2.11.0'
 
     implementation('cz.melkamar.andruian:ddfparser:1.0.1') { changing = true }
+
+    implementation 'org.greenrobot:greendao:3.2.2'
 }
