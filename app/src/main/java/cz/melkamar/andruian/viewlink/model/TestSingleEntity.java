@@ -1,32 +1,23 @@
 package cz.melkamar.andruian.viewlink.model;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.Id;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
-@Entity
+@Entity(tableName = "myent")
 public class TestSingleEntity {
-    @Id(autoincrement = true)
+    @PrimaryKey(autoGenerate = true)
     Long id;
 
+    @ColumnInfo(name = "mycol")
     int someNumber;
 
     public TestSingleEntity(int someNumber) {
         this.someNumber = someNumber;
     }
 
-    @Generated(hash = 787203968)
-    public TestSingleEntity(Long id, int someNumber) {
-        this.id = id;
-        this.someNumber = someNumber;
-    }
-
-    @Generated(hash = 1371368161)
-    public TestSingleEntity() {
-    }
-
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -34,7 +25,7 @@ public class TestSingleEntity {
     }
 
     public int getSomeNumber() {
-        return this.someNumber;
+        return someNumber;
     }
 
     public void setSomeNumber(int someNumber) {

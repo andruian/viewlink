@@ -1,19 +1,16 @@
 package cz.melkamar.andruian.viewlink.ui;
 
+import android.os.AsyncTask;
 import android.util.Log;
-
-import org.greenrobot.greendao.query.Query;
 
 import java.util.List;
 import java.util.Random;
 
 import cz.melkamar.andruian.viewlink.ViewLinkApplication;
-import cz.melkamar.andruian.viewlink.model.DaoSession;
-import cz.melkamar.andruian.viewlink.model.TestChildEntity;
-import cz.melkamar.andruian.viewlink.model.TestEntity;
-import cz.melkamar.andruian.viewlink.model.TestEntityDao;
-import cz.melkamar.andruian.viewlink.model.TestSingleEntity;
-import cz.melkamar.andruian.viewlink.model.TestSingleEntityDao;
+import cz.melkamar.andruian.viewlink.model.AppDatabase;
+import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.DataDefDao;
+import cz.melkamar.andruian.viewlink.model.IndexServer;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -65,44 +62,53 @@ public class MainPresenter implements MainMvpPresenter {
 //        );
     }
 
-    public void testgdao() {
-        Random rnd = new Random();
-        TestEntity entity = new TestEntity(rnd.nextInt());
-        for (int i = 0; i < rnd.nextInt(5) + 2; i++) {
-            TestChildEntity childEntity = new TestChildEntity(entity.getId(), "bla " + rnd.nextInt() + " bla");
-            entity.getChildren().add(childEntity);
-        }
-
-        DaoSession session = ((ViewLinkApplication) view.getActivity().getApplication()).getDaoSession();
-        TestEntityDao dao = session.getTestEntityDao();
-        dao.insert(entity);
-
-        Log.d("testgdao", dao.count() + "");
-        for (TestEntity testEntity : dao.loadAll()) {
-            Log.d("testgdao", testEntity.toString());
-        }
-
-        view.showMessage(dao.count() + "");
-    }
-
     public void tgd() {
         Random rnd = new Random();
-        TestSingleEntity singleEntity = new TestSingleEntity();
-        singleEntity.setSomeNumber(rnd.nextInt());
-        DaoSession session = ((ViewLinkApplication) view.getActivity().getApplication()).getDaoSession();
-        TestSingleEntityDao dao = session.getTestSingleEntityDao();
-        dao.insert(singleEntity);
-        Log.d("tgd", "Inserted an entity with id " + singleEntity.getId());
-        session.clear();
+        IndexServer indexServer = new IndexServer("someidxuri 1");
+        DataDef ddf = new DataDef("arandomuri"+rnd.nextInt(), null, null, indexServer);
 
-        Query<TestSingleEntity> query = dao.queryBuilder().orderAsc(TestSingleEntityDao.Properties.SomeNumber).build();
+        AppDatabase db = ((ViewLinkApplication) view.getActivity().getApplication()).getAppDatabase();
+        DataDefDao dao = db.dataDefDao();
+
+        new AsyncTask<DataDef, Void, DataDef>() {
+            @Override
+            protected DataDef doInBackground(DataDef... entities) {
+                dao.insertAll(entities[0]);
+                return entities[0];
+            }
+
+            @Override
+            protected void onPostExecute(DataDef entity) {
+                doneSaved(entity);
+            }
+        }.execute(ddf);
+    }
+
+    public void doneSaved(DataDef singleEntity){
+        Log.d("tgd", "Inserted an entity with id " + singleEntity.getUri());
+
+        AppDatabase db = ((ViewLinkApplication) view.getActivity().getApplication()).getAppDatabase();
+        DataDefDao dao = db.dataDefDao();
+
         StringBuilder builder = new StringBuilder();
 
-        List<TestSingleEntity> result = query.list();
-        builder.append("count: ").append(result.size()).append("\n");
-        for (TestSingleEntity testSingleEntity : result) {
-            builder.append(testSingleEntity.toString()).append("\n");
-        }
-        view.showMessage(builder.toString());
+        new AsyncTask<Void, Void, String>(){
+            @Override
+            protected String doInBackground(Void... voids) {
+                List<DataDef> result = dao.getAll();
+                builder.append("count: ").append(result.size()).append("\n");
+                for (DataDef testSingleEntity : result) {
+                    builder.append(testSingleEntity.toString()).append("\n");
+                }
+
+                return builder.toString();
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                view.showMessage(s);
+            }
+        }.execute();
+
     }
 }
