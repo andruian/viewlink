@@ -4,11 +4,19 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
+import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.ui.DataDefAdapter;
 import cz.melkamar.andruian.viewlink.ui.addsrc.AddEditSourceActivity;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 
@@ -16,12 +24,16 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
 
     DatasourcesPresenter presenter;
 
+    @BindView(R.id.datadefs_rv) RecyclerView rv;
+
     private final int RESULT_ACTIVITY_NEW_DATASOURCE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_datasources);
+        ButterKnife.bind(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -35,6 +47,17 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        /*
+         * Setting up RecyclerView, assigning an adapter to it.
+         */
+        LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rv.setLayoutManager(manager);
+
+//        DividerItemDecoration divider = new DividerItemDecoration(rv.getContext(), manager.getOrientation());
+//        rv.addItemDecoration(divider);
+
+        presenter.refreshDatadefsShown();
     }
 
     @Override
@@ -50,12 +73,29 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
     }
 
     @Override
+    public void showDataDefs(List<DataDef> dataDefList) {
+        DataDefAdapter adapter = new DataDefAdapter(dataDefList, presenter);
+        rv.setAdapter(adapter);
+    }
+
+    @Override
+    public void deleteFromRecycler(int position) {
+        RecyclerView.Adapter adapter = rv.getAdapter();
+        if (adapter != null ){
+            DataDefAdapter dataDefAdapter = (DataDefAdapter) adapter;
+            dataDefAdapter.deleteItem(position);
+        } else {
+            Log.w("deleteFromRecycler", "Adapter is null");
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case RESULT_ACTIVITY_NEW_DATASOURCE:
                 if (resultCode == Activity.RESULT_OK) {
                     Log.d("onActivityResult", "Result ok");
-                    presenter.onNewDatadefsAdded();
+                    presenter.refreshDatadefsShown();
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     Log.d("onActivityResult", "Result cancelled");
                 }

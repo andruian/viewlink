@@ -1,5 +1,8 @@
 package cz.melkamar.andruian.viewlink.ui.srcmgr;
 
+import java.util.List;
+
+import cz.melkamar.andruian.viewlink.model.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 /**
@@ -8,4 +11,6 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 public interface DatasourcesView extends BaseView {
     void showAddNewResourceActivity();
+    void showDataDefs(List<DataDef> dataDefList);
+    void deleteFromRecycler(int position);
 }
