@@ -1,8 +1,10 @@
 package cz.melkamar.andruian.viewlink.data.persistence;
 
 
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
+import cz.melkamar.andruian.viewlink.exception.PersistenceException;
 import cz.melkamar.andruian.viewlink.model.ClassToLocPath;
 import cz.melkamar.andruian.viewlink.model.DataDef;
 import cz.melkamar.andruian.viewlink.model.IndexServer;
@@ -21,13 +23,20 @@ public class ParserDatadefPersistor {
      *
      * @param parserDataDef
      */
-    public static void saveParserDatadef(cz.melkamar.andruian.ddfparser.model.DataDef parserDataDef, AppDatabase appDatabase) {
+    public static DataDef saveParserDatadef(cz.melkamar.andruian.ddfparser.model.DataDef parserDataDef, AppDatabase appDatabase) throws PersistenceException {
         // TODO save labels for datadef
         Log.d("saveParserDatadef", "Saving datadef " + parserDataDef.getUri());
 
-        appDatabase.dataDefDao().insertAll(transDataDefToLocal(parserDataDef));
-        appDatabase.selectPropertyDao().insertAll(transSelectPropsToLocal(parserDataDef));
-        appDatabase.classToLocPathDao().insertAll(transClassToLocPathToLocal(parserDataDef));
+        DataDef dataDef = transDataDefToLocal(parserDataDef);
+        try {
+            appDatabase.dataDefDao().insertAll(dataDef);
+            appDatabase.selectPropertyDao().insertAll(transSelectPropsToLocal(parserDataDef));
+            appDatabase.classToLocPathDao().insertAll(transClassToLocPathToLocal(parserDataDef));
+        } catch (SQLiteException e){
+            Log.e("saveParserDatadef", "An exception occurred.", e);
+            throw new PersistenceException(e.getMessage(), e);
+        }
+        return dataDef;
     }
 
     public static ClassToLocPath[] transClassToLocPathToLocal(cz.melkamar.andruian.ddfparser.model.DataDef parserDataDef) {

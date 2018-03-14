@@ -3,6 +3,8 @@ package cz.melkamar.andruian.viewlink.ui.base;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import cz.melkamar.andruian.viewlink.ViewLinkApplication;
+
 
 public abstract class BaseActivity extends AppCompatActivity implements BaseView {
 
@@ -14,5 +16,10 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseView
     @Override
     public AppCompatActivity getActivity() {
         return this;
+    }
+
+    @Override
+    public ViewLinkApplication getViewLinkApplication() {
+        return (ViewLinkApplication) getApplication();
     }
 }

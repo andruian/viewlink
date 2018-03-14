@@ -1,9 +1,8 @@
 package cz.melkamar.andruian.viewlink.ui.srcmgr;
 
 
-import java.util.List;
+import android.util.Log;
 
-import cz.melkamar.andruian.ddfparser.model.DataDef;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -17,8 +16,10 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
     }
 
     @Override
-    public void onNewDatadefsAdded(List<DataDef> dataDefs) {
-        // TODO
+    public void onNewDatadefsAdded() {
+        // TODO this should get all datadefs from database
+        Log.i("onNewDatadefsAdded", "Loading new datadefs from the database.");
+        view.showMessage("Loading new datadefs from the database.");
     }
 
     @Override
@@ -26,8 +27,4 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
         view.showAddNewResourceActivity();
     }
 
-//    @Override
-//    public void onAddClick(String datasourceName, String datasourceUri) {
-//        view.showMessage(datasourceName+" - "+datasourceUri);
-//    }
 }

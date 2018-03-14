@@ -3,8 +3,7 @@ package cz.melkamar.andruian.viewlink.data;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.io.IOException;
-
+import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -21,7 +20,7 @@ public class NetHelperImpl implements NetHelper {
         new HttpGetATask(callback).execute(url);
     }
 
-    private class HttpGetATask extends AsyncTask<String, Void, Response> {
+    private class HttpGetATask extends AsyncTask<String, Void, AsyncTaskResult<Response>> {
         private final HttpRequestCallback callback;
 
         private HttpGetATask(HttpRequestCallback callback) {
@@ -29,29 +28,27 @@ public class NetHelperImpl implements NetHelper {
         }
 
         @Override
-        protected Response doInBackground(String... strings) {
-            Request request = new Request.Builder()
-                    .url(strings[0])
-                    .build();
-
-            Response response = null;
+        protected AsyncTaskResult<Response> doInBackground(String... strings) {
             try {
-                response = client.newCall(request).execute();
+                Request request = new Request.Builder()
+                        .url(strings[0])
+                        .build();
+                Response response = client.newCall(request).execute();
                 try {
                     Thread.sleep(1000); // TODO remove this artificial wait
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                return response;
-            } catch (IOException e) {
-                Log.w("http get", e);
-                return null;
+                return new AsyncTaskResult<>(response);
+            } catch (Exception e) {
+                Log.w("HttpGetATask", e.getMessage(), e);
+                return new AsyncTaskResult<>(e);
             }
         }
 
         @Override
-        protected void onPostExecute(Response response) {
-            callback.onRequestFinished(response);
+        protected void onPostExecute(AsyncTaskResult<Response> result) {
+            callback.onRequestFinished(result);
         }
     }
 }

@@ -1,8 +1,5 @@
 package cz.melkamar.andruian.viewlink.ui.addsrc;
 
-import java.util.List;
-
-import cz.melkamar.andruian.ddfparser.model.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 /**
@@ -12,9 +9,8 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 public interface AddEditSourceView extends BaseView {
     String getSrcUri();
     void showError(String title, String message);
-    void returnActivityResult(List<DataDef> dataDefs);
-    void returnActivityCancelled();
+    void returnActivityResult(int resultCode);
 
     void showLoadingDialog(String title, String message);
-    void hideLoadingDialog();
+    void dismissLoadingDialog();
 }

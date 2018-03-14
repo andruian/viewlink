@@ -1,6 +1,5 @@
 package cz.melkamar.andruian.viewlink.ui.addsrc;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,12 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.Serializable;
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.melkamar.andruian.ddfparser.model.DataDef;
 import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 
@@ -64,23 +59,15 @@ public class AddEditSourceActivity extends BaseActivity implements AddEditSource
     }
 
     @Override
-    public void returnActivityResult(List<DataDef> dataDefs) {
+    public void returnActivityResult(int resultCode) {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(TAG_RESULT_DATASOURCE, (Serializable) dataDefs);
-        setResult(Activity.RESULT_OK, returnIntent);
-        finish();
-    }
-
-    @Override
-    public void returnActivityCancelled() {
-        Intent returnIntent = new Intent();
-        setResult(Activity.RESULT_CANCELED);
+        setResult(resultCode, returnIntent);
         finish();
     }
 
     @Override
     public void showLoadingDialog(String title, String message) {
-        hideLoadingDialog();
+        dismissLoadingDialog();
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -90,7 +77,7 @@ public class AddEditSourceActivity extends BaseActivity implements AddEditSource
     }
 
     @Override
-    public void hideLoadingDialog() {
+    public void dismissLoadingDialog() {
         if (progressDialog != null) {
             progressDialog.dismiss();
             progressDialog = null;

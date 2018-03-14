@@ -1,5 +1,6 @@
 package cz.melkamar.andruian.viewlink.data;
 
+import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import okhttp3.Response;
 
 /**
@@ -10,6 +11,6 @@ public interface NetHelper {
     void getHttpFile(String url, HttpRequestCallback callback);
 
     interface HttpRequestCallback {
-        void onRequestFinished(Response response);
+        void onRequestFinished(AsyncTaskResult<Response> result);
     }
 }

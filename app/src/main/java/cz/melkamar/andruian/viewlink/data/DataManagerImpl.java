@@ -11,6 +11,7 @@ import cz.melkamar.andruian.ddfparser.DataDefParser;
 import cz.melkamar.andruian.ddfparser.exception.DataDefFormatException;
 import cz.melkamar.andruian.ddfparser.exception.RdfFormatException;
 import cz.melkamar.andruian.ddfparser.model.DataDef;
+import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -32,10 +33,18 @@ public class DataManagerImpl implements DataManager {
 
     @Override
     public void getDataDefs(String url, GetDataDefsCallback callback) {
-        netHelper.getHttpFile(url, response -> finishGetDataDefs(response, callback));
+//        netHelper.getHttpFile(url, response -> finishGetDataDefs(response, callback));
+        netHelper.getHttpFile(url, result -> finishGetDataDefs(result, callback));
     }
 
-    protected void finishGetDataDefs(Response response, GetDataDefsCallback callback) {
+    protected void finishGetDataDefs(AsyncTaskResult<Response> result, GetDataDefsCallback callback) {
+        if (result.hasError()){
+            Log.w("finishGetDataDefs", result.getError().getMessage(), result.getError());
+            callback.onFetchError(result.getError().getMessage(), 3);
+            return;
+        }
+        Response response = result.getResult();
+
         try {
             ResponseBody responseBody = response.body();
             if (responseBody == null) throw new IOException("Response body is empty");
