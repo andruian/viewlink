@@ -52,11 +52,11 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
         @Override
         protected AsyncTaskResult<Object> doInBackground(DataDef... dataDefs) {
             try {
-                Log.d("DeleteDatadefTask", "Deleting "+dataDefs[0]);
+                Log.d("DeleteDatadefTask", "Deleting " + dataDefs[0]);
                 view.get().getViewLinkApplication().getAppDatabase().dataDefDao().delete(dataDefs[0]);
                 return new AsyncTaskResult<>(1);
             } catch (Exception e) {
-                Log.d("DeleteDatadefTask", "Failed deleting "+dataDefs[0], e);
+                Log.d("DeleteDatadefTask", "Failed deleting " + dataDefs[0], e);
                 return new AsyncTaskResult<>(e);
             }
         }
@@ -78,7 +78,7 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
         final WeakReference<DatasourcesView> view;
 
         ReadDatadefsTask(DatasourcesView view) {
-            this.view = new WeakReference<DatasourcesView>(view);
+            this.view = new WeakReference<>(view);
         }
 
         @Override

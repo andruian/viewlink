@@ -1,5 +1,8 @@
 package cz.melkamar.andruian.viewlink.ui;
 
+import java.util.List;
+
+import cz.melkamar.andruian.viewlink.model.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 /**
@@ -9,4 +12,5 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 public interface MainMvpView extends BaseView {
     void showManageDatasources();
     void setKeepMapCentered(boolean keepCentered);
+    void showDataDefsInDrawer(List<DataDef> dataDefList);
 }

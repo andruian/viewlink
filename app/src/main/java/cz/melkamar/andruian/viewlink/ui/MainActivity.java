@@ -17,6 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Switch;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,11 +27,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.List;
+
 import butterknife.BindDrawable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
+import cz.melkamar.andruian.viewlink.model.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
@@ -76,11 +81,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        presenter.refreshDatadefsShown();
         // TODO remove this - just for testing
-        startActivity(new Intent(this, DatasourcesActivity.class));
+//        startActivity(new Intent(this, DatasourcesActivity.class));
     }
 
-    public void centerCamera(){
+    public void centerCamera() {
         if (!locationHelper.isReportingGps()) {
             try {
                 locationHelper.startReportingGps();
@@ -112,6 +118,54 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             fab.setImageDrawable(iconGpsSearching);
         }
     }
+
+    /**
+     * Show the given {@link DataDef} objects in the NavDrawer.
+     *
+     * @param dataDefList
+     */
+    @Override
+    public void showDataDefsInDrawer(List<DataDef> dataDefList) {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        Menu menu = navigationView.getMenu();
+        menu.removeGroup(R.id.nav_group_datasources);
+        int i = 0;
+        for (DataDef dataDef : dataDefList) {
+            MenuItem menuItem = menu.add(R.id.nav_group_datasources, Menu.NONE, Menu.NONE, dataDef.getUri());
+
+            View menuItemView = getLayoutInflater().inflate(R.layout.switch_item, null);
+
+            // To each Switch assign its position in the Drawer (=position in array of DataDefs)
+            menuItemView.findViewById(R.id.nav_switch).setTag(R.id.tag_switch_drawer_pos, i);
+            menuItem.setActionView(menuItemView);
+            menuItem.setCheckable(true);
+
+            ((Switch) menuItemView.findViewById(R.id.nav_switch))
+                    .setOnCheckedChangeListener((compoundButton, b) -> {
+                        presenter.dataDefSwitchClicked((int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
+                    });
+
+            i++;
+        }
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        if (id == R.id.nav_manage_sources) {
+            presenter.manageDataSources();
+            return true;
+        }
+
+        return true;
+    }
+
+    /**********************************************************************************************/
 
 
     /**
@@ -175,7 +229,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     /**
      * Just a quick dirty helper method for deleting the database of DataDefs.
      */
-    static class MyTask extends AsyncTask<Void, Void, String>{
+    static class MyTask extends AsyncTask<Void, Void, String> {
         MainActivity activity;
 
         public MyTask(MainActivity activity) {
@@ -185,9 +239,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         @Override
         protected String doInBackground(Void... voids) {
             int before = activity.getViewLinkApplication().getAppDatabase().dataDefDao().getAll().size();
-                         activity.getViewLinkApplication().getAppDatabase().dataDefDao().deleteAll();
-            int after  = activity.getViewLinkApplication().getAppDatabase().dataDefDao().getAll().size();
-            return "Deleted datadefs:\n"+before+" -> "+after;
+            activity.getViewLinkApplication().getAppDatabase().dataDefDao().deleteAll();
+            int after = activity.getViewLinkApplication().getAppDatabase().dataDefDao().getAll().size();
+            return "Deleted datadefs:\n" + before + " -> " + after;
         }
 
         @Override
@@ -214,36 +268,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         presenter.onDestroy();
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        if (id == R.id.nav_manage_sources) {
-            presenter.manageDataSources();
-//            // TODO dialog
-//
-//            NavigationView navigationView = findViewById(R.id.nav_view);
-//            Menu menu = navigationView.getMenu();
-//            Random random = new Random();
-//            int num = random.nextInt(10000)+10000;
-//            MenuItem menuItem = menu.add(R.id.nav_group_datasources, num, Menu.NONE, num+"");
-//
-//            View menuItemView = getLayoutInflater().inflate(R.layout.switch_item, null);
-//            menuItem.setActionView(menuItemView);
-//            menuItem.setCheckable(true);
-//
-//            DrawerMenuClickListener listener = new DrawerMenuClickListener(num);
-//            menuItem.setOnMenuItemClickListener(listener);
-//            ((Switch) menuItemView.findViewById(R.id.nav_switch)).setOnCheckedChangeListener(listener);
-        }
-
-//        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
 
     @Override
     public void showManageDatasources() {
@@ -266,7 +290,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         setKeepMapCentered(true);
         googleMap.setOnCameraMoveStartedListener(reason -> {
-            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE){
+            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
                 Log.d("cameraMovedListener", "stopping centering camera");
                 setKeepMapCentered(false);
             }
