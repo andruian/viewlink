@@ -39,6 +39,7 @@ public class MainPresenter implements MainMvpPresenter {
 
     @Override
     public void onFabClicked() {
+        // TODO This does not do anything on hardware
         view.setKeepMapCentered(true);
     }
 
