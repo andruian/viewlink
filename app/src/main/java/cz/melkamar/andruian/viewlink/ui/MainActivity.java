@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -16,11 +17,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+
 import butterknife.BindDrawable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.LatLng;
 import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
@@ -68,6 +75,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // TODO remove this - just for testing
+        startActivity(new Intent(this, DatasourcesActivity.class));
     }
 
     public void centerCamera(){
@@ -155,10 +165,35 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            new MyTask(this).execute();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Just a quick dirty helper method for deleting the database of DataDefs.
+     */
+    static class MyTask extends AsyncTask<Void, Void, String>{
+        MainActivity activity;
+
+        public MyTask(MainActivity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            int before = activity.getViewLinkApplication().getAppDatabase().dataDefDao().getAll().size();
+                         activity.getViewLinkApplication().getAppDatabase().dataDefDao().deleteAll();
+            int after  = activity.getViewLinkApplication().getAppDatabase().dataDefDao().getAll().size();
+            return "Deleted datadefs:\n"+before+" -> "+after;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            activity.showMessage(s);
+        }
     }
 
     @Override
