@@ -24,7 +24,7 @@ public class MainPresenter implements MainMvpPresenter {
     public void manageDataSources() {
         Log.i("manageDataSources", "foo");
 //        view.showMessage("add datasource: "+ DataManagerProvider.getDataManager().getHttpFile("someUrl"));
-        view.showManageDatasources();
+        view.showManageDatasourcesActivity();
     }
 
     @Override

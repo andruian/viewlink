@@ -165,9 +165,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return true;
     }
 
-    /**********************************************************************************************/
-
-
     /**
      * Method is called by the Android framework when permission request result is returned.
      * <p>
@@ -270,7 +267,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     @Override
-    public void showManageDatasources() {
+    public void showManageDatasourcesActivity() {
         startActivity(new Intent(this, DatasourcesActivity.class));
     }
 
