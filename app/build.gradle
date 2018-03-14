@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 26
@@ -31,7 +30,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2' // add plugin
     }
 }
 
