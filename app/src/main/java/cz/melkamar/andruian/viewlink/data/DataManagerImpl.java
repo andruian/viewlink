@@ -1,10 +1,18 @@
 package cz.melkamar.andruian.viewlink.data;
 
 import android.util.Log;
-import cz.melkamar.andruian.viewlink.model.DataSource;
-import okhttp3.Response;
+
+import org.eclipse.rdf4j.rio.RDFFormat;
 
 import java.io.IOException;
+import java.util.List;
+
+import cz.melkamar.andruian.ddfparser.DataDefParser;
+import cz.melkamar.andruian.ddfparser.exception.DataDefFormatException;
+import cz.melkamar.andruian.ddfparser.exception.RdfFormatException;
+import cz.melkamar.andruian.ddfparser.model.DataDef;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -23,17 +31,30 @@ public class DataManagerImpl implements DataManager {
     }
 
     @Override
-    public void getDataSource(String url, GetDataSourceCallback callback) {
-        netHelper.getHttpFile(url, response -> finishGetDataSource(response, callback));
+    public void getDataDefs(String url, GetDataDefsCallback callback) {
+        netHelper.getHttpFile(url, response -> finishGetDataDefs(response, callback));
     }
 
-    protected void finishGetDataSource(Response response, GetDataSourceCallback callback){
+    protected void finishGetDataDefs(Response response, GetDataDefsCallback callback) {
         try {
-            DataSource dataSource = new DataSource("xxx", response.request().url().toString(), response.body().string());
-            callback.onDataSourceFetched(dataSource);
+            ResponseBody responseBody = response.body();
+            if (responseBody == null) throw new IOException("Response body is empty");
+            String body = responseBody.string();
+            Log.v("finishGetDataDefs body", body);
+            List<DataDef> dataDefList = new DataDefParser().parse(body, RDFFormat.TURTLE);
+            callback.onDataDefsFetched(dataDefList);
         } catch (IOException e) {
-            Log.e("finishGetDataSource", "Could not get response.body.string", e);
+            Log.e("finishGetDataDefs", "Could not get response.body.string", e);
             e.printStackTrace();
+            callback.onFetchError(e.toString(), 0);
+        } catch (DataDefFormatException e) {
+            Log.e("finishGetDataDefs", "Invalid datadef", e);
+            e.printStackTrace();
+            callback.onFetchError(e.toString(), 1);
+        } catch (RdfFormatException e) {
+            Log.e("finishGetDataDefs", "Invalid rdf format", e);
+            e.printStackTrace();
+            callback.onFetchError(e.toString(), 2);
         }
     }
 
@@ -44,7 +65,7 @@ public class DataManagerImpl implements DataManager {
 //    }
 //
 //    @Override
-//    public DataSource getDataSource(String url) {
+//    public DataDef getDataDefs(String url) {
 //        String srcRaw = netHelper.getHttpFile(url);
 //         TODO PARSE HERE
 //        try {
@@ -53,7 +74,7 @@ public class DataManagerImpl implements DataManager {
 //            e.printStackTrace();
 //        }
 //        Random random = new Random();
-//        return new DataSource(random.nextInt()+"", url, srcRaw);
+//        return new DataDef(random.nextInt()+"", url, srcRaw);
 //    }
 
 }

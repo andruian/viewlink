@@ -8,10 +8,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+
+import java.io.Serializable;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.melkamar.andruian.ddfparser.model.DataDef;
 import cz.melkamar.andruian.viewlink.R;
-import cz.melkamar.andruian.viewlink.model.DataSource;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 
 public class AddEditSourceActivity extends BaseActivity implements AddEditSourceView {
@@ -55,9 +59,9 @@ public class AddEditSourceActivity extends BaseActivity implements AddEditSource
     }
 
     @Override
-    public void returnActivityResult(DataSource dataSource) {
+    public void returnActivityResult(List<DataDef> dataDefs) {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(TAG_RESULT_DATASOURCE, dataSource);
+        returnIntent.putExtra(TAG_RESULT_DATASOURCE, (Serializable) dataDefs);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }

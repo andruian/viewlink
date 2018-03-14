@@ -1,6 +1,9 @@
 package cz.melkamar.andruian.viewlink.ui.srcmgr;
 
-import cz.melkamar.andruian.viewlink.model.DataSource;
+
+import java.util.List;
+
+import cz.melkamar.andruian.ddfparser.model.DataDef;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -14,8 +17,8 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
     }
 
     @Override
-    public void onNewDatasrcAdded(DataSource dataSource) {
-        view.showMessage(dataSource.getName()+" - "+dataSource.getUrl());
+    public void onNewDatadefsAdded(List<DataDef> dataDefs) {
+        // TODO
     }
 
     @Override

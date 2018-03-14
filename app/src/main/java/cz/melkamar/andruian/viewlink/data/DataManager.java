@@ -1,15 +1,18 @@
 package cz.melkamar.andruian.viewlink.data;
 
-import cz.melkamar.andruian.viewlink.model.DataSource;
+import java.util.List;
+
+import cz.melkamar.andruian.ddfparser.model.DataDef;
 
 /**
  * Created by Martin Melka on 11.03.2018.
  */
 
 public interface DataManager extends NetHelper {
-    void getDataSource(String url, GetDataSourceCallback callback);
+    void getDataDefs(String url, GetDataDefsCallback callback);
 
-    interface GetDataSourceCallback {
-        void onDataSourceFetched(DataSource dataSource);
+    interface GetDataDefsCallback {
+        void onDataDefsFetched(List<DataDef> dataDefs);
+        void onFetchError(String error, int errorCode);
     }
 }

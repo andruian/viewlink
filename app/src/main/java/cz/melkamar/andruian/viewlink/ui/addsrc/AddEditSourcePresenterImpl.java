@@ -1,8 +1,12 @@
 package cz.melkamar.andruian.viewlink.ui.addsrc;
 
 import android.util.Log;
+
+import java.util.List;
+
+import cz.melkamar.andruian.ddfparser.model.DataDef;
+import cz.melkamar.andruian.viewlink.data.DataManager;
 import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
-import cz.melkamar.andruian.viewlink.model.DataSource;
 
 /**
  * Created by Martin Melka on 12.03.2018.
@@ -20,17 +24,27 @@ public class AddEditSourcePresenterImpl implements AddEditSourcePresenter {
         String uri = view.getSrcUri();
 
         view.showLoadingDialog("Fetching data source", "Contacting URI: "+uri);
-//        new FetchDatasourceTask(this).execute(uri);
-        DataManagerProvider.getDataManager().getDataSource(uri, dataSource -> onNewDatasourceFetched(dataSource));
+        DataManagerProvider.getDataManager().getDataDefs(uri, new DataManager.GetDataDefsCallback() {
+            @Override
+            public void onDataDefsFetched(List<DataDef> dataDefs) {
+                // TODO
+            }
+
+            @Override
+            public void onFetchError(String error, int errorCode) {
+                // TODO
+            }
+        });
     }
 
     @Override
-    public void onNewDatasourceFetched(DataSource dataSource) {
+    public void onNewDataDefsFetched(List<DataDef> dataDefs) {
         view.hideLoadingDialog();
-        if (dataSource!=null) {
-            view.showMessage("Add src: " + dataSource.getName() + " " + dataSource.getUrl() + " " + dataSource.getContent());
+        if (dataDefs!=null) {
+//            view.showMessage("Add src: " + dataSource.getName() + " " + dataSource.getUrl() + " " + dataSource.getContent());
+            view.showMessage("Fetched "+dataDefs.size()+ " datadefs");
             // TODO use name field here
-            view.returnActivityResult(dataSource);
+            view.returnActivityResult(dataDefs);
         } else {
             Log.i("onNewDatasourceFetched", "datasource is null");
             view.showMessage("Could not fetch the datasource. Check the URL.");

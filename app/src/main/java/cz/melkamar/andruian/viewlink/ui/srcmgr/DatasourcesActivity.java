@@ -7,8 +7,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+
+import java.util.List;
+
+import cz.melkamar.andruian.ddfparser.model.DataDef;
 import cz.melkamar.andruian.viewlink.R;
-import cz.melkamar.andruian.viewlink.model.DataSource;
 import cz.melkamar.andruian.viewlink.ui.addsrc.AddEditSourceActivity;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 
@@ -55,8 +58,8 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
             case RESULT_ACTIVITY_NEW_DATASOURCE:
                 if (resultCode == Activity.RESULT_OK) {
                     Log.d("onActivityResult", "Result ok");
-                    DataSource src = (DataSource) data.getSerializableExtra(AddEditSourceActivity.TAG_RESULT_DATASOURCE);
-                    presenter.onNewDatasrcAdded(src);
+                    List<DataDef> src = (List<DataDef>) data.getSerializableExtra(AddEditSourceActivity.TAG_RESULT_DATASOURCE);
+                    presenter.onNewDatadefsAdded(src);
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     Log.d("onActivityResult", "Result cancelled");
                 }

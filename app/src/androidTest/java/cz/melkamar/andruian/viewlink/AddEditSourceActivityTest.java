@@ -3,8 +3,7 @@ package cz.melkamar.andruian.viewlink;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
-import cz.melkamar.andruian.viewlink.data.DataManager;
-import cz.melkamar.andruian.viewlink.ui.addsrc.AddEditSourceActivity;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,6 +11,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import cz.melkamar.andruian.viewlink.data.DataManager;
+import cz.melkamar.andruian.viewlink.ui.addsrc.AddEditSourceActivity;
 
 
 /**
@@ -32,7 +34,7 @@ public class AddEditSourceActivityTest {
 
     @Before
     public void setUp() throws Exception {
-//        Mockito.when(dataManagerMock.getDataSource(anyString(), any())).thenAnswer(i -> new DataSource(i.getArgument(0), i.getArgument(0),i.getArgument(0)));
+//        Mockito.when(dataManagerMock.getDataDefs(anyString(), any())).thenAnswer(i -> new DataDef(i.getArgument(0), i.getArgument(0),i.getArgument(0)));
 //        DataManagerProvider.setDataManager(dataManagerMock);
     }
 
@@ -52,7 +54,7 @@ public class AddEditSourceActivityTest {
 //        onView(withId(R.id.fab)).perform(click());
 //        assertThat(mActivityRule.getActivityResult(), ActivityResultMatchers.hasResultCode(Activity.RESULT_OK));
 //
-//        DataSource expectedResult = new DataSource(fakeUrl, fakeUrl, fakeUrl);
+//        DataDef expectedResult = new DataDef(fakeUrl, fakeUrl, fakeUrl);
 //        assertThat(mActivityRule.getActivityResult(), ActivityResultMatchers.hasResultData(hasExtra(AddEditSourceActivity.TAG_RESULT_DATASOURCE, expectedResult)));
     }
 }
