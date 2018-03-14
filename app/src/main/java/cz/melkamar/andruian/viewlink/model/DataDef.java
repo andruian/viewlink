@@ -27,16 +27,18 @@ package cz.melkamar.andruian.viewlink.model;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 @Entity
 public class DataDef {
     @PrimaryKey
+    @NonNull
     private final String uri;
 
-//    @Embedded
-//    private final LocationClassDef locationClassDef;
-//    @Embedded
-//    private final SourceClassDef sourceClassDef;
+    @Embedded
+    private final LocationClassDef locationClassDef;
+    @Embedded
+    private final SourceClassDef sourceClassDef;
     @Embedded
     private final IndexServer indexServer;
 
@@ -48,8 +50,8 @@ public class DataDef {
                    SourceClassDef sourceClassDef,
                    IndexServer indexServer) {
         this.uri = uri;
-//        this.locationClassDef = locationClassDef;
-//        this.sourceClassDef = sourceClassDef;
+        this.locationClassDef = locationClassDef;
+        this.sourceClassDef = sourceClassDef;
         this.indexServer = indexServer;
     }
 
@@ -58,32 +60,24 @@ public class DataDef {
         return uri;
     }
 
-//    public LocationClassDef getLocationClassDef() {
-//        return locationClassDef;
-//    }
+    public LocationClassDef getLocationClassDef() {
+        return locationClassDef;
+    }
 
-//    public SourceClassDef getSourceClassDef() {
-//        return sourceClassDef;
-//    }
+    public SourceClassDef getSourceClassDef() {
+        return sourceClassDef;
+    }
 
     public IndexServer getIndexServer() {
         return indexServer;
     }
 
-//    @Override
-//    public String toString() {
-//        return "DataDef{" +
-//                "uri='" + uri + '\'' +
-//                ", locationClassDef=" + locationClassDef +
-//                ", sourceClassDef=" + sourceClassDef +
-//                '}';
-//    }
-
-
     @Override
     public String toString() {
         return "DataDef{" +
                 "uri='" + uri + '\'' +
+                ", locationClassDef=" + locationClassDef +
+                ", sourceClassDef=" + sourceClassDef +
                 ", indexServer=" + indexServer +
                 '}';
     }

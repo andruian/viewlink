@@ -24,11 +24,24 @@
 
 package cz.melkamar.andruian.viewlink.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.PrimaryKey;
+
+@Entity(foreignKeys =
+@ForeignKey(entity = DataDef.class,
+        parentColumns = "uri",
+        childColumns = "parentDatadefUri",
+        onDelete = ForeignKey.CASCADE)
+)
 public class SelectProperty {
+    @PrimaryKey(autoGenerate = true) private int id;
+    private final String parentDatadefUri;
     private final String name;
     private final PropertyPath path;
 
-    public SelectProperty(String name, PropertyPath path) {
+    public SelectProperty(String parentDatadefUri, String name, PropertyPath path) {
+        this.parentDatadefUri = parentDatadefUri;
         this.name = name;
         this.path = path;
     }
@@ -39,5 +52,27 @@ public class SelectProperty {
 
     public PropertyPath getPath() {
         return path;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getParentDatadefUri() {
+        return parentDatadefUri;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "SelectProperty{" +
+                "id=" + id +
+                ", parentDatadefUri='" + parentDatadefUri + '\'' +
+                ", name='" + name + '\'' +
+                ", path=" + path +
+                '}';
     }
 }

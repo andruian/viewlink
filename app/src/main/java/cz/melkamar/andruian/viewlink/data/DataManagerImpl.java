@@ -11,7 +11,6 @@ import cz.melkamar.andruian.ddfparser.DataDefParser;
 import cz.melkamar.andruian.ddfparser.exception.DataDefFormatException;
 import cz.melkamar.andruian.ddfparser.exception.RdfFormatException;
 import cz.melkamar.andruian.ddfparser.model.DataDef;
-import cz.melkamar.andruian.viewlink.data.dao.DataDefDao;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -21,11 +20,9 @@ import okhttp3.ResponseBody;
 
 public class DataManagerImpl implements DataManager {
     private final NetHelper netHelper;
-    private final DataDefDao dataDefDao;
 
-    public DataManagerImpl(NetHelper netHelper, DataDefDao dataDefDao) {
+    public DataManagerImpl(NetHelper netHelper) {
         this.netHelper = netHelper;
-        this.dataDefDao = dataDefDao;
     }
 
     @Override
@@ -36,11 +33,6 @@ public class DataManagerImpl implements DataManager {
     @Override
     public void getDataDefs(String url, GetDataDefsCallback callback) {
         netHelper.getHttpFile(url, response -> finishGetDataDefs(response, callback));
-    }
-
-    @Override
-    public DataDefDao getDataDefDao() {
-        return this.dataDefDao;
     }
 
     protected void finishGetDataDefs(Response response, GetDataDefsCallback callback) {

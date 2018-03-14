@@ -24,15 +24,29 @@
 
 package cz.melkamar.andruian.viewlink.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.PrimaryKey;
+
 /**
  * 
  */
+@Entity(foreignKeys =
+@ForeignKey(entity = DataDef.class,
+        parentColumns = "uri",
+        childColumns = "parentDatadefUri",
+        onDelete = ForeignKey.CASCADE)
+)
 public class ClassToLocPath {
+    @PrimaryKey(autoGenerate = true) private int id;
+    private final String parentDatadefUri;
+
     private final PropertyPath latCoord;
     private final PropertyPath longCoord;
     private final String forClassUri;
 
-    public ClassToLocPath(PropertyPath latCoord, PropertyPath longCoord, String forClassUri) {
+    public ClassToLocPath(String parentDatadefUri, PropertyPath latCoord, PropertyPath longCoord, String forClassUri) {
+        this.parentDatadefUri = parentDatadefUri;
         this.latCoord = latCoord;
         this.longCoord = longCoord;
         this.forClassUri = forClassUri;
@@ -48,5 +62,28 @@ public class ClassToLocPath {
 
     public String getForClassUri() {
         return forClassUri;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getParentDatadefUri() {
+        return parentDatadefUri;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "ClassToLocPath{" +
+                "id=" + id +
+                ", parentDatadefUri='" + parentDatadefUri + '\'' +
+                ", latCoord=" + latCoord +
+                ", longCoord=" + longCoord +
+                ", forClassUri='" + forClassUri + '\'' +
+                '}';
     }
 }

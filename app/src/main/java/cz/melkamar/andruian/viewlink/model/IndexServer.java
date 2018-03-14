@@ -24,12 +24,16 @@
 
 package cz.melkamar.andruian.viewlink.model;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 
 @Entity
 public class IndexServer {
+    @ColumnInfo(name = "idxuri")
     private final String uri;
+    @ColumnInfo(name = "idxver")
     private final int version;
+    @ColumnInfo(name = "idxverset")
     private final boolean versionSet;
 
     public IndexServer(String uri, int version, boolean versionSet) {
@@ -65,5 +69,14 @@ public class IndexServer {
 
     public boolean isVersionSet() {
         return versionSet;
+    }
+
+    @Override
+    public String toString() {
+        return "IndexServer{" +
+                "uri='" + uri + '\'' +
+                ", version=" + version +
+                ", versionSet=" + versionSet +
+                '}';
     }
 }

@@ -24,40 +24,57 @@
 
 package cz.melkamar.andruian.viewlink.model;
 
-import java.util.Arrays;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
 
-public class SourceClassDef extends ClassDef {
+public class SourceClassDef{
+
+    @ColumnInfo(name = "sourcedef_sparqlendpoint")
+    protected final String sparqlEndpoint;
+    @ColumnInfo(name = "sourcedef_classuri")
+    protected final String classUri;
+    @Embedded
     private final PropertyPath pathToLocationClass;
-    private final SelectProperty[] selectProperties;
+//    private final SelectProperty[] selectProperties;
 
     public SourceClassDef(String sparqlEndpoint,
                           String classUri,
-                          PropertyPath pathToLocationClass,
-                          SelectProperty[] selectProperties) {
-        super(sparqlEndpoint, classUri);
+                          PropertyPath pathToLocationClass
+//                          SelectProperty[] selectProperties
+    ) {
+        this.sparqlEndpoint = sparqlEndpoint;
+        this.classUri = classUri;
         this.pathToLocationClass = pathToLocationClass;
-        this.selectProperties = selectProperties;
+//        this.selectProperties = selectProperties;
+    }
+
+    public String getSparqlEndpoint() {
+        return sparqlEndpoint;
+    }
+
+    public String getClassUri() {
+        return classUri;
     }
 
     public PropertyPath getPathToLocationClass() {
         return pathToLocationClass;
     }
 
-    public SelectProperty[] getSelectProperties() {
-        return selectProperties;
-    }
+//    public SelectProperty[] getSelectProperties() {
+//        return selectProperties;
+//    }
 
-    public String[] getSelectPropertiesNames() {
-        return Arrays.stream(selectProperties).map(SelectProperty::getName).toArray(String[]::new);
-    }
+//    public String[] getSelectPropertiesNames() {
+//        return Arrays.stream(selectProperties).map(SelectProperty::getName).toArray(String[]::new);
+//    }
+
 
     @Override
     public String toString() {
         return "SourceClassDef{" +
-                "pathToLocationClass=" + pathToLocationClass +
-                ", selectProperties=" + Arrays.toString(selectProperties) +
-                ", sparqlEndpoint='" + sparqlEndpoint + '\'' +
+                "sparqlEndpoint='" + sparqlEndpoint + '\'' +
                 ", classUri='" + classUri + '\'' +
+                ", pathToLocationClass=" + pathToLocationClass +
                 '}';
     }
 }

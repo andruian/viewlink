@@ -24,23 +24,41 @@
 
 package cz.melkamar.andruian.viewlink.model;
 
-import java.util.Map;
+import android.arch.persistence.room.ColumnInfo;
 
-public class LocationClassDef extends ClassDef {
-    private final Map<String, ClassToLocPath> pathsToGps;
+public class LocationClassDef {
+    @ColumnInfo(name = "locdef_sparqlendpoint")
+    protected final String sparqlEndpoint;
+    @ColumnInfo(name = "locdef_classuri")
+    protected final String classUri;
+//    private final Map<String, ClassToLocPath> pathsToGps;
 
-    public LocationClassDef(String sparqlEndpoint,
-                            String classUri,
-                            Map<String, ClassToLocPath> pathsToGps) {
-        super(sparqlEndpoint, classUri);
-        this.pathsToGps = pathsToGps;
+    public LocationClassDef(String sparqlEndpoint, String classUri) {
+        this.sparqlEndpoint = sparqlEndpoint;
+        this.classUri = classUri;
     }
 
-    public Map<String, ClassToLocPath> getPathsToGps() {
-        return pathsToGps;
+    public String getSparqlEndpoint() {
+        return sparqlEndpoint;
     }
 
-    public ClassToLocPath getPathToGps(String locationClassUri) {
-        return pathsToGps.get(locationClassUri);
+    public String getClassUri() {
+        return classUri;
+    }
+    //    public Map<String, ClassToLocPath> getPathsToGps() {
+//        return pathsToGps;
+//    }
+
+//    public ClassToLocPath getPathToGps(String locationClassUri) {
+//        return pathsToGps.get(locationClassUri);
+//    }
+
+
+    @Override
+    public String toString() {
+        return "LocationClassDef{" +
+                "sparqlEndpoint='" + sparqlEndpoint + '\'' +
+                ", classUri='" + classUri + '\'' +
+                '}';
     }
 }

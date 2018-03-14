@@ -1,7 +1,5 @@
 package cz.melkamar.andruian.viewlink.data;
 
-import cz.melkamar.andruian.viewlink.data.dao.DataDefDaoImpl;
-
 /**
  * Created by Martin Melka on 11.03.2018.
  */
@@ -12,8 +10,7 @@ public class DataManagerProvider {
     public static DataManager getDataManager() {
         if (dataManager == null) {
             dataManager = new DataManagerImpl(
-                    NetHelperProvider.getNetHelper(),
-                    new DataDefDaoImpl());
+                    NetHelperProvider.getNetHelper());
             // TODO refactor this, allow mocking - use dagger?
         }
         return dataManager;

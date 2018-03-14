@@ -1,10 +1,12 @@
-package cz.melkamar.andruian.viewlink.model;
+package cz.melkamar.andruian.viewlink.data.persistence;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
+
+import cz.melkamar.andruian.viewlink.model.DataDef;
 
 @Dao
 public interface DataDefDao {
