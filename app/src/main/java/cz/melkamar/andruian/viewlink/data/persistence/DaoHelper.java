@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
-import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 public class DaoHelper {

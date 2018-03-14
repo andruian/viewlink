@@ -12,7 +12,7 @@ import cz.melkamar.andruian.viewlink.data.DataManager;
 import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.ParserDatadefPersistor;
 import cz.melkamar.andruian.viewlink.exception.PersistenceException;
-import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
 /**
  * Created by Martin Melka on 12.03.2018.

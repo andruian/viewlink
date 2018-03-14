@@ -6,7 +6,7 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
-import cz.melkamar.andruian.viewlink.model.SelectProperty;
+import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 
 @Dao
 public interface SelectPropertyDao {

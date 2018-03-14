@@ -7,7 +7,7 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
-import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
 @Dao
 public interface DataDefDao {

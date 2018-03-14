@@ -4,9 +4,9 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.TypeConverters;
 
-import cz.melkamar.andruian.viewlink.model.ClassToLocPath;
-import cz.melkamar.andruian.viewlink.model.DataDef;
-import cz.melkamar.andruian.viewlink.model.SelectProperty;
+import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 
 @Database(entities = {
         DataDef.class,

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package cz.melkamar.andruian.viewlink.model;
+package cz.melkamar.andruian.viewlink.model.datadef;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;

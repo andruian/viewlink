@@ -2,7 +2,7 @@ package cz.melkamar.andruian.viewlink.ui.srcmgr;
 
 import java.util.List;
 
-import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 /**

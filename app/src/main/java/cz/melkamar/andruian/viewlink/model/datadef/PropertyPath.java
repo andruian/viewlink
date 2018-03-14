@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package cz.melkamar.andruian.viewlink.model;
+package cz.melkamar.andruian.viewlink.model.datadef;
 
 public class PropertyPath {
     private final String[] pathElements;

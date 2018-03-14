@@ -1,6 +1,6 @@
 package cz.melkamar.andruian.viewlink.ui.srcmgr;
 
-import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
 /**
  * Created by Martin Melka on 11.03.2018.

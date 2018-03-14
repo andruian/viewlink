@@ -2,7 +2,7 @@ package cz.melkamar.andruian.viewlink.data.persistence;
 
 import android.arch.persistence.room.TypeConverter;
 
-import cz.melkamar.andruian.viewlink.model.PropertyPath;
+import cz.melkamar.andruian.viewlink.model.datadef.PropertyPath;
 
 public class Converters {
     // TODO use  to-from JSON conversion ?

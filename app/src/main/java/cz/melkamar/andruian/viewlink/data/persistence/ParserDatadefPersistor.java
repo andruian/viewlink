@@ -5,13 +5,13 @@ import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import cz.melkamar.andruian.viewlink.exception.PersistenceException;
-import cz.melkamar.andruian.viewlink.model.ClassToLocPath;
-import cz.melkamar.andruian.viewlink.model.DataDef;
-import cz.melkamar.andruian.viewlink.model.IndexServer;
-import cz.melkamar.andruian.viewlink.model.LocationClassDef;
-import cz.melkamar.andruian.viewlink.model.PropertyPath;
-import cz.melkamar.andruian.viewlink.model.SelectProperty;
-import cz.melkamar.andruian.viewlink.model.SourceClassDef;
+import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.IndexServer;
+import cz.melkamar.andruian.viewlink.model.datadef.LocationClassDef;
+import cz.melkamar.andruian.viewlink.model.datadef.PropertyPath;
+import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
+import cz.melkamar.andruian.viewlink.model.datadef.SourceClassDef;
 
 public class ParserDatadefPersistor {
     /**

@@ -34,7 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
-import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;

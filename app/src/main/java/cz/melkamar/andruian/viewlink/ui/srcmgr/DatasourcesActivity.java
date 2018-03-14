@@ -15,7 +15,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
-import cz.melkamar.andruian.viewlink.model.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.ui.DataDefAdapter;
 import cz.melkamar.andruian.viewlink.ui.addsrc.AddEditSourceActivity;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
