@@ -10,8 +10,8 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseView;
  */
 
 public interface AddEditSourceView extends BaseView {
-    String getSrcName();
     String getSrcUri();
+    void showError(String title, String message);
     void returnActivityResult(List<DataDef> dataDefs);
     void returnActivityCancelled();
 

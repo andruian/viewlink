@@ -2,11 +2,12 @@ package cz.melkamar.andruian.viewlink.data;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
+import java.io.IOException;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.io.IOException;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -36,6 +37,11 @@ public class NetHelperImpl implements NetHelper {
             Response response = null;
             try {
                 response = client.newCall(request).execute();
+                try {
+                    Thread.sleep(1000); // TODO remove this artificial wait
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 return response;
             } catch (IOException e) {
                 Log.w("http get", e);

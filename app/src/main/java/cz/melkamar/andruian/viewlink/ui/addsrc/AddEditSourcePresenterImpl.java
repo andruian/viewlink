@@ -27,12 +27,13 @@ public class AddEditSourcePresenterImpl implements AddEditSourcePresenter {
         DataManagerProvider.getDataManager().getDataDefs(uri, new DataManager.GetDataDefsCallback() {
             @Override
             public void onDataDefsFetched(List<DataDef> dataDefs) {
-                // TODO
+                Log.d("onDataDefsFetched", "Saving "+ dataDefs.size()+" entries");
+                DataManagerProvider.getDataManager().getDataDefDao().saveDataDefs(dataDefs);
             }
 
             @Override
             public void onFetchError(String error, int errorCode) {
-                // TODO
+                view.showError("An error occurred: "+errorCode, error);
             }
         });
     }

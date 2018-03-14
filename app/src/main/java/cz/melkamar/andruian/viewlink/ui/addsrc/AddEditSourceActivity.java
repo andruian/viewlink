@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,8 +26,9 @@ public class AddEditSourceActivity extends BaseActivity implements AddEditSource
 
     private AddEditSourcePresenter presenter;
 
-    @BindView(R.id.new_datasource_name) EditText srcName;
     @BindView(R.id.new_datasource_url) EditText srcUri;
+    @BindView(R.id.errorNameTextView) TextView errorTitleTV;
+    @BindView(R.id.errorDescriptionTextView) TextView errorMessageTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +51,16 @@ public class AddEditSourceActivity extends BaseActivity implements AddEditSource
     }
 
     @Override
-    public String getSrcName() {
-        return srcName.getText().toString();
+    public String getSrcUri() {
+        return srcUri.getText().toString();
     }
 
     @Override
-    public String getSrcUri() {
-        return srcUri.getText().toString();
+    public void showError(String title, String message) {
+        errorTitleTV.setText(title);
+        errorMessageTV.setText(message);
+        errorTitleTV.setVisibility(View.VISIBLE);
+        errorMessageTV.setVisibility(View.VISIBLE);
     }
 
     @Override
