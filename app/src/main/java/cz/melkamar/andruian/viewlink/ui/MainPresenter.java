@@ -3,6 +3,8 @@ package cz.melkamar.andruian.viewlink.ui;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.maps.GoogleMap;
+
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
@@ -45,8 +47,7 @@ public class MainPresenter implements MainMvpPresenter {
     @Override
     public void onFabClicked() {
         // TODO This takes ages on hardware after start
-//        view.setKeepMapCentered(true);
-        playground();
+        view.setKeepMapCentered(true);
     }
 
     @Override
@@ -79,8 +80,8 @@ public class MainPresenter implements MainMvpPresenter {
     }
 
     @Override
-    public void showItemsOnMap(List<Place> places) {
-        // TODO implement
+    public void onMapCameraMoved(GoogleMap map, int reason) {
+//        map.getCameraPosition().zoom
     }
 
     private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<List<Place>>> {

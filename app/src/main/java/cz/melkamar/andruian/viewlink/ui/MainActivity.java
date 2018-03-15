@@ -88,9 +88,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        presenter.refreshDatadefsShown();
-        // TODO remove this - just for testing
-//        startActivity(new Intent(this, DatasourcesActivity.class));
+//        presenter.refreshDatadefsShown();
     }
 
     public void centerCamera() {
@@ -116,6 +114,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void setKeepMapCentered(boolean keepCentered) {
+        Log.d("setKeepMapCentered", keepCentered+"");
         keepMapCentered = keepCentered;
 
         if (keepCentered) {
@@ -165,6 +164,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void clearMapMarkers() {
         // TODO
+//        map.getProjection().getVisibleRegion().
     }
 
     @Override
@@ -199,6 +199,37 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
             markersOfDatadef.add(marker);
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.v("onMapReady", "onMapReady");
+        this.map = googleMap;
+        if (!locationHelper.checkPermissions()) {
+            locationHelper.requestPermissions();
+            Log.w("onMapReady", "Requesting permissions");
+            return;
+        }
+
+        Log.d("onMapReady", "Permissions ok");
+//        googleMap.setMyLocationEnabled(true); // Permissions are always granted here
+//        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+//
+//        setKeepMapCentered(true);
+//        googleMap.setOnCameraMoveStartedListener(reason -> {
+//            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+//                Log.d("cameraMovedListener", "stopping centering camera");
+//                setKeepMapCentered(false);
+//            }
+//
+//            presenter.onMapCameraMoved(map, reason);
+//        });
+
+        map.setOnCameraMoveStartedListener(i -> Log.i("cameraMoveStarted", ""));
+//        map.setOnCameraMoveListener(() -> Log.i("cameraMove", ""));
+//        map.setOnCameraMoveCanceledListener(() -> Log.i("cameraMoveCancel", ""));
+//        map.setOnMapClickListener(latLng -> Log.i("mapClick", latLng.toString()));
     }
     /*
      ***********************************************************************************************
@@ -263,9 +294,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         Log.i("onOptionsItemSelected", id + "");
 
@@ -326,28 +354,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         startActivity(new Intent(this, DatasourcesActivity.class));
     }
 
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        this.map = googleMap;
-        if (!locationHelper.checkPermissions()) {
-            locationHelper.requestPermissions();
-            Log.w("onMapReady", "Requesting permissions");
-            return;
-        }
 
-        Log.d("onMapReady", "Permissions ok");
-        googleMap.setMyLocationEnabled(true); // Permissions are always granted here
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
-
-        setKeepMapCentered(true);
-        googleMap.setOnCameraMoveStartedListener(reason -> {
-            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-                Log.d("cameraMovedListener", "stopping centering camera");
-                setKeepMapCentered(false);
-            }
-        });
-    }
 
     @Override
     public void onLocationChanged(Location location) {
