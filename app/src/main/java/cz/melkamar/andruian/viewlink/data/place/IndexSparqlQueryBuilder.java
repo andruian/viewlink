@@ -1,9 +1,7 @@
 package cz.melkamar.andruian.viewlink.data.place;
 
-import android.content.Context;
 import android.util.Log;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,25 +10,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
 import cz.melkamar.andruian.viewlink.model.datadef.PropertyPath;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.util.MapFormat;
-import cz.melkamar.andruian.viewlink.util.Util;
 
 public class IndexSparqlQueryBuilder {
     public static final Set<String> RESERVED_VAR_NAMES = new HashSet<>(Arrays.asList("dataObj",
-                                                                                     "locationObj",
-                                                                                     "lat",
-                                                                                     "long"));
+            "locationObj",
+            "lat",
+            "long"));
 
-    public IndexSparqlQueryBuilder(Context context, String dataClassUri,
+    public IndexSparqlQueryBuilder(String queryTemplate, String dataClassUri,
                                    PropertyPath dataToLocationClassPropPath,
                                    String locationSparqlEndpoint,
                                    PropertyPath locClassToLatPropPath,
                                    PropertyPath locClassToLongPropPath) {
-        this.context = context;
+        this.queryTemplate = queryTemplate;
         this.dataClassUri = dataClassUri;
         this.dataToLocationClassPropPath = dataToLocationClassPropPath;
         this.locationSparqlEndpoint = locationSparqlEndpoint;
@@ -40,7 +36,7 @@ public class IndexSparqlQueryBuilder {
         this.excludeDataObjUris = new ArrayList<>();
     }
 
-    private final Context context;
+    private final String queryTemplate;
 
     // Mandatory
     private final String dataClassUri;
@@ -53,24 +49,17 @@ public class IndexSparqlQueryBuilder {
     private List<SelectProperty> selectProperties;
     private List<String> excludeDataObjUris;
 
-    public void addSelectProperty(SelectProperty selectProperty){
+    public void addSelectProperty(SelectProperty selectProperty) {
         selectProperties.add(selectProperty);
     }
 
-    public void excludeUri(String excludeUri){
+    public void excludeUri(String excludeUri) {
         excludeDataObjUris.add(excludeUri);
     }
 
     public String build() throws ReservedNameUsedException {
         Log.d("IndexSparqlQueryBuilder", "Building an index SPARQL query from template");
-        String queryTemplate;
-        try {
-            queryTemplate = Util.readRawTextFile(context, R.raw.placequery);
-            Log.v("SparqlQuery template", queryTemplate);
-        } catch (IOException e) {
-            Log.e("IndexSparqlQueryBuilder","Could not find template query.", e);
-            return null;
-        }
+        Log.v("SparqlQuery", queryTemplate);
 
 
         Map<String, String> argMap = new HashMap<>();

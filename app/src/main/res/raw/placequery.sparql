@@ -22,7 +22,7 @@ WHERE {
   #
   # This will filter out the two objects listed.
   # - Note that each line/expression MUST end with the && operator, including the last one,
-  #   because there is a trailing True expression in the query template.
+  #   because there is a trailing True expression in the query queryTemplate.
   #   The reason for that is to avoid parsing error thrown by FILTER() - there must be something in the parentheses.
   #
   FILTER(

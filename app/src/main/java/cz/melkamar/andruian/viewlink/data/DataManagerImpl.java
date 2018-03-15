@@ -12,6 +12,7 @@ import cz.melkamar.andruian.ddfparser.exception.DataDefFormatException;
 import cz.melkamar.andruian.ddfparser.exception.RdfFormatException;
 import cz.melkamar.andruian.ddfparser.model.DataDef;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
+import cz.melkamar.andruian.viewlink.util.KeyVal;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -25,23 +26,28 @@ public class DataManagerImpl implements DataManager {
     }
 
     @Override
-    public void getHttpFile(String url, HttpRequestCallback callback) {
-        netHelper.getHttpFile(url, callback);
+    public void getHttpFileAsync(String url, HttpRequestCallback callback) {
+        netHelper.getHttpFileAsync(url, callback);
     }
 
     @Override
-    public void httpPost(HttpRequestCallback callback, String url, String data, NetHelperImpl.Header... headers) {
-        netHelper.httpPost(callback, url, data, headers);
+    public AsyncTaskResult<String> httpPost(String url, KeyVal[] data, KeyVal... keyVals) {
+        return netHelper.httpPost(url, data, keyVals);
+    }
+
+    @Override
+    public void httpPostAsync(HttpRequestCallback callback, String url, String data, KeyVal... keyVals) {
+        netHelper.httpPostAsync(callback, url, data, keyVals);
     }
 
     @Override
     public void getDataDefs(String url, GetDataDefsCallback callback) {
-//        netHelper.getHttpFile(url, response -> finishGetDataDefs(response, callback));
-        netHelper.getHttpFile(url, result -> finishGetDataDefs(result, callback));
+//        netHelper.getHttpFileAsync(url, response -> finishGetDataDefs(response, callback));
+        netHelper.getHttpFileAsync(url, result -> finishGetDataDefs(result, callback));
     }
 
     protected void finishGetDataDefs(AsyncTaskResult<String> result, GetDataDefsCallback callback) {
-        if (result.hasError()){
+        if (result.hasError()) {
             Log.w("finishGetDataDefs", result.getError().getMessage(), result.getError());
             callback.onFetchError(result.getError().getMessage(), 3);
             return;
@@ -70,7 +76,7 @@ public class DataManagerImpl implements DataManager {
         }
     }
 
-    String fakeBody(){
+    String fakeBody() {
         return "@prefix andr: <http://purl.org/net/andruian/datadef#> .\n" +
                 "@prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .\n" +
                 "@prefix sp: <http://spinrdf.org/sp#> .\n" +

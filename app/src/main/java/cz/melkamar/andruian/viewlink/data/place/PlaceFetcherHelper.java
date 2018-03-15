@@ -2,6 +2,7 @@ package cz.melkamar.andruian.viewlink.data.place;
 
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
@@ -35,24 +36,27 @@ public class PlaceFetcherHelper {
      * @param radius
      * @return
      */
-    public void fetchPlaces(BaseView view, DataDef dataDef, double latitude, double longitude, double radius, Listener listener) {
+    public List<Place> fetchPlaces(BaseView view, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException {
+        Exception lastException = null;
         try {
-            List<Place> result = indexServerPlaceFetcher.fetchPlaces(dataDef, latitude, longitude, radius);
-            // TODO call listener callback
-            return;
+            return indexServerPlaceFetcher.fetchPlaces(dataDef, latitude, longitude, radius);
         } catch (PlaceFetchException e) {
+            lastException = e;
             Log.i("fetchPlaces", "Could not fetch places from the index server", e);
         }
 
         try {
-            sparqlPlaceFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius, listener);
-            return;
+            return sparqlPlaceFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
         } catch (PlaceFetchException e) {
+            lastException = e;
             Log.i("fetchPlaces", "Could not fetch places from the SPARQL endpoint", e);
-        } catch (ReservedNameUsedException e) {
+        } catch (ReservedNameUsedException | IOException e) {
+            lastException = e;
             e.printStackTrace();
             Log.e("fetchPlaces", e.getMessage(), e);
         }
+
+        throw new PlaceFetchException("Error while fetching places.", lastException);
     }
 
     public interface Listener {

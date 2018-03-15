@@ -6,6 +6,7 @@ import android.util.Log;
 import java.util.Arrays;
 
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
+import cz.melkamar.andruian.viewlink.util.KeyVal;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -20,13 +21,52 @@ public class NetHelperImpl implements NetHelper {
     OkHttpClient client = new OkHttpClient();
 
     @Override
-    public void getHttpFile(String url, HttpRequestCallback callback) {
+    public void getHttpFileAsync(String url, HttpRequestCallback callback) {
         new HttpGetATask(callback).execute(url);
     }
 
+    /**
+     * Synchronous HTTP POST request. This cannot be called on the UI thread.
+     * @param url
+     * @param data
+     * @param headers
+     * @return
+     */
     @Override
-    public void httpPost(HttpRequestCallback callback, String url, String data, Header... headers) {
-        new HttpPostATask(callback).execute(url, data, headers);
+    public AsyncTaskResult<String> httpPost(String url, KeyVal[] data, KeyVal... headers) {
+        try {
+            Log.v("httpPost", "url:"+url+" | data: "+data+" | keyVals: "+ Arrays.toString(headers));
+
+            Request.Builder builder = new Request.Builder().url(url);
+            if (headers != null) {
+                for (KeyVal keyVal : headers) {
+                    builder.addHeader(keyVal.name, keyVal.value);
+                }
+            }
+
+            FormBody.Builder bodyBuilder = new FormBody.Builder();
+            for (KeyVal datum : data) {
+                bodyBuilder.add(datum.name, datum.value);
+            }
+            RequestBody body = bodyBuilder.build();
+
+            Request request = builder.post(body).build();
+            Response response = client.newCall(request).execute();
+            try {
+                Thread.sleep(1000); // TODO remove this artificial wait
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return new AsyncTaskResult<>(response.body().string());
+        } catch (Exception e) {
+            Log.w("HttpGetATask", e.getMessage(), e);
+            return new AsyncTaskResult<>(e);
+        }
+    }
+
+    @Override
+    public void httpPostAsync(HttpRequestCallback callback, String url, String data, KeyVal... keyVals) {
+        new HttpPostATask(callback).execute(url, data, keyVals);
     }
 
     private class HttpGetATask extends AsyncTask<String, Void, AsyncTaskResult<String>> {
@@ -73,13 +113,13 @@ public class NetHelperImpl implements NetHelper {
             try {
                 String url = (String) strings[0];
                 String data = (String) strings[1];
-                Header[] headers = (Header[]) strings[2];
-                Log.v("HttpPostATask", "url:"+url+" | data: "+data+" | headers: "+ Arrays.toString(headers));
+                KeyVal[] keyVals = (KeyVal[]) strings[2];
+                Log.v("HttpPostATask", "url:"+url+" | data: "+data+" | keyVals: "+ Arrays.toString(keyVals));
 
                 Request.Builder builder = new Request.Builder().url(url);
-                if (headers != null) {
-                    for (Header header : headers) {
-                        builder.addHeader(header.name, header.value);
+                if (keyVals != null) {
+                    for (KeyVal keyVal : keyVals) {
+                        builder.addHeader(keyVal.name, keyVal.value);
                     }
                 }
 
@@ -108,13 +148,4 @@ public class NetHelperImpl implements NetHelper {
         }
     }
 
-    public static class Header {
-        public final String name;
-        public final String value;
-
-        public Header(String name, String value) {
-            this.name = name;
-            this.value = value;
-        }
-    }
 }
