@@ -1,0 +1,59 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX eu: <http://eulersharp.sourceforge.net/2003/03swap/log-rules#>
+PREFIX ru: <http://purl.org/imbi/ru-meta.owl#>
+prefix ex: <http://example.org/>
+prefix ruian: <http://ruian.linked.opendata.cz/ontology/>
+prefix s: <http://schema.org/>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT distinct ?dataObj ?locationObj ?lat ?long ?dataClassType {selectProps}
+WHERE {
+  BIND(<{dataClassUri}> as ?dataClassType)
+
+  ?dataObj a <{dataClassUri}>;
+         {pathToLocClass} ?locationObj;
+         .
+
+  #
+  # Optional filter when reindexingto exclude all objects that already exist
+  # Example contents of excludeDataObjects:
+  #    ?dataObj != <http://example.org/linkedobject-24481611> &&
+  #    ?dataObj != <http://example.org/linkedobject-72715057> &&
+  #
+  # This will filter out the two objects listed.
+  # - Note that each line/expression MUST end with the && operator, including the last one,
+  #   because there is a trailing True expression in the query template.
+  #   The reason for that is to avoid parsing error thrown by FILTER() - there must be something in the parentheses.
+  #
+  FILTER(
+    {excludeDataObjects}
+    True
+  )
+
+  #
+  # Mapping of selectProps - name of any selectProp must NOT be any of the reserved ones (dataObj, locationObj etc.)
+  # Example mapping:
+  #   ?dataObj ex:a/ex:b/ex:c ?selectPropA .
+  #
+  # There will be one line per each selectProp
+  {selectPropsMapping}
+
+  #
+  # Federated query for the location sparql controller.
+  #   [lat,long]LocationPathForLocationClass will contain a
+  #   property path from the Location class to its coordinates.
+  SERVICE <{locationSparqlEndpoint}> {
+    ?locationObj {latLocationPathForLocationClass} ?lat;
+                 {longLocationPathForLocationClass} ?long;
+    .
+
+    #
+    # RUIAN-specific
+    #   For some reason RUIAN has two values for object's coordinates.
+    #   Make sure we get the one we expect by filtering.
+    FILTER(
+      datatype(?lat) = xsd:decimal &&
+      datatype(?long) = xsd:decimal
+    )
+  }
+}

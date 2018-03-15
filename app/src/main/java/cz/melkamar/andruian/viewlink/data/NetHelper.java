@@ -10,7 +10,13 @@ import okhttp3.Response;
 public interface NetHelper {
     void getHttpFile(String url, HttpRequestCallback callback);
 
+    void httpPost(HttpRequestCallback callback, String url, String data, String... headers);
+
     interface HttpRequestCallback {
         void onRequestFinished(AsyncTaskResult<Response> result);
     }
+
+//    interface HttpPostListener {
+//        void onRequestFinished(AsyncTaskResult<Response> result);
+//    }
 }
