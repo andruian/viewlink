@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
     DatasourcesPresenter presenter;
 
     @BindView(R.id.datadefs_rv) RecyclerView rv;
+    @BindView(R.id.no_datasources_tv) TextView noDatadefsTV;
 
     private final int RESULT_ACTIVITY_NEW_DATASOURCE = 1;
 
@@ -76,6 +78,14 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
     public void showDataDefs(List<DataDef> dataDefList) {
         DataDefAdapter adapter = new DataDefAdapter(dataDefList, presenter);
         rv.setAdapter(adapter);
+
+        if (dataDefList.size() == 0){
+            rv.setVisibility(View.GONE);
+            noDatadefsTV.setVisibility(View.VISIBLE);
+        } else {
+            rv.setVisibility(View.VISIBLE);
+            noDatadefsTV.setVisibility(View.GONE);
+        }
     }
 
     @Override

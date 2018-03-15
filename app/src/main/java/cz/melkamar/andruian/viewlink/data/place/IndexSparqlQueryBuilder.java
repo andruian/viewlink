@@ -66,7 +66,7 @@ public class IndexSparqlQueryBuilder {
         String queryTemplate;
         try {
             queryTemplate = Util.readRawTextFile(context, R.raw.placequery);
-            Log.v("SparqlQuery", queryTemplate);
+            Log.v("SparqlQuery template", queryTemplate);
         } catch (IOException e) {
             Log.e("IndexSparqlQueryBuilder","Could not find template query.", e);
             return null;
@@ -83,7 +83,9 @@ public class IndexSparqlQueryBuilder {
         argMap.put("selectPropsMapping", buildSelectPropsMapping(selectProperties));
         argMap.put("excludeDataObjects", buildExcludeDataObjectsExpr(excludeDataObjUris));
 
-        return MapFormat.format(queryTemplate, argMap);
+        String result = MapFormat.format(queryTemplate, argMap);
+        Log.v("SparqlQuery resolved", result);
+        return result;
     }
 
     /**

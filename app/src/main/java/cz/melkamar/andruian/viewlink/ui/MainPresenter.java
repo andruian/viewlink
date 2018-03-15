@@ -5,6 +5,9 @@ import android.util.Log;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
+import cz.melkamar.andruian.viewlink.data.place.IndexServerPlaceFetcher;
+import cz.melkamar.andruian.viewlink.data.place.PlaceFetcherHelper;
+import cz.melkamar.andruian.viewlink.data.place.SparqlPlaceFetcher;
 import cz.melkamar.andruian.viewlink.model.Place;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
@@ -39,8 +42,9 @@ public class MainPresenter implements MainMvpPresenter {
 
     @Override
     public void onFabClicked() {
-        // TODO This does not do anything on hardware
-        view.setKeepMapCentered(true);
+        // TODO This takes ages on hardware after start
+//        view.setKeepMapCentered(true);
+        playground();
     }
 
     @Override
@@ -57,13 +61,30 @@ public class MainPresenter implements MainMvpPresenter {
 
     @Override
     public void dataDefSwitchClicked(int itemId, boolean enabled) {
-        Log.d("dataDefSwitchClicked", "Enabled: "+enabled+"  for uri "+dataDefsShown.get(itemId));
+        Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShown.get(itemId));
         // TODO get all places around location
         // There will be a helper class that will send queries to index servers/sparql endpoints for places
+
+        PlaceFetcherHelper placeFetcherHelper = new PlaceFetcherHelper(
+                new IndexServerPlaceFetcher(),
+                new SparqlPlaceFetcher()
+        );
+
+        placeFetcherHelper.fetchPlaces(view, dataDefsShown.get(itemId), 14, 50, 100,
+                (fromDataDef, result) -> {
+                    Log.i("from datadef", fromDataDef.getUri());
+                    for (Place place : result.getResult()) {
+                        Log.i("    result    ", place.toString());
+                    }
+                });
     }
 
     @Override
     public void showItemsOnMap(List<Place> places) {
         // TODO implement
+    }
+
+    public void playground() {
+
     }
 }
