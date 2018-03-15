@@ -7,27 +7,26 @@ import java.util.List;
 
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
 import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
-import cz.melkamar.andruian.viewlink.model.Place;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
-import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
-public class PlaceFetcherHelper {
+public class PlaceFetcher {
     private IndexServerPlaceFetcher indexServerPlaceFetcher;
     private SparqlPlaceFetcher sparqlPlaceFetcher;
 
-    public PlaceFetcherHelper(IndexServerPlaceFetcher indexServerPlaceFetcher, SparqlPlaceFetcher sparqlPlaceFetcher) {
+    public PlaceFetcher(IndexServerPlaceFetcher indexServerPlaceFetcher, SparqlPlaceFetcher sparqlPlaceFetcher) {
         this.indexServerPlaceFetcher = indexServerPlaceFetcher;
         this.sparqlPlaceFetcher = sparqlPlaceFetcher;
     }
 
-    public PlaceFetcherHelper() {
+    public PlaceFetcher() {
         this.indexServerPlaceFetcher = new IndexServerPlaceFetcher();
         this.sparqlPlaceFetcher = new SparqlPlaceFetcher();
     }
 
     /**
-     * Fetch all places defined by this {@link PlaceFetcherHelper}'s {@link cz.melkamar.andruian.viewlink.model.datadef.DataDef}.
+     * Fetch all places defined by this {@link PlaceFetcher}'s {@link cz.melkamar.andruian.viewlink.model.datadef.DataDef}.
      * If possible, use an index server. If that does not work or is not defined, resort to
      * contacting the SPARQL endpoint.
      *
@@ -57,9 +56,5 @@ public class PlaceFetcherHelper {
         }
 
         throw new PlaceFetchException("Error while fetching places.", lastException);
-    }
-
-    public interface Listener {
-        void onPlacesFetched(DataDef fromDataDef, AsyncTaskResult<List<Place>> result);
     }
 }

@@ -7,10 +7,10 @@ import java.util.List;
 
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
 import cz.melkamar.andruian.viewlink.data.place.IndexServerPlaceFetcher;
-import cz.melkamar.andruian.viewlink.data.place.PlaceFetcherHelper;
+import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.SparqlPlaceFetcher;
-import cz.melkamar.andruian.viewlink.model.Place;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 /**
@@ -66,12 +66,12 @@ public class MainPresenter implements MainMvpPresenter {
         Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShown.get(itemId));
         // TODO get all places around location
 
-        PlaceFetcherHelper placeFetcherHelper = new PlaceFetcherHelper(
+        PlaceFetcher placeFetcher = new PlaceFetcher(
                 new IndexServerPlaceFetcher(),
                 new SparqlPlaceFetcher()
         );
 
-        new FetchPlacesAT(placeFetcherHelper, view, dataDefsShown.get(itemId), 14, 50, 100).execute();
+        new FetchPlacesAT(placeFetcher, view, dataDefsShown.get(itemId), 14, 50, 100).execute();
     }
 
     @Override
@@ -80,15 +80,15 @@ public class MainPresenter implements MainMvpPresenter {
     }
 
     private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<List<Place>>> {
-        private final PlaceFetcherHelper placeFetcherHelper;
+        private final PlaceFetcher placeFetcher;
         private final MainMvpView view;
         private final DataDef dataDef;
         private final double latitude;
         private final double longitude;
         private final double radius;
 
-        private FetchPlacesAT(PlaceFetcherHelper placeFetcherHelper, MainMvpView view, DataDef dataDef, double latitude, double longitude, double radius) {
-            this.placeFetcherHelper = placeFetcherHelper;
+        private FetchPlacesAT(PlaceFetcher placeFetcher, MainMvpView view, DataDef dataDef, double latitude, double longitude, double radius) {
+            this.placeFetcher = placeFetcher;
             this.view = view;
             this.dataDef = dataDef;
             this.latitude = latitude;
@@ -99,7 +99,7 @@ public class MainPresenter implements MainMvpPresenter {
         @Override
         protected AsyncTaskResult<List<Place>> doInBackground(Void... voids) {
             try {
-                List<Place> result = placeFetcherHelper.fetchPlaces(view, dataDef, latitude, longitude, radius);
+                List<Place> result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
                 return new AsyncTaskResult<>(result);
             } catch (Exception e) {
                 e.printStackTrace();

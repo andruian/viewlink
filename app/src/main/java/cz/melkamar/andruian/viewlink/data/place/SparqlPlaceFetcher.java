@@ -2,7 +2,12 @@ package cz.melkamar.andruian.viewlink.data.place;
 
 import android.util.Log;
 
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.ICsvListReader;
+import org.supercsv.prefs.CsvPreference;
+
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +17,11 @@ import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
 import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
-import cz.melkamar.andruian.viewlink.model.Place;
 import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
+import cz.melkamar.andruian.viewlink.model.place.Place;
+import cz.melkamar.andruian.viewlink.model.place.Property;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import cz.melkamar.andruian.viewlink.util.KeyVal;
@@ -24,6 +30,38 @@ import cz.melkamar.andruian.viewlink.util.Util;
 public class SparqlPlaceFetcher {
 
     public List<Place> fetchPlaces(BaseView baseView, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException, ReservedNameUsedException, IOException {
+        String placesCsv = getPlacesRawCsv(baseView, dataDef, latitude, longitude, radius);
+        return placesFromCsv(placesCsv, dataDef);
+    }
+
+    private List<Place> placesFromCsv(String csv, DataDef dataDef) throws IOException {
+        List<Place> result = new ArrayList<>();
+
+        ICsvListReader listReader = new CsvListReader(new StringReader(csv), CsvPreference.STANDARD_PREFERENCE);
+        List<String> header = listReader.read();
+
+        while (true) {
+            List<String> line = listReader.read();
+            if (line == null) break;
+
+            Place place = new Place(
+                    line.get(0),
+                    line.get(1),
+                    Double.parseDouble(line.get(2)),
+                    Double.parseDouble(line.get(3)),
+                    line.get(4),
+                    dataDef);
+            for (int i=5; i<line.size(); i++)
+                place.addProperty(new Property(header.get(i), line.get(i)));
+
+            result.add(place);
+        }
+
+        return result;
+    }
+
+
+    private String getPlacesRawCsv(BaseView baseView, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException, ReservedNameUsedException, IOException {
         AppDatabase database = baseView.getViewLinkApplication().getAppDatabase();
         List<ClassToLocPath> classToLocPaths = database.classToLocPathDao().getAllForDataDefUriAndClass(dataDef.getUri(), dataDef.getLocationClassDef().getClassUri());
         List<SelectProperty> selectProperties = database.selectPropertyDao().getAllForDataDefUri(dataDef.getUri());
@@ -52,9 +90,7 @@ public class SparqlPlaceFetcher {
         }
 
         longLog("x", result.getResult());
-
-        //TODO parse csv here
-        return new ArrayList<>();
+        return result.getResult();
     }
 
     /**

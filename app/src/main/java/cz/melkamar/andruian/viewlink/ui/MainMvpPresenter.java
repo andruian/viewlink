@@ -2,7 +2,7 @@ package cz.melkamar.andruian.viewlink.ui;
 
 import java.util.List;
 
-import cz.melkamar.andruian.viewlink.model.Place;
+import cz.melkamar.andruian.viewlink.model.place.Place;
 
 /**
  * Created by Martin on 11.03.2018.

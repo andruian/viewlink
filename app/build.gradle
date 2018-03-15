@@ -84,4 +84,5 @@ dependencies {
     androidTestImplementation "android.arch.persistence.room:testing:1.0.0"
 
     implementation 'com.android.support:cardview-v7:26.1.0'
+    implementation 'net.sf.supercsv:super-csv:2.4.0'
 }
