@@ -1,5 +1,7 @@
 package cz.melkamar.andruian.viewlink.ui;
 
+import android.location.Location;
+
 import com.google.android.gms.maps.GoogleMap;
 
 /**
@@ -11,11 +13,12 @@ public interface MainMvpPresenter {
     void onResume();
     void onDestroy();
     void onFabClicked();
-    void refreshDatadefsShown();
+    void refreshDatadefsShownInDrawer();
 
     /**
      * Called when a DataDef switch in the navigation drawer is clicked.
      */
     void dataDefSwitchClicked(int itemId, boolean enabled);
     void onMapCameraMoved(GoogleMap googleMap, int reason);
+    void onLocationChanged(Location newLocation);
 }

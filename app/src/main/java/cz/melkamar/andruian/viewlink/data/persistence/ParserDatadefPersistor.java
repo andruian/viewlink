@@ -108,6 +108,6 @@ public class ParserDatadefPersistor {
         }
         Log.v("transDataDefToLocal", "Finished indexServer: " + indexServer);
 
-        return new DataDef(parserDataDef.getUri(), locationClassDef, sourceClassDef, indexServer, random.nextFloat()*360);
+        return new DataDef(parserDataDef.getUri(), locationClassDef, sourceClassDef, indexServer, random.nextFloat()*360, true);
     }
 }

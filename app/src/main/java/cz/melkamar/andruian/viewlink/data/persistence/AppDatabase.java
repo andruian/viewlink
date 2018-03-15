@@ -12,7 +12,7 @@ import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
         DataDef.class,
         SelectProperty.class,
         ClassToLocPath.class
-}, version = 8
+}, version = 9
 )
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {

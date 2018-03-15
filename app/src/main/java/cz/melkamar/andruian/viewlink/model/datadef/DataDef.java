@@ -42,6 +42,7 @@ public class DataDef {
     @Embedded
     private final IndexServer indexServer;
     private final float markerColor;
+    private boolean enabled;
 
     // Labels will be referenced FK
     //private final Map<String, String> labels;
@@ -49,12 +50,13 @@ public class DataDef {
     public DataDef(String uri,
                    LocationClassDef locationClassDef,
                    SourceClassDef sourceClassDef,
-                   IndexServer indexServer, float markerColor) {
+                   IndexServer indexServer, float markerColor, boolean enabled) {
         this.uri = uri;
         this.locationClassDef = locationClassDef;
         this.sourceClassDef = sourceClassDef;
         this.indexServer = indexServer;
         this.markerColor = markerColor;
+        this.enabled = enabled;
     }
 
 
@@ -76,6 +78,14 @@ public class DataDef {
 
     public float getMarkerColor() {
         return markerColor;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override

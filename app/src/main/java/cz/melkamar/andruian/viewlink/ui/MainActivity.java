@@ -88,7 +88,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-//        presenter.refreshDatadefsShown();
+        presenter.refreshDatadefsShownInDrawer();
     }
 
     public void centerCamera() {
@@ -146,10 +146,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             menuItem.setActionView(menuItemView);
             menuItem.setCheckable(true);
 
-            ((Switch) menuItemView.findViewById(R.id.nav_switch))
-                    .setOnCheckedChangeListener((compoundButton, b) -> {
+            Switch switchButton = menuItemView.findViewById(R.id.nav_switch);
+            switchButton.setOnCheckedChangeListener((compoundButton, b) -> {
                         presenter.dataDefSwitchClicked((int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
                     });
+            switchButton.setChecked(dataDef.isEnabled());
 
             i++;
         }
@@ -213,23 +214,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         Log.d("onMapReady", "Permissions ok");
-//        googleMap.setMyLocationEnabled(true); // Permissions are always granted here
-//        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
-//
-//        setKeepMapCentered(true);
-//        googleMap.setOnCameraMoveStartedListener(reason -> {
-//            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-//                Log.d("cameraMovedListener", "stopping centering camera");
-//                setKeepMapCentered(false);
-//            }
-//
-//            presenter.onMapCameraMoved(map, reason);
-//        });
+        googleMap.setMyLocationEnabled(true); // Permissions are always granted here
+        googleMap.moveCamera(CameraUpdateFactory.zoomTo(15));
 
-        map.setOnCameraMoveStartedListener(i -> Log.i("cameraMoveStarted", ""));
-//        map.setOnCameraMoveListener(() -> Log.i("cameraMove", ""));
-//        map.setOnCameraMoveCanceledListener(() -> Log.i("cameraMoveCancel", ""));
-//        map.setOnMapClickListener(latLng -> Log.i("mapClick", latLng.toString()));
+        setKeepMapCentered(true);
+        googleMap.setOnCameraMoveStartedListener(reason -> {
+            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                Log.d("cameraMovedListener", "stopping centering camera");
+                setKeepMapCentered(false);
+            }
+
+            presenter.onMapCameraMoved(map, reason);
+        });
     }
     /*
      ***********************************************************************************************
@@ -361,6 +357,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (location != null) {
             if (keepMapCentered) centerMapOnNextLocation = true;
             if (centerMapOnNextLocation) centerCamera();
+            presenter.onLocationChanged(location);
             Log.v("onLocationChanged", location.getLatitude() + " " + location.getLongitude());
         }
     }

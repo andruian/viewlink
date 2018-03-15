@@ -63,7 +63,7 @@ public class DataDefAdapter extends RecyclerView.Adapter<DataDefAdapter.DataDefV
     }
 
     public void deleteItem(int position) {
-//        presenter.refreshDatadefsShown();
+//        presenter.refreshDatadefsShownInDrawer();
         dataDefs.remove(position);
         notifyItemRemoved(position);
     }

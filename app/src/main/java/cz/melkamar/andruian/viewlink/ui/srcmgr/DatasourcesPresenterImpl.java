@@ -25,7 +25,7 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
     @Override
     public void refreshDatadefsShown() {
         // TODO this should get all datadefs from database
-        Log.i("refreshDatadefsShown", "Loading new datadefs from the database.");
+        Log.i("refreshDatadefsShownInDrawer", "Loading new datadefs from the database.");
 //        view.showMessage("Loading new datadefs from the database.");
         new ReadDatadefsTask(view).execute();
     }

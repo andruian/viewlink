@@ -1,5 +1,6 @@
 package cz.melkamar.andruian.viewlink.ui;
 
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,7 +22,10 @@ import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 public class MainPresenter implements MainMvpPresenter {
     private MainMvpView view;
-    private List<DataDef> dataDefsShown = null; // To keep track of what is shown, so we can enable/disable it
+    private List<DataDef> dataDefsShownInDrawer = null; // To keep track of what is shown, so we can enable/disable it
+    private Location lastLocation = null;
+
+    public final int MIN_DIST_DATA_REFRESH = 50; // Minimal distance in meters to trigger data refresh
 
     public MainPresenter(MainMvpView view) {
         this.view = view;
@@ -51,37 +55,69 @@ public class MainPresenter implements MainMvpPresenter {
     }
 
     @Override
-    public void refreshDatadefsShown() {
+    public void refreshDatadefsShownInDrawer() {
         DaoHelper.readAllDatadefs(view.getViewLinkApplication().getAppDatabase(), result -> {
             if (result.hasError()) {
-                Log.w("refreshDatadefsShown", "An error occurred", result.getError());
+                Log.w("refDatadefsShownDrawer", "An error occurred", result.getError());
             } else {
-                this.dataDefsShown = result.getResult();
+                this.dataDefsShownInDrawer = result.getResult();
                 view.showDataDefsInDrawer(result.getResult());
             }
         });
     }
 
+    private double radius = 100;
+
     @Override
     public void dataDefSwitchClicked(int itemId, boolean enabled) {
-        Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShown.get(itemId));
+        Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShownInDrawer.get(itemId));
+        dataDefsShownInDrawer.get(itemId).setEnabled(enabled);
+
         // TODO get all places around location
         if (enabled) {
             // TODO add progressbar to the main activity while loading markers
-            PlaceFetcher placeFetcher = new PlaceFetcher(
-                    new IndexServerPlaceFetcher(),
-                    new SparqlPlaceFetcher()
-            );
-
-            new FetchPlacesAT(placeFetcher, view, dataDefsShown.get(itemId), 14, 50, 100).execute();
+            if (lastLocation != null) {
+                fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
+                        lastLocation.getLatitude(), lastLocation.getLongitude(),
+                        radius); // TODO what radius?
+            }
         } else {
-            view.clearMapMarkers(dataDefsShown.get(itemId));
+            view.clearMapMarkers(dataDefsShownInDrawer.get(itemId));
         }
+    }
+
+    private void fetchNewPlaces(MainMvpView view, DataDef dataDef, double latitude, double longitude, double radius) {
+        PlaceFetcher placeFetcher = new PlaceFetcher(
+                new IndexServerPlaceFetcher(),
+                new SparqlPlaceFetcher()
+        );
+        new FetchPlacesAT(placeFetcher, view, dataDef, latitude, longitude, radius).execute();
     }
 
     @Override
     public void onMapCameraMoved(GoogleMap map, int reason) {
 //        map.getCameraPosition().zoom
+    }
+
+    @Override
+    public void onLocationChanged(Location newLocation) {
+        float metersDelta = 0;
+        if (lastLocation != null)
+            metersDelta = newLocation.distanceTo(lastLocation);
+
+        if (lastLocation == null || metersDelta > MIN_DIST_DATA_REFRESH) {
+            if (dataDefsShownInDrawer != null) {
+                for (DataDef dataDef : dataDefsShownInDrawer) {
+                    if (dataDef.isEnabled()) {
+                        Log.i("onLocationChanged", "Refreshing data shown for datadef " + dataDef.getUri());
+                        fetchNewPlaces(view, dataDef, newLocation.getLatitude(),
+                                newLocation.getLongitude(), radius);
+                    }
+                }
+            }
+
+            lastLocation = newLocation;
+        }
     }
 
     private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<List<Place>>> {
@@ -115,7 +151,9 @@ public class MainPresenter implements MainMvpPresenter {
         @Override
         protected void onPostExecute(AsyncTaskResult<List<Place>> result) {
             if (result.hasError()) {
-                view.showMessage("An error occurred when fetching places: " + result.getError().getMessage());
+                if (view != null)
+                    view.showMessage("An error occurred when fetching places: " + result.getError().getMessage());
+
                 Log.w("FetchPlacesAT", "onPostExecute", result.getError());
                 return;
             }

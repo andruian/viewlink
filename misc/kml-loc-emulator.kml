@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.x">
+<Placemark>
+    <name>1</name>
+        <Point><coordinates>13.377081,49.746537,0</coordinates></Point>
+        <Point><coordinates>13.376590,49.746537,0</coordinates></Point>
+        <Point><coordinates>13.376100,49.746537,0</coordinates></Point>
+        <Point><coordinates>13.375610,49.746537,0</coordinates></Point>
+        <Point><coordinates>13.375120,49.746578,0</coordinates></Point>
+        <Point><coordinates>13.373465,49.746795,0</coordinates></Point>
+        <Point><coordinates>13.371621,49.747704,0</coordinates></Point>
+        <Point><coordinates>13.378888,49.748881,0</coordinates></Point>
+
+</Placemark>
+</kml>
