@@ -1,5 +1,6 @@
 package cz.melkamar.andruian.viewlink.data.persistence;
 
+import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 
 import java.util.List;
@@ -80,7 +81,7 @@ public class DaoHelper {
             try {
                 List<DataDef> result = database.dataDefDao().getAll();
                 return new AsyncTaskResult<>(result);
-            } catch (Exception e) {
+            } catch (SQLiteException e) {
                 return new AsyncTaskResult<>(e);
             }
         }

@@ -4,6 +4,8 @@ package cz.melkamar.andruian.viewlink.data.persistence;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
+import java.util.Random;
+
 import cz.melkamar.andruian.viewlink.exception.PersistenceException;
 import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
@@ -70,6 +72,8 @@ public class ParserDatadefPersistor {
         return result;
     }
 
+    private static Random random = new Random();
+
     /**
      * Construct a DataDef object from the given DataDef returned by a parser.
      * <p>
@@ -104,6 +108,6 @@ public class ParserDatadefPersistor {
         }
         Log.v("transDataDefToLocal", "Finished indexServer: " + indexServer);
 
-        return new DataDef(parserDataDef.getUri(), locationClassDef, sourceClassDef, indexServer);
+        return new DataDef(parserDataDef.getUri(), locationClassDef, sourceClassDef, indexServer, random.nextFloat()*360);
     }
 }

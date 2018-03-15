@@ -41,6 +41,7 @@ public class DataDef {
     private final SourceClassDef sourceClassDef;
     @Embedded
     private final IndexServer indexServer;
+    private final float markerColor;
 
     // Labels will be referenced FK
     //private final Map<String, String> labels;
@@ -48,11 +49,12 @@ public class DataDef {
     public DataDef(String uri,
                    LocationClassDef locationClassDef,
                    SourceClassDef sourceClassDef,
-                   IndexServer indexServer) {
+                   IndexServer indexServer, float markerColor) {
         this.uri = uri;
         this.locationClassDef = locationClassDef;
         this.sourceClassDef = sourceClassDef;
         this.indexServer = indexServer;
+        this.markerColor = markerColor;
     }
 
 
@@ -70,6 +72,10 @@ public class DataDef {
 
     public IndexServer getIndexServer() {
         return indexServer;
+    }
+
+    public float getMarkerColor() {
+        return markerColor;
     }
 
     @Override

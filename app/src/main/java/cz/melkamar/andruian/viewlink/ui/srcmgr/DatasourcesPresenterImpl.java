@@ -73,7 +73,7 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
             }
         }
     }
-
+    // TODO allow color picking for datadefs
     static class ReadDatadefsTask extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
         final WeakReference<DatasourcesView> view;
 

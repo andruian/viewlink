@@ -25,9 +25,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindDrawable;
 import butterknife.BindView;
@@ -35,6 +41,7 @@ import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
@@ -148,6 +155,54 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             i++;
         }
     }
+
+    /*
+     ***********************************************************************************************
+     * MAP and markers related functionality
+     */
+    Map<DataDef, List<Marker>> markers = new HashMap<>();
+
+    @Override
+    public void clearMapMarkers() {
+        // TODO
+    }
+
+    @Override
+    public void clearMapMarkers(DataDef dataDef) {
+        Log.d("clearMapMarkers", "Removing markers "+dataDef.getUri());
+        List<Marker> markersOfDatadef = markers.get(dataDef);
+        if (markersOfDatadef == null) return;
+
+        for (Marker marker : markersOfDatadef) {
+            marker.remove();
+        }
+    }
+
+    @Override
+    public void addMapMarkers(List<Place> places) {
+        if (map == null) {
+            Log.e("addMapMarkers", "map is null!");
+            return;
+        }
+        Log.d("addMapMarkers", "Adding "+places.size()+" markers");
+        for (Place place : places) {
+            Marker marker = map.addMarker(new MarkerOptions()
+                    .position(new LatLng(place.getLatitude(), place.getLongitude()))
+                    .title(place.getUri())
+                    .icon(BitmapDescriptorFactory.defaultMarker(place.getParentDatadef().getMarkerColor()))
+            );
+            marker.setTag(place);
+            List<Marker> markersOfDatadef = markers.get(place.getParentDatadef());
+            if (markersOfDatadef == null) {
+                markersOfDatadef = new ArrayList<>();
+                markers.put(place.getParentDatadef(), markersOfDatadef);
+            }
+            markersOfDatadef.add(marker);
+        }
+    }
+    /*
+     ***********************************************************************************************
+     */
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

@@ -65,13 +65,17 @@ public class MainPresenter implements MainMvpPresenter {
     public void dataDefSwitchClicked(int itemId, boolean enabled) {
         Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShown.get(itemId));
         // TODO get all places around location
+        if (enabled) {
+            // TODO add progressbar to the main activity while loading markers
+            PlaceFetcher placeFetcher = new PlaceFetcher(
+                    new IndexServerPlaceFetcher(),
+                    new SparqlPlaceFetcher()
+            );
 
-        PlaceFetcher placeFetcher = new PlaceFetcher(
-                new IndexServerPlaceFetcher(),
-                new SparqlPlaceFetcher()
-        );
-
-        new FetchPlacesAT(placeFetcher, view, dataDefsShown.get(itemId), 14, 50, 100).execute();
+            new FetchPlacesAT(placeFetcher, view, dataDefsShown.get(itemId), 14, 50, 100).execute();
+        } else {
+            view.clearMapMarkers(dataDefsShown.get(itemId));
+        }
     }
 
     @Override
@@ -115,11 +119,12 @@ public class MainPresenter implements MainMvpPresenter {
                 return;
             }
 
-            Log.i("from datadef", dataDef.getUri());
+            Log.v("from datadef", dataDef.getUri());
             for (Place place : result.getResult()) {
-                Log.i("    result    ", place.toString());
+                Log.v("    result    ", place.toString());
             }
 
+            view.addMapMarkers(result.getResult());
         }
     }
 
