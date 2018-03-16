@@ -61,7 +61,6 @@ public class DataManagerImpl implements DataManager {
 
         try {
             if (response == null) throw new IOException("Response body is empty");
-            response = fakeBody(); // TODO remove this fake content
 
             Log.v("finishGetDataDefs body", response);
             List<DataDef> dataDefList = new DataDefParser().parse(response, RDFFormat.TURTLE);
@@ -81,64 +80,4 @@ public class DataManagerImpl implements DataManager {
         }
     }
 
-    String fakeBody() {
-        return "@prefix andr: <http://purl.org/net/andruian/datadef#> .\n" +
-                "@prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .\n" +
-                "@prefix sp: <http://spinrdf.org/sp#> .\n" +
-                "@prefix s: <http://schema.org/> .\n" +
-                "@prefix ex: <http://example.org/> .\n" +
-                "@prefix : <http://foo/> .\n" +
-                "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n" +
-                "\n" +
-                ":dataDef\n" +
-                "    a                 andr:DataDef;\n" +
-                "    andr:locationClassDef  :locationDef;\n" +
-                "    andr:sourceClassDef :sourceClassDef;\n" +
-                "    andr:indexServer  :indexServer;\n" +
-                "    skos:prefLabel \"Example data definition\";\n" +
-                "    .\n" +
-                "\n" +
-                "#\n" +
-                "# INDEX SERVER\n" +
-                "#\n" +
-                ":indexServer\n" +
-                "    a        andr:IndexServer;\n" +
-                "    andr:uri \"http://10.0.2.2:8080\";\n" +
-                "    andr:version 1;\n" +
-                "    .\n" +
-                "\n" +
-                "#\n" +
-                "# DATA DEFINITION\n" +
-                "#\n" +
-                ":sourceClassDef\n" +
-                "    a                        andr:SourceClassDef;\n" +
-                "#    andr:sparqlEndpoint      <http://localhost:3030/foo/query>;\n" +
-                "    andr:sparqlEndpoint      \"http://10.0.2.2:3030/ruian/query\";\n" +
-                "    andr:class               ex:MyObject;\n" +
-                "    andr:pathToLocationClass ( ex:someLink ex:linksTo );\n" +
-                "    andr:selectProperty [ a andr:SelectProperty;\n" +
-                "                          s:name \"labelForIdProperty\";\n" +
-                "                          andr:propertyPath ex:id\n" +
-                "                        ];\n" +
-                "    .\n" +
-                "\n" +
-                "\n" +
-                "#\n" +
-                "# LOCATION DEFINITON\n" +
-                "#\n" +
-                ":locationDef\n" +
-                "    a                   andr:LocationDef;\n" +
-                "    andr:sparqlEndpoint \"http://ruian.linked.opendata.cz/sparql\";\n" +
-                "    andr:class          ruian:AdresniMisto;\n" +
-                "    andr:classToLocPath :adresniMistoClassToLocPath;\n" +
-                "    .\n" +
-                "\n" +
-                "# Description of how to get from object ruian:AdresniMisto to its lat/long coordinates\n" +
-                ":adresniMistoClassToLocPath\n" +
-                "    a          andr:ClassToLocPath;\n" +
-                "    andr:class ruian:AdresniMisto;\n" +
-                "    andr:lat   ( ruian:adresniBod s:geo s:latitude );\n" +
-                "    andr:long  ( ruian:adresniBod s:geo s:longitude );\n" +
-                "    .\n";
-    }
 }
