@@ -101,17 +101,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mapFragment.getMapAsync(this);
 
         presenter.refreshDatadefsShownInDrawer();
-
-        Intent intent = new Intent(this, PlaceDetailActivity.class);
-        intent.putExtra(PlaceDetailActivity.TAG_DATA_PLACE,
-                new Place("http://an.uri",
-                        "http://locObjectUri",
-                        42,
-                        13,
-                        "http://classTypeUri",
-                        new DataDef("datadefuri", null, null, null, 0, false)
-                ));
-        startActivity(intent);
     }
 
     @Override
@@ -305,6 +294,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
 
             presenter.onMapCameraMoved(map, reason);
+        });
+
+        googleMap.setOnInfoWindowClickListener(marker -> {
+            Intent i = new Intent(this, PlaceDetailActivity.class);
+            i.putExtra(PlaceDetailActivity.TAG_DATA_PLACE, (Place)marker.getTag());
+            startActivity(i);
         });
     }
     /*

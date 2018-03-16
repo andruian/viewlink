@@ -24,7 +24,9 @@
 
 package cz.melkamar.andruian.viewlink.model.datadef;
 
-public class PropertyPath {
+import java.io.Serializable;
+
+public class PropertyPath implements Serializable {
     private final String[] pathElements;
 
     public PropertyPath(String... pathElements) {
