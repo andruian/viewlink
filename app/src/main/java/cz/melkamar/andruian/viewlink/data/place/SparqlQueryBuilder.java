@@ -15,18 +15,18 @@ import cz.melkamar.andruian.viewlink.model.datadef.PropertyPath;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.util.MapFormat;
 
-public class IndexSparqlQueryBuilder {
+public class SparqlQueryBuilder {
     // TODO rename thsi class
     public static final Set<String> RESERVED_VAR_NAMES = new HashSet<>(Arrays.asList("dataObj",
             "locationObj",
             "lat",
             "long"));
 
-    public IndexSparqlQueryBuilder(String queryTemplate, String dataClassUri,
-                                   PropertyPath dataToLocationClassPropPath,
-                                   String locationSparqlEndpoint,
-                                   PropertyPath locClassToLatPropPath,
-                                   PropertyPath locClassToLongPropPath) {
+    public SparqlQueryBuilder(String queryTemplate, String dataClassUri,
+                              PropertyPath dataToLocationClassPropPath,
+                              String locationSparqlEndpoint,
+                              PropertyPath locClassToLatPropPath,
+                              PropertyPath locClassToLongPropPath) {
         this.queryTemplate = queryTemplate;
         this.dataClassUri = dataClassUri;
         this.dataToLocationClassPropPath = dataToLocationClassPropPath;
@@ -63,7 +63,7 @@ public class IndexSparqlQueryBuilder {
     }
 
     public String build() throws ReservedNameUsedException {
-        Log.d("IndexSparqlQueryBuilder", "Building an index SPARQL query from template");
+        Log.d("SparqlQueryBuilder", "Building an index SPARQL query from template");
         Log.v("SparqlQuery", queryTemplate);
 
 

@@ -75,7 +75,7 @@ public class SparqlPlaceFetcher {
         try {
             queryTemplate = Util.readRawTextFile(baseView.getActivity(), R.raw.placequery);
         } catch (IOException e) {
-            Log.e("IndexSparqlQueryBuilder", "Could not find queryTemplate query.", e);
+            Log.e("SparqlQueryBuilder", "Could not find queryTemplate query.", e);
             throw new IOException("Could not read query template from resources", e);
         }
         String query = getSparqlQuery(queryTemplate, dataDef, classToLocPaths.get(0), selectProperties, latitude, longitude, radius);
@@ -110,7 +110,7 @@ public class SparqlPlaceFetcher {
                                   List<SelectProperty> selectProperties,
                                   double latitude, double longitude, double radius)
             throws ReservedNameUsedException {
-        IndexSparqlQueryBuilder builder = new IndexSparqlQueryBuilder(
+        SparqlQueryBuilder builder = new SparqlQueryBuilder(
                 queryTemplate,
                 dataDef.getSourceClassDef().getClassUri(),
                 dataDef.getSourceClassDef().getPathToLocationClass(),
