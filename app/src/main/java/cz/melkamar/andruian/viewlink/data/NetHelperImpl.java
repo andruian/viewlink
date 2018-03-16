@@ -5,9 +5,11 @@ import android.util.Log;
 
 import java.util.Arrays;
 
+import cz.melkamar.andruian.viewlink.exception.HttpException;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import cz.melkamar.andruian.viewlink.util.KeyVal;
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -21,12 +23,47 @@ public class NetHelperImpl implements NetHelper {
     OkHttpClient client = new OkHttpClient();
 
     @Override
+    public AsyncTaskResult<String> httpGet(String url, KeyVal[] params, KeyVal... headers) {
+        try {
+            Log.v("httpGet", "url:" + url + " | params: " + Arrays.toString(params) + " | keyVals: " + Arrays.toString(headers));
+
+            HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+            for (KeyVal param : params) {
+                urlBuilder.addQueryParameter(param.name, param.value);
+            }
+
+            Request.Builder builder = new Request.Builder().url(urlBuilder.build());
+            if (headers != null) {
+                for (KeyVal keyVal : headers) {
+                    builder.addHeader(keyVal.name, keyVal.value);
+                }
+            }
+
+            Request request = builder.get().build();
+            Response response = client.newCall(request).execute();
+            String body = null;
+            if (response.body() != null) {
+                body = response.body().string();
+            }
+            if (response.code() >= 400) {
+                throw new HttpException("HTTP " + response.code() + ": " + body);
+            }
+
+            return new AsyncTaskResult<>(body);
+        } catch (Exception e) {
+            Log.w("httpGet", e.getMessage(), e);
+            return new AsyncTaskResult<>(e);
+        }
+    }
+
+    @Override
     public void getHttpFileAsync(String url, HttpRequestCallback callback) {
         new HttpGetATask(callback).execute(url);
     }
 
     /**
      * Synchronous HTTP POST request. This cannot be called on the UI thread.
+     *
      * @param url
      * @param data
      * @param headers
@@ -35,7 +72,7 @@ public class NetHelperImpl implements NetHelper {
     @Override
     public AsyncTaskResult<String> httpPost(String url, KeyVal[] data, KeyVal... headers) {
         try {
-            Log.v("httpPost", "url:"+url+" | data: "+data+" | keyVals: "+ Arrays.toString(headers));
+            Log.v("httpPost", "url:" + url + " | data: " + data + " | keyVals: " + Arrays.toString(headers));
 
             Request.Builder builder = new Request.Builder().url(url);
             if (headers != null) {
@@ -52,14 +89,16 @@ public class NetHelperImpl implements NetHelper {
 
             Request request = builder.post(body).build();
             Response response = client.newCall(request).execute();
-            try {
-                Thread.sleep(1000); // TODO remove this artificial wait
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            String bodyStr = null;
+            if (response.body() != null) {
+                bodyStr = response.body().string();
             }
-            return new AsyncTaskResult<>(response.body().string());
+            if (response.code() >= 400) {
+                throw new HttpException("HTTP " + response.code() + ": " + bodyStr);
+            }
+            return new AsyncTaskResult<>(bodyStr);
         } catch (Exception e) {
-            Log.w("HttpGetATask", e.getMessage(), e);
+            Log.w("httpPost", e.getMessage(), e);
             return new AsyncTaskResult<>(e);
         }
     }
@@ -114,7 +153,7 @@ public class NetHelperImpl implements NetHelper {
                 String url = (String) strings[0];
                 String data = (String) strings[1];
                 KeyVal[] keyVals = (KeyVal[]) strings[2];
-                Log.v("HttpPostATask", "url:"+url+" | data: "+data+" | keyVals: "+ Arrays.toString(keyVals));
+                Log.v("HttpPostATask", "url:" + url + " | data: " + data + " | keyVals: " + Arrays.toString(keyVals));
 
                 Request.Builder builder = new Request.Builder().url(url);
                 if (keyVals != null) {
@@ -130,11 +169,6 @@ public class NetHelperImpl implements NetHelper {
                 Request request = builder.post(body).build();
 
                 Response response = client.newCall(request).execute();
-                try {
-                    Thread.sleep(1000); // TODO remove this artificial wait
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 return new AsyncTaskResult<>(response.body().string());
             } catch (Exception e) {
                 Log.w("HttpGetATask", e.getMessage(), e);

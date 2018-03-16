@@ -8,4 +8,12 @@ public class KeyVal {
         this.name = name;
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "KeyVal{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

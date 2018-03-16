@@ -34,7 +34,9 @@ buildscript {
 }
 
 repositories {
-    mavenLocal()
+    maven {
+        url  "https://dl.bintray.com/andruian/releases"
+    }
     google()
     jcenter()
 }
@@ -77,7 +79,7 @@ dependencies {
 //     https://mvnrepository.com/artifact/xerces/xercesImpl
     implementation group: 'xerces', name: 'xercesImpl', version: '2.11.0'
 
-    implementation('cz.melkamar.andruian:ddfparser:1.0.2') { changing = true }
+    implementation('cz.melkamar.andruian:ddfparser:1.0.3') { changing = true }
 
     implementation "android.arch.persistence.room:runtime:1.0.0"
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"

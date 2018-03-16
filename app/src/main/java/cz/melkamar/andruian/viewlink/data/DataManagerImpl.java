@@ -26,6 +26,11 @@ public class DataManagerImpl implements DataManager {
     }
 
     @Override
+    public AsyncTaskResult<String> httpGet(String url, KeyVal[] data, KeyVal... headers) {
+        return netHelper.httpGet(url, data, headers);
+    }
+
+    @Override
     public void getHttpFileAsync(String url, HttpRequestCallback callback) {
         netHelper.getHttpFileAsync(url, callback);
     }
@@ -98,7 +103,7 @@ public class DataManagerImpl implements DataManager {
                 "#\n" +
                 ":indexServer\n" +
                 "    a        andr:IndexServer;\n" +
-                "    andr:uri <http://localhost:8080>;\n" +
+                "    andr:uri \"http://10.0.2.2:8080\";\n" +
                 "    andr:version 1;\n" +
                 "    .\n" +
                 "\n" +

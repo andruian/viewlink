@@ -1,6 +1,7 @@
 package cz.melkamar.andruian.viewlink.util;
 
 import android.content.Context;
+import android.location.Location;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,5 +22,11 @@ public class Util {
             text.append('\n');
         }
         return text.toString();
+    }
+
+    public static float convertRadiusToKilometers(double lat, double lng, double radius) {
+        float[] result = new float[1];
+        Location.distanceBetween(lat, lng, lat + radius, lng, result);
+        return result[0] / 1000;
     }
 }

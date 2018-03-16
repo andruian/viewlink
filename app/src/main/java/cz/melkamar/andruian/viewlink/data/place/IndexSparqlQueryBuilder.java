@@ -16,6 +16,7 @@ import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.util.MapFormat;
 
 public class IndexSparqlQueryBuilder {
+    // TODO rename thsi class
     public static final Set<String> RESERVED_VAR_NAMES = new HashSet<>(Arrays.asList("dataObj",
             "locationObj",
             "lat",
