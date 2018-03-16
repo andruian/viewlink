@@ -1,6 +1,8 @@
 package cz.melkamar.andruian.viewlink.model.place;
 
-public class Property {
+import java.io.Serializable;
+
+public class Property implements Serializable{
     private final String name;
     private final String value;
 

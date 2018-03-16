@@ -1,4 +1,4 @@
-package cz.melkamar.andruian.viewlink.ui;
+package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.location.Location;
 import android.os.AsyncTask;
@@ -125,7 +125,7 @@ public class MainPresenter implements MainMvpPresenter {
 
         // TODo maybe do not refresh on location changed but camera changed?
         // Automatically refresh data around user only if camera is following him - otherwise they can click the button when needed
-        if (view!= null && view.isCameraFollowing()) {
+        if (view != null && view.isCameraFollowing()) {
             if (lastLocation == null || metersDelta > MIN_DIST_DATA_REFRESH) {
                 refreshMarkers(newLocation.getLatitude(), newLocation.getLongitude());
                 lastLocation = newLocation;

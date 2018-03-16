@@ -26,7 +26,9 @@ package cz.melkamar.andruian.viewlink.model.datadef;
 
 import android.arch.persistence.room.ColumnInfo;
 
-public class LocationClassDef {
+import java.io.Serializable;
+
+public class LocationClassDef  implements Serializable{
     @ColumnInfo(name = "locdef_sparqlendpoint")
     protected final String sparqlEndpoint;
     @ColumnInfo(name = "locdef_classuri")

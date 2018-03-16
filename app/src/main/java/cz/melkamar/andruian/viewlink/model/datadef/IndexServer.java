@@ -27,8 +27,10 @@ package cz.melkamar.andruian.viewlink.model.datadef;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 
+import java.io.Serializable;
+
 @Entity
-public class IndexServer {
+public class IndexServer implements Serializable{
     @ColumnInfo(name = "idxuri")
     private final String uri;
     @ColumnInfo(name = "idxver")

@@ -1,4 +1,4 @@
-package cz.melkamar.andruian.viewlink.ui;
+package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -46,6 +46,7 @@ import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
+import cz.melkamar.andruian.viewlink.ui.placedetail.PlaceDetailActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
@@ -100,13 +101,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mapFragment.getMapAsync(this);
 
         presenter.refreshDatadefsShownInDrawer();
+
+        Intent intent = new Intent(this, PlaceDetailActivity.class);
+        intent.putExtra(PlaceDetailActivity.TAG_DATA_PLACE,
+                new Place("http://an.uri",
+                        "http://locObjectUri",
+                        42,
+                        13,
+                        "http://classTypeUri",
+                        new DataDef("datadefuri", null, null, null, 0, false)
+                ));
+        startActivity(intent);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.v("MainActivity", "onRestoreInstanceState");
         preferredCameraPosition = savedInstanceState.getParcelable(TAG_MAP_POSITION);
-        Log.v("onRestoreInstanceState", "preferredCameraPosition: "+preferredCameraPosition);
+        Log.v("onRestoreInstanceState", "preferredCameraPosition: " + preferredCameraPosition);
         if (map != null) {
             map.animateCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition));
         }
@@ -219,7 +231,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         for (Place place : places) {
             Marker marker = map.addMarker(new MarkerOptions()
                     .position(new LatLng(place.getLatitude(), place.getLongitude()))
-                    .title(place.getUri())
+                    .title(place.getDisplayName())
                     .icon(BitmapDescriptorFactory.defaultMarker(place.getParentDatadef().getMarkerColor()))
             );
             marker.setTag(place);

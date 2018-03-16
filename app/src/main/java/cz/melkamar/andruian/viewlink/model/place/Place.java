@@ -1,11 +1,12 @@
 package cz.melkamar.andruian.viewlink.model.place;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
-public class Place {
+public class Place implements Serializable {
     private final String uri;
     private final String locationObjectUri;
     private final double latitude;
@@ -54,6 +55,14 @@ public class Place {
 
     public DataDef getParentDatadef() {
         return parentDatadef;
+    }
+
+    /**
+     * Provide a best possible name for this object to display.
+     */
+    public String getDisplayName(){
+        // TODO preflabel
+        return uri;
     }
 
     @Override

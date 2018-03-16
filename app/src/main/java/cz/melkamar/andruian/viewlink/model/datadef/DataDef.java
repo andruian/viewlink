@@ -29,8 +29,10 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import java.io.Serializable;
+
 @Entity
-public class DataDef {
+public class DataDef implements Serializable {
     @PrimaryKey
     @NonNull
     private final String uri;

@@ -27,7 +27,9 @@ package cz.melkamar.andruian.viewlink.model.datadef;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 
-public class SourceClassDef{
+import java.io.Serializable;
+
+public class SourceClassDef implements Serializable {
 
     @ColumnInfo(name = "sourcedef_sparqlendpoint")
     protected final String sparqlEndpoint;

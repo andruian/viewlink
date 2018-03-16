@@ -7,11 +7,13 @@ import android.support.test.espresso.contrib.NavigationViewActions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
-import cz.melkamar.andruian.viewlink.ui.MainActivity;
-import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import cz.melkamar.andruian.viewlink.ui.main.MainActivity;
+import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;

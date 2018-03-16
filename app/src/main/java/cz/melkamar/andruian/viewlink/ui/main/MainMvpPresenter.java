@@ -1,4 +1,4 @@
-package cz.melkamar.andruian.viewlink.ui;
+package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.location.Location;
 
