@@ -21,6 +21,7 @@ import cz.melkamar.andruian.viewlink.util.Util;
 
 public class IndexServerPlaceFetcher {
     public List<Place> fetchPlaces(DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException {
+        Log.v("IndexServerPlaceFetcher", "fetchPlaces ["+latitude+","+longitude+"("+radius+") for "+dataDef);
         if (dataDef.getIndexServer() == null) {
             throw new PlaceFetchException("No index server defined");
         }

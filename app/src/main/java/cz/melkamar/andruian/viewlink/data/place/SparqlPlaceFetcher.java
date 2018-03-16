@@ -30,6 +30,7 @@ import cz.melkamar.andruian.viewlink.util.Util;
 public class SparqlPlaceFetcher {
 
     public List<Place> fetchPlaces(BaseView baseView, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException, ReservedNameUsedException, IOException {
+        Log.v("SparqlPlaceFetcher", "fetchPlaces ["+latitude+","+longitude+"("+radius+") for "+dataDef);
         String placesCsv = getPlacesRawCsv(baseView, dataDef, latitude, longitude, radius);
         return placesFromCsv(placesCsv, dataDef);
     }

@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -51,11 +52,15 @@ import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener, OnMapReadyCallback {
 
+    private final static String TAG_MAP_POSITION = "map_position";
+
     private MainMvpPresenter presenter;
     private LocationHelper locationHelper;
     private GoogleMap map;
+
     private boolean centerMapOnNextLocation = false;
     private boolean keepMapCentered = false;
+    private CameraPosition preferredCameraPosition = null; // If non-null, set map to this position as soon as possible (after it's loaded)
 
     @BindView(R.id.fab) protected FloatingActionButton fab;
     @BindView(R.id.progressbar) protected ProgressBar progressBar;
@@ -67,6 +72,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v("MainActivity", "onCreate | saved bundle: " + savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
@@ -94,6 +100,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mapFragment.getMapAsync(this);
 
         presenter.refreshDatadefsShownInDrawer();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v("MainActivity", "onRestoreInstanceState");
+        preferredCameraPosition = savedInstanceState.getParcelable(TAG_MAP_POSITION);
+        Log.v("onRestoreInstanceState", "preferredCameraPosition: "+preferredCameraPosition);
+        if (map != null) {
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (map != null)
+            outState.putParcelable(TAG_MAP_POSITION, map.getCameraPosition());
+
+        super.onSaveInstanceState(outState);
     }
 
     public void centerCamera() {
@@ -398,7 +422,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            Log.v("onLocationChanged", "["+location.getLatitude() + "," + location.getLongitude()+"] keepCentered: "+keepMapCentered+" | centerOnNextLoc: "+centerMapOnNextLocation);
+            Log.v("onLocationChanged", "[" + location.getLatitude() + "," + location.getLongitude() + "] keepCentered: " + keepMapCentered + " | centerOnNextLoc: " + centerMapOnNextLocation);
             if (keepMapCentered) centerMapOnNextLocation = true;
             if (centerMapOnNextLocation) centerCamera();
             presenter.onLocationChanged(location);

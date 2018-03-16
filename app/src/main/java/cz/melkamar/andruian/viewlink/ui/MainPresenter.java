@@ -57,6 +57,7 @@ public class MainPresenter implements MainMvpPresenter {
 
     @Override
     public void refreshDatadefsShownInDrawer() {
+        Log.v("MainPresenter", "refreshDatadefsShownInDrawer");
         DaoHelper.readAllDatadefs(view.getViewLinkApplication().getAppDatabase(), result -> {
             if (result.hasError()) {
                 Log.w("refDatadefsShownDrawer", "An error occurred", result.getError());
