@@ -22,5 +22,8 @@ public interface MainMvpView extends BaseView {
     void replaceMapMarkers(DataDef dataDef, List<Place> places);
     void showProgressBar();
     void hideProgressBar();
+    void showUpdatePlacesButton();
+    void hideUpdatePlacesButton();
+    boolean isCameraFollowing();
     GoogleMap getMap();
 }

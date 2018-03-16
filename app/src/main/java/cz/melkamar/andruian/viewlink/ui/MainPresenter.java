@@ -67,7 +67,7 @@ public class MainPresenter implements MainMvpPresenter {
         });
     }
 
-    private double getRadiusFromMap(){
+    private double getRadiusFromMap() {
         // Calculate radius to show as the distance from the middle of the map to the border
         //  - whichever direction is longer
         LatLng northeast = view.getMap().getProjection().getVisibleRegion().latLngBounds.northeast;
@@ -108,6 +108,11 @@ public class MainPresenter implements MainMvpPresenter {
 
     @Override
     public void onMapCameraMoved(GoogleMap map, int reason) {
+        if (view != null) {
+            if (!view.isCameraFollowing()) {
+                view.showUpdatePlacesButton();
+            }
+        }
 //        map.getCameraPosition().zoom
     }
 
@@ -117,19 +122,32 @@ public class MainPresenter implements MainMvpPresenter {
         if (lastLocation != null)
             metersDelta = newLocation.distanceTo(lastLocation);
 
-        if (lastLocation == null || metersDelta > MIN_DIST_DATA_REFRESH) {
-            if (dataDefsShownInDrawer != null) {
+        // TODo maybe do not refresh on location changed but camera changed?
+        // Automatically refresh data around user only if camera is following him - otherwise they can click the button when needed
+        if (view!= null && view.isCameraFollowing()) {
+            if (lastLocation == null || metersDelta > MIN_DIST_DATA_REFRESH) {
+                refreshMarkers(newLocation.getLatitude(), newLocation.getLongitude());
+                lastLocation = newLocation;
+            }
+        }
+    }
 
-                for (DataDef dataDef : dataDefsShownInDrawer) {
-                    if (dataDef.isEnabled()) {
-                        Log.i("onLocationChanged", "Refreshing data shown for datadef " + dataDef.getUri());
-                        fetchNewPlaces(view, dataDef, newLocation.getLatitude(),
-                                newLocation.getLongitude(), getRadiusFromMap());
-                    }
+    @Override
+    public void onUpdatePlacesButtonClicked() {
+        LatLng mapPosition = view.getMap().getCameraPosition().target;
+        refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+    }
+
+    private void refreshMarkers(double lat, double lng) {
+        view.hideUpdatePlacesButton();
+
+        if (dataDefsShownInDrawer != null) {
+            for (DataDef dataDef : dataDefsShownInDrawer) {
+                if (dataDef.isEnabled()) {
+                    Log.i("refreshMarkers", "Refreshing data shown for datadef " + dataDef.getUri());
+                    fetchNewPlaces(view, dataDef, lat, lng, getRadiusFromMap());
                 }
             }
-
-            lastLocation = newLocation;
         }
     }
 
@@ -173,7 +191,7 @@ public class MainPresenter implements MainMvpPresenter {
                 return;
             }
 
-            Log.v("postFetchPlaces", "Got "+result.getResult().size()+" places from datadef" +dataDef.getUri());
+            Log.v("postFetchPlaces", "Got " + result.getResult().size() + " places from datadef" + dataDef.getUri());
             for (Place place : result.getResult()) {
                 Log.v("    result    ", place.toString());
             }

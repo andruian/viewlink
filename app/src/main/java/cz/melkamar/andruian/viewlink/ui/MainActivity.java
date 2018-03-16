@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 
@@ -58,6 +59,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @BindView(R.id.fab) protected FloatingActionButton fab;
     @BindView(R.id.progressbar) protected ProgressBar progressBar;
+    @BindView(R.id.update_places_btn) protected Button updatePlacesButton;
 
     @BindDrawable(R.drawable.ic_location_searching_black_24dp) protected Drawable iconGpsSearching;
     @BindDrawable(R.drawable.ic_gps_fixed_black_24dp) protected Drawable iconGpsLocked;
@@ -73,6 +75,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> presenter.onFabClicked());
+        updatePlacesButton.setOnClickListener(view -> presenter.onUpdatePlacesButtonClicked());
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -94,6 +97,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     public void centerCamera() {
+        centerMapOnNextLocation = false;
         if (!locationHelper.isReportingGps()) {
             try {
                 locationHelper.startReportingGps();
@@ -116,7 +120,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void setKeepMapCentered(boolean keepCentered) {
-        Log.d("setKeepMapCentered", keepCentered+"");
+        Log.d("setKeepMapCentered", keepCentered + "");
         keepMapCentered = keepCentered;
 
         if (keepCentered) {
@@ -150,8 +154,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             Switch switchButton = menuItemView.findViewById(R.id.nav_switch);
             switchButton.setOnCheckedChangeListener((compoundButton, b) -> {
-                        presenter.dataDefSwitchClicked((int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
-                    });
+                presenter.dataDefSwitchClicked((int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
+            });
             switchButton.setChecked(dataDef.isEnabled());
 
             i++;
@@ -172,7 +176,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void clearMapMarkers(DataDef dataDef) {
-        Log.d("clearMapMarkers", "Removing markers "+dataDef.getUri());
+        Log.d("clearMapMarkers", "Removing markers " + dataDef.getUri());
         List<Marker> markersOfDatadef = markers.get(dataDef);
         if (markersOfDatadef == null) return;
 
@@ -187,7 +191,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             Log.e("addMapMarkers", "map is null!");
             return;
         }
-        Log.d("addMapMarkers", "Adding "+places.size()+" markers");
+        Log.d("addMapMarkers", "Adding " + places.size() + " markers");
         for (Place place : places) {
             Marker marker = map.addMarker(new MarkerOptions()
                     .position(new LatLng(place.getLatitude(), place.getLongitude()))
@@ -218,6 +222,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void hideProgressBar() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showUpdatePlacesButton() {
+        updatePlacesButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideUpdatePlacesButton() {
+        updatePlacesButton.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean isCameraFollowing() {
+        return keepMapCentered;
     }
 
     @Override
@@ -376,14 +395,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
 
-
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
+            Log.v("onLocationChanged", "["+location.getLatitude() + "," + location.getLongitude()+"] keepCentered: "+keepMapCentered+" | centerOnNextLoc: "+centerMapOnNextLocation);
             if (keepMapCentered) centerMapOnNextLocation = true;
             if (centerMapOnNextLocation) centerCamera();
             presenter.onLocationChanged(location);
-            Log.v("onLocationChanged", location.getLatitude() + " " + location.getLongitude());
         }
     }
 

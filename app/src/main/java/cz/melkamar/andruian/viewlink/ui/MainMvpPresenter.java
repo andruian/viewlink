@@ -21,4 +21,5 @@ public interface MainMvpPresenter {
     void dataDefSwitchClicked(int itemId, boolean enabled);
     void onMapCameraMoved(GoogleMap googleMap, int reason);
     void onLocationChanged(Location newLocation);
+    void onUpdatePlacesButtonClicked();
 }
