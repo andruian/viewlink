@@ -205,6 +205,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
+    public void replaceMapMarkers(DataDef dataDef, List<Place> places) {
+        clearMapMarkers(dataDef);
+        addMapMarkers(places);
+    }
+
+    @Override
     public void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
     }
@@ -212,6 +218,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void hideProgressBar() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public GoogleMap getMap() {
+        return map;
     }
 
     @SuppressLint("MissingPermission")

@@ -1,5 +1,7 @@
 package cz.melkamar.andruian.viewlink.ui;
 
+import com.google.android.gms.maps.GoogleMap;
+
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
@@ -17,6 +19,8 @@ public interface MainMvpView extends BaseView {
     void clearMapMarkers();
     void clearMapMarkers(DataDef dataDef);
     void addMapMarkers(List<Place> places);
+    void replaceMapMarkers(DataDef dataDef, List<Place> places);
     void showProgressBar();
     void hideProgressBar();
+    GoogleMap getMap();
 }

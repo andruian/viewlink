@@ -48,6 +48,10 @@ public class IndexSparqlQueryBuilder {
     // Optional
     private List<SelectProperty> selectProperties;
     private List<String> excludeDataObjUris;
+    private double limitLat;
+    private double limitLong;
+    private double limitRadius;
+    private boolean limitToAreaEnabled = false;
 
     public void addSelectProperty(SelectProperty selectProperty) {
         selectProperties.add(selectProperty);
@@ -71,10 +75,40 @@ public class IndexSparqlQueryBuilder {
         argMap.put("selectProps", buildSelectProps(selectProperties));
         argMap.put("selectPropsMapping", buildSelectPropsMapping(selectProperties));
         argMap.put("excludeDataObjects", buildExcludeDataObjectsExpr(excludeDataObjUris));
+        argMap.put("limitToAreaClause", buildLimitToAreaClause());
 
         String result = MapFormat.format(queryTemplate, argMap);
         Log.v("SparqlQuery resolved", result);
         return result;
+    }
+
+    /**
+     * Limit the area the query should be concerned with.
+     *
+     * @param latitude
+     * @param longitude
+     * @param radius Radius around the latlng from which elements will be included. The radius uses
+     *               the same "units" as the latlng - it specifies "offset" of the coordinates.
+     */
+    public void limitToArea(double latitude, double longitude, double radius) {
+        limitToAreaEnabled = true;
+        limitLat = latitude;
+        limitLong = longitude;
+        limitRadius = radius;
+    }
+
+    private String buildLimitToAreaClause(){
+        if (!limitToAreaEnabled) return "";
+
+        return "BIND("+limitLat+" as ?___limitLat___)\n" +
+                "BIND("+limitLong+" as ?___limitLong___)\n" +
+                "BIND("+limitRadius+" as ?___limitRadius___)\n" +
+                "\n" +
+                "FILTER (\n" +
+                "  ?long > ?___limitLong___ - ?___limitRadius___ && ?long < ?___limitLong___ + ?___limitRadius___ &&\n" +
+                "  ?lat > ?___limitLat___ - ?___limitRadius___ && ?lat < ?___limitLat___ + ?___limitRadius___ \n" +
+                ")";
+
     }
 
     /**

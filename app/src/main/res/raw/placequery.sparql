@@ -55,5 +55,7 @@ WHERE {
       datatype(?lat) = xsd:decimal &&
       datatype(?long) = xsd:decimal
     )
+
+    {limitToAreaClause}
   }
 }

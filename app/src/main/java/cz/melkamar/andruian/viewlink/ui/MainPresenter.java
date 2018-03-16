@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -66,7 +67,16 @@ public class MainPresenter implements MainMvpPresenter {
         });
     }
 
-    private double radius = 100;
+    private double getRadiusFromMap(){
+        // Calculate radius to show as the distance from the middle of the map to the border
+        //  - whichever direction is longer
+        LatLng northeast = view.getMap().getProjection().getVisibleRegion().latLngBounds.northeast;
+        LatLng camTarget = view.getMap().getCameraPosition().target;
+        // TODO remove 0.5, it's just debug
+        return 0.5 * Math.max(
+                Math.abs(northeast.latitude - camTarget.latitude),
+                Math.abs(northeast.longitude - camTarget.longitude));
+    }
 
     @Override
     public void dataDefSwitchClicked(int itemId, boolean enabled) {
@@ -79,7 +89,7 @@ public class MainPresenter implements MainMvpPresenter {
             if (lastLocation != null) {
                 fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
                         lastLocation.getLatitude(), lastLocation.getLongitude(),
-                        radius); // TODO what radius?
+                        getRadiusFromMap()); // TODO what radius?
             }
         } else {
             view.clearMapMarkers(dataDefsShownInDrawer.get(itemId));
@@ -87,6 +97,7 @@ public class MainPresenter implements MainMvpPresenter {
     }
 
     private void fetchNewPlaces(MainMvpView view, DataDef dataDef, double latitude, double longitude, double radius) {
+        Log.i("fetchNewPlaces", dataDef.getUri() + " at " + latitude + "," + longitude + " (" + radius + ")");
         PlaceFetcher placeFetcher = new PlaceFetcher(
                 new IndexServerPlaceFetcher(),
                 new SparqlPlaceFetcher()
@@ -108,11 +119,12 @@ public class MainPresenter implements MainMvpPresenter {
 
         if (lastLocation == null || metersDelta > MIN_DIST_DATA_REFRESH) {
             if (dataDefsShownInDrawer != null) {
+
                 for (DataDef dataDef : dataDefsShownInDrawer) {
                     if (dataDef.isEnabled()) {
                         Log.i("onLocationChanged", "Refreshing data shown for datadef " + dataDef.getUri());
                         fetchNewPlaces(view, dataDef, newLocation.getLatitude(),
-                                newLocation.getLongitude(), radius);
+                                newLocation.getLongitude(), getRadiusFromMap());
                     }
                 }
             }
@@ -161,16 +173,12 @@ public class MainPresenter implements MainMvpPresenter {
                 return;
             }
 
-            Log.v("from datadef", dataDef.getUri());
+            Log.v("postFetchPlaces", "Got "+result.getResult().size()+" places from datadef" +dataDef.getUri());
             for (Place place : result.getResult()) {
                 Log.v("    result    ", place.toString());
             }
-
-            view.addMapMarkers(result.getResult());
+            // TODO for production do not delete markers - just add new ones - merge
+            view.replaceMapMarkers(dataDef, result.getResult());
         }
-    }
-
-    public void playground() {
-
     }
 }

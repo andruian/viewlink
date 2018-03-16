@@ -88,8 +88,7 @@ public class SparqlPlaceFetcher {
         if (result.hasError()) {
             throw new PlaceFetchException(result.getError().getMessage(), result.getError());
         }
-
-        longLog("x", result.getResult());
+        Log.d("getPlacesRawCsv", "Got string of length "+result.getResult().length());
         return result.getResult();
     }
 
@@ -121,16 +120,7 @@ public class SparqlPlaceFetcher {
         for (SelectProperty selectProperty : selectProperties) {
             builder.addSelectProperty(selectProperty);
         }
+        builder.limitToArea(latitude, longitude, radius);
         return builder.build();
-    }
-
-    private void longLog(String TAG, String txt) {
-        int maxLogSize = 1000;
-        for (int i = 0; i <= txt.length() / maxLogSize; i++) {
-            int start = i * maxLogSize;
-            int end = (i + 1) * maxLogSize;
-            end = end > txt.length() ? txt.length() : end;
-            Log.v(TAG, txt.substring(start, end));
-        }
     }
 }
