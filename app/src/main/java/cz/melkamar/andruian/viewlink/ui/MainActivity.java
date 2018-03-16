@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -56,6 +57,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private boolean keepMapCentered = false;
 
     @BindView(R.id.fab) protected FloatingActionButton fab;
+    @BindView(R.id.progressbar) protected ProgressBar progressBar;
 
     @BindDrawable(R.drawable.ic_location_searching_black_24dp) protected Drawable iconGpsSearching;
     @BindDrawable(R.drawable.ic_gps_fixed_black_24dp) protected Drawable iconGpsLocked;
@@ -202,6 +204,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    @Override
+    public void showProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideProgressBar() {
+        progressBar.setVisibility(View.GONE);
+    }
+
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -216,6 +228,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Log.d("onMapReady", "Permissions ok");
         googleMap.setMyLocationEnabled(true); // Permissions are always granted here
         googleMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         setKeepMapCentered(true);
         googleMap.setOnCameraMoveStartedListener(reason -> {

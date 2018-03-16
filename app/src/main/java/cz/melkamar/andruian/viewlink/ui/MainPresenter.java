@@ -25,7 +25,7 @@ public class MainPresenter implements MainMvpPresenter {
     private List<DataDef> dataDefsShownInDrawer = null; // To keep track of what is shown, so we can enable/disable it
     private Location lastLocation = null;
 
-    public final int MIN_DIST_DATA_REFRESH = 50; // Minimal distance in meters to trigger data refresh
+    public final int MIN_DIST_DATA_REFRESH = 200; // Minimal distance in meters to trigger data refresh
 
     public MainPresenter(MainMvpView view) {
         this.view = view;
@@ -92,6 +92,7 @@ public class MainPresenter implements MainMvpPresenter {
                 new SparqlPlaceFetcher()
         );
         new FetchPlacesAT(placeFetcher, view, dataDef, latitude, longitude, radius).execute();
+        view.showProgressBar();
     }
 
     @Override
@@ -150,6 +151,8 @@ public class MainPresenter implements MainMvpPresenter {
 
         @Override
         protected void onPostExecute(AsyncTaskResult<List<Place>> result) {
+            view.hideProgressBar();
+
             if (result.hasError()) {
                 if (view != null)
                     view.showMessage("An error occurred when fetching places: " + result.getError().getMessage());

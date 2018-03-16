@@ -17,4 +17,6 @@ public interface MainMvpView extends BaseView {
     void clearMapMarkers();
     void clearMapMarkers(DataDef dataDef);
     void addMapMarkers(List<Place> places);
+    void showProgressBar();
+    void hideProgressBar();
 }
