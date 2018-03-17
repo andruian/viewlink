@@ -15,6 +15,7 @@ import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.SparqlPlaceFetcher;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
+import cz.melkamar.andruian.viewlink.ui.ColorPickerDialogFragment;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 /**
@@ -52,7 +53,11 @@ public class MainPresenter implements MainMvpPresenter {
     @Override
     public void onFabClicked() {
         // TODO This takes ages on hardware after start
-        view.setKeepMapCentered(true);
+//        view.setKeepMapCentered(true);
+        ColorPickerDialogFragment dialogFragment = new ColorPickerDialogFragment();
+        dialogFragment.setHue(200);
+        dialogFragment.setListener(color -> view.showMessage("picked hue "+color));
+        dialogFragment.show(view.getActivity().getSupportFragmentManager(), "atag");
     }
 
     @Override
