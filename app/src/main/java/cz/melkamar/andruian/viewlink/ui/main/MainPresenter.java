@@ -54,8 +54,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     @Override
     public void onFabClicked() {
         // TODO This takes ages on hardware after start
-//        view.setKeepMapCentered(true);
-
+        view.setKeepMapCentered(true);
     }
 
     @Override
