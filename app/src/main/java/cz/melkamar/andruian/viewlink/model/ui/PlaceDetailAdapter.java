@@ -1,8 +1,12 @@
 package cz.melkamar.andruian.viewlink.model.ui;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +57,7 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
         @BindView(R.id.recycler_row_place_detail_label) TextView labelTV;
         @BindView(R.id.recycler_row_place_detail_value) TextView valueTV;
         @BindView(R.id.recycler_row_place_detail_button) Button button;
+        @BindView(R.id.recycler_row_constr_layout) ConstraintLayout constraintLayout;
 
         public DataDefViewHolder(View itemView) {
             super(itemView);
@@ -65,7 +70,7 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     labelTV.setText("Object IRI");
                     valueTV.setText(place.getUri());
 
-                    button.setVisibility(View.VISIBLE);
+                    showButton(true);
                     button.setText("Open in browser");
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -78,7 +83,7 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     labelTV.setText("Object location");
                     valueTV.setText(place.getLatitude() + ", " + place.getLongitude());
 
-                    button.setVisibility(View.VISIBLE);
+                    showButton(true);
                     button.setText("Open in maps");
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
@@ -96,7 +101,7 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     labelTV.setText("Location object IRI");
                     valueTV.setText(place.getLocationObjectUri());
 
-                    button.setVisibility(View.VISIBLE);
+                    showButton(true);
                     button.setText("Open in browser");
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -107,16 +112,14 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                 case 3:
                     labelTV.setText("Object type");
                     valueTV.setText(place.getClassType());
-                    button.setVisibility(View.GONE);
-                    // TODO add margin if no button shown
-//                    ConstraintLayout.LayoutParams params = button.getLayoutParams();
-//                    params.bottomToBottom = R.id
+                    showButton(false);
+
                     break;
                 case 4:
                     labelTV.setText("Containing data definition");
                     valueTV.setText(place.getParentDatadef().getUri());
 
-                    button.setVisibility(View.VISIBLE);
+                    showButton(true);
                     button.setText("Open in browser");
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -129,7 +132,7 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     labelTV.setText(place.getProperties().get(getAdapterPosition() - 5).getName());
                     valueTV.setText(value);
                     if (URLUtil.isValidUrl(value)) {
-                        button.setVisibility(View.VISIBLE);
+                        showButton(true);
                         button.setText("Open in browser");
                         button.setOnClickListener(view -> {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -137,8 +140,27 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                             activity.startActivity(intent);
                         });
                     } else {
-                        button.setVisibility(View.GONE);
+                        showButton(false);
                     }
+            }
+        }
+
+        private void showButton(boolean show){
+            if (show){
+                button.setVisibility(View.VISIBLE);
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintSet.clone(constraintLayout);
+                constraintSet.clear(R.id.recycler_row_place_detail_value, ConstraintSet.BOTTOM);
+                constraintSet.applyTo(constraintLayout);
+            } else {
+                Resources r = activity.getResources();
+                int px = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics()));
+
+                button.setVisibility(View.GONE);
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintSet.clone(constraintLayout);
+                constraintSet.connect(R.id.recycler_row_place_detail_value, ConstraintSet.BOTTOM, R.id.recycler_row_constr_layout, ConstraintSet.BOTTOM, px);
+                constraintSet.applyTo(constraintLayout);
             }
         }
     }

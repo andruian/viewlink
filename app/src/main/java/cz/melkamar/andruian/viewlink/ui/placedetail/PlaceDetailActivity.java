@@ -8,7 +8,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.Locale;
@@ -23,7 +22,6 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 public class PlaceDetailActivity extends BaseActivity {
     public static final String TAG_DATA_PLACE = "place";
     @BindView(R.id.place_detail_rv) RecyclerView rv;
-    @BindView(R.id.toolbar_tv) TextView toolbarTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
