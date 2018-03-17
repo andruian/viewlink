@@ -83,7 +83,7 @@ public class DataDef implements Serializable {
     }
 
     public void setMarkerColor(float markerColor) {
-        this.markerColor = markerColor;
+        this.markerColor = markerColor % 360;
     }
 
     public boolean isEnabled() {

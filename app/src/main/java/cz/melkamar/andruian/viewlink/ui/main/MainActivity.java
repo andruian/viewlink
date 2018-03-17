@@ -283,7 +283,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         Log.d("onMapReady", "Permissions ok");
         googleMap.setMyLocationEnabled(true); // Permissions are always granted here
-        googleMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.747283, 13.387336), 15), 250, null);
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
