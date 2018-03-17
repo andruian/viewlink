@@ -4,11 +4,13 @@ import android.location.Location;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import cz.melkamar.andruian.viewlink.ui.base.BasePresenter;
+
 /**
  * Created by Martin on 11.03.2018.
  */
 
-public interface MainMvpPresenter {
+public interface MainMvpPresenter extends BasePresenter {
     void manageDataSources();
     void onResume();
     void onDestroy();

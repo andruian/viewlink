@@ -1,5 +1,6 @@
 package cz.melkamar.andruian.viewlink.ui.base;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,8 @@ import cz.melkamar.andruian.viewlink.ViewLinkApplication;
 
 
 public abstract class BaseActivity extends AppCompatActivity implements BaseView {
+
+    protected ProgressDialog progressDialog;
 
     @Override
     public void showMessage(String message) {
@@ -66,5 +69,24 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseView
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.v("Lifecycle", getClass()+" - onSaveInstanceState");
+    }
+
+    @Override
+    public void showLoadingDialog(String title, String message) {
+        dismissLoadingDialog();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(title);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    @Override
+    public void dismissLoadingDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
     }
 }

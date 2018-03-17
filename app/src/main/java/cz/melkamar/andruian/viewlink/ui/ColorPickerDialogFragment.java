@@ -1,7 +1,6 @@
 package cz.melkamar.andruian.viewlink.ui;
 
 import android.app.Dialog;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -14,6 +13,7 @@ import android.widget.SeekBar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
+import cz.melkamar.andruian.viewlink.util.Util;
 
 /**
  * A dialog fragment for picking a hue of a color by the user.
@@ -44,7 +44,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                int color = Color.HSVToColor(new float[]{i, 1, 1});
+                int color = Util.colorFromHue(i);
                 ColorDrawable cd = new ColorDrawable(color);
                 imageView.setImageDrawable(cd);
             }
@@ -60,7 +60,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
             }
         });
         seekBar.setProgress(Math.round(hue));
-        int color = Color.HSVToColor(new float[]{hue, 1, 1});
+        int color = Util.colorFromHue(hue);
         ColorDrawable cd = new ColorDrawable(color);
         imageView.setImageDrawable(cd);
 
@@ -68,7 +68,8 @@ public class ColorPickerDialogFragment extends DialogFragment {
                 .setPositiveButton("OK", (dialog, id) -> {
                     listener.onColorPicked(seekBar.getProgress());
                 })
-                .setNegativeButton("CANCEL", (dialog, id) -> ColorPickerDialogFragment.this.getDialog().cancel());
+                .setNegativeButton("CANCEL", (dialog, id) -> ColorPickerDialogFragment.this.getDialog().cancel())
+        .setTitle("Choose a color");
 
 
         return builder.create();

@@ -101,6 +101,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mapFragment.getMapAsync(this);
 
         presenter.refreshDatadefsShownInDrawer();
+        // TODO on activity resume check already-displayed colors of markers vs what is defined in DataDefs - in case the user changed a color
     }
 
     @Override

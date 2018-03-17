@@ -7,7 +7,10 @@ import android.util.Log;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.ui.DataDefAdapter;
+import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 
@@ -15,17 +18,18 @@ import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
  * Created by Martin Melka on 11.03.2018.
  */
 
-public class DatasourcesPresenterImpl implements DatasourcesPresenter {
+public class DatasourcesPresenterImpl extends BasePresenterImpl implements DatasourcesPresenter {
     private DatasourcesView view;
 
     public DatasourcesPresenterImpl(DatasourcesView view) {
+        super(view);
         this.view = view;
     }
 
     @Override
     public void refreshDatadefsShown() {
         // TODO this should get all datadefs from database
-        Log.i("refreshDatadefsShownInDrawer", "Loading new datadefs from the database.");
+        Log.i("refreshDatadefsShInDr", "Loading new datadefs from the database.");
 //        view.showMessage("Loading new datadefs from the database.");
         new ReadDatadefsTask(view).execute();
     }
@@ -39,6 +43,46 @@ public class DatasourcesPresenterImpl implements DatasourcesPresenter {
     public void onDeleteDataDefClicked(int position, DataDef dataDef) {
         new DeleteDatadefTask(view, position).execute(dataDef);
     }
+
+    @Override
+    public void onDatasourceColorChanged(DataDef dataDef, DataDefAdapter.DataDefViewHolder viewHolder) {
+        view.showLoadingDialog("Changing color", "Please wait");
+        new ChangeDdfColorTask(dataDef, view.getViewLinkApplication().getAppDatabase(), this, viewHolder).execute();
+    }
+
+    static class ChangeDdfColorTask extends AsyncTask<Void, Void, AsyncTaskResult<Object>> {
+        private final DataDef dataDef;
+        private final AppDatabase appDatabase;
+        private final DatasourcesPresenter presenter;
+        private final DataDefAdapter.DataDefViewHolder viewHolder;
+
+        ChangeDdfColorTask(DataDef dataDef, AppDatabase appDatabase, DatasourcesPresenter presenter, DataDefAdapter.DataDefViewHolder viewHolder) {
+            this.dataDef = dataDef;
+            this.appDatabase = appDatabase;
+            this.presenter = presenter;
+            this.viewHolder = viewHolder;
+        }
+
+
+        @Override
+        protected AsyncTaskResult<Object> doInBackground(Void... voids) {
+            appDatabase.dataDefDao().update(dataDef);
+            return new AsyncTaskResult<>("ok");
+        }
+
+        @Override
+        protected void onPostExecute(AsyncTaskResult<Object> result) {
+            if (result.hasError()){
+                Log.e("updateDdf", result.getError().getMessage(), result.getError());
+                return;
+            }
+
+            Log.d("postColorChange", "Setting color to "+dataDef.getMarkerColor());
+            presenter.getBaseView().dismissLoadingDialog();
+            viewHolder.setColorPickerColor(dataDef.getMarkerColor());
+        }
+    }
+
 
     static class DeleteDatadefTask extends AsyncTask<DataDef, Void, AsyncTaskResult<Object>> {
         final WeakReference<DatasourcesView> view;

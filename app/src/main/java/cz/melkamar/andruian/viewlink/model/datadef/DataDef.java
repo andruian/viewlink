@@ -43,7 +43,7 @@ public class DataDef implements Serializable {
     private final SourceClassDef sourceClassDef;
     @Embedded
     private final IndexServer indexServer;
-    private final float markerColor;
+    private float markerColor;
     private boolean enabled;
 
     // Labels will be referenced FK
@@ -80,6 +80,10 @@ public class DataDef implements Serializable {
 
     public float getMarkerColor() {
         return markerColor;
+    }
+
+    public void setMarkerColor(float markerColor) {
+        this.markerColor = markerColor;
     }
 
     public boolean isEnabled() {

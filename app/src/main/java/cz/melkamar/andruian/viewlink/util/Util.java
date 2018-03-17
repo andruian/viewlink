@@ -1,6 +1,7 @@
 package cz.melkamar.andruian.viewlink.util;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 
 import java.io.BufferedReader;
@@ -28,5 +29,9 @@ public class Util {
         float[] result = new float[1];
         Location.distanceBetween(lat, lng, lat + radius, lng, result);
         return result[0] / 1000;
+    }
+
+    public static int colorFromHue(float hue){
+        return Color.HSVToColor(new float[]{hue, 1, 1});
     }
 }

@@ -15,14 +15,14 @@ import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.SparqlPlaceFetcher;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
-import cz.melkamar.andruian.viewlink.ui.ColorPickerDialogFragment;
+import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 /**
  * Created by Martin Melka on 11.03.2018.
  */
 
-public class MainPresenter implements MainMvpPresenter {
+public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter {
     private MainMvpView view;
     private List<DataDef> dataDefsShownInDrawer = null; // To keep track of what is shown, so we can enable/disable it
     private Location lastLocation = null;
@@ -30,6 +30,7 @@ public class MainPresenter implements MainMvpPresenter {
     public final int MIN_DIST_DATA_REFRESH = 200; // Minimal distance in meters to trigger data refresh
 
     public MainPresenter(MainMvpView view) {
+        super(view);
         this.view = view;
     }
 
@@ -54,10 +55,7 @@ public class MainPresenter implements MainMvpPresenter {
     public void onFabClicked() {
         // TODO This takes ages on hardware after start
 //        view.setKeepMapCentered(true);
-        ColorPickerDialogFragment dialogFragment = new ColorPickerDialogFragment();
-        dialogFragment.setHue(200);
-        dialogFragment.setListener(color -> view.showMessage("picked hue "+color));
-        dialogFragment.show(view.getActivity().getSupportFragmentManager(), "atag");
+
     }
 
     @Override

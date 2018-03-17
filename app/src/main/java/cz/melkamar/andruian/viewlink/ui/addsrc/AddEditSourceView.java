@@ -10,7 +10,4 @@ public interface AddEditSourceView extends BaseView {
     String getSrcUri();
     void showError(String title, String message);
     void returnActivityResult(int resultCode);
-
-    void showLoadingDialog(String title, String message);
-    void dismissLoadingDialog();
 }

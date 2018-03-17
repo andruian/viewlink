@@ -12,4 +12,7 @@ public interface BaseView {
     void showMessage(String message);
     AppCompatActivity getActivity();
     ViewLinkApplication getViewLinkApplication();
+
+    void showLoadingDialog(String title, String message);
+    void dismissLoadingDialog();
 }

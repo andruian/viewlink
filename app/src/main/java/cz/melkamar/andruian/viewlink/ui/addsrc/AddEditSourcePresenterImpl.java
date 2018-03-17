@@ -13,15 +13,17 @@ import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.ParserDatadefPersistor;
 import cz.melkamar.andruian.viewlink.exception.PersistenceException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 
 /**
  * Created by Martin Melka on 12.03.2018.
  */
 
-public class AddEditSourcePresenterImpl implements AddEditSourcePresenter {
+public class AddEditSourcePresenterImpl extends BasePresenterImpl implements AddEditSourcePresenter {
     AddEditSourceView view;
 
     public AddEditSourcePresenterImpl(AddEditSourceView view) {
+        super(view);
         this.view = view;
     }
 

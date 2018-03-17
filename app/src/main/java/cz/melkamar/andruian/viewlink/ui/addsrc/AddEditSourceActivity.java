@@ -1,6 +1,5 @@
 package cz.melkamar.andruian.viewlink.ui.addsrc;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,7 +16,6 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 public class AddEditSourceActivity extends BaseActivity implements AddEditSourceView {
 
     public static final String TAG_RESULT_DATASOURCE = "datasource";
-    private ProgressDialog progressDialog;
 
     private AddEditSourcePresenter presenter;
 
@@ -65,22 +63,5 @@ public class AddEditSourceActivity extends BaseActivity implements AddEditSource
         finish();
     }
 
-    @Override
-    public void showLoadingDialog(String title, String message) {
-        dismissLoadingDialog();
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
-        progressDialog.setTitle(title);
-        progressDialog.setMessage(message);
-        progressDialog.show();
-    }
-
-    @Override
-    public void dismissLoadingDialog() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-            progressDialog = null;
-        }
-    }
 }
