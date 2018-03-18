@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
 import cz.melkamar.andruian.viewlink.data.place.IndexServerPlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
@@ -64,6 +65,9 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
             if (result.hasError()) {
                 Log.w("refDatadefsShownDrawer", "An error occurred", result.getError());
             } else {
+                for (DataDef dataDef : result.getResult()) {
+                    Log.v("refreshDatadefsSID", dataDef.toString());
+                }
                 this.dataDefsShownInDrawer = result.getResult();
                 view.showDataDefsInDrawer(result.getResult());
             }
@@ -85,13 +89,15 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     public void dataDefSwitchClicked(int itemId, boolean enabled) {
         Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShownInDrawer.get(itemId));
         dataDefsShownInDrawer.get(itemId).setEnabled(enabled);
+        new SaveDataDefATask(dataDefsShownInDrawer.get(itemId), view.getViewLinkApplication().getAppDatabase()).execute();
 
         // TODO get all places around location
         if (enabled) {
             // TODO add progressbar to the main activity while loading markers
             if (lastLocation != null) {
                 fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
-                        lastLocation.getLatitude(), lastLocation.getLongitude(),
+                        view.getMap().getCameraPosition().target.latitude,
+                        view.getMap().getCameraPosition().target.longitude,
                         getRadiusFromMap()); // TODO what radius?
             }
         } else {
@@ -200,6 +206,34 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
             }
             // TODO for production do not delete markers - just add new ones - merge
             view.replaceMapMarkers(dataDef, result.getResult());
+        }
+    }
+
+    static class SaveDataDefATask extends AsyncTask<Void, Void, AsyncTaskResult<Object>> {
+        private final DataDef dataDef;
+        private final AppDatabase appDatabase;
+
+        SaveDataDefATask(DataDef dataDef, AppDatabase appDatabase) {
+            this.dataDef = dataDef;
+            this.appDatabase = appDatabase;
+        }
+
+
+        @Override
+        protected AsyncTaskResult<Object> doInBackground(Void... voids) {
+            appDatabase.dataDefDao().update(dataDef);
+            return new AsyncTaskResult<>("ok");
+        }
+
+        @Override
+        protected void onPostExecute(AsyncTaskResult<Object> result) {
+            if (result.hasError()){
+                Log.e("updateDdf", result.getError().getMessage(), result.getError());
+                return;
+            }
+
+            Log.d("postDdfUpdate", "Saved datadef");
+
         }
     }
 }
