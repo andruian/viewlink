@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.R;
-import cz.melkamar.andruian.viewlink.data.DataManager;
-import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
+import cz.melkamar.andruian.viewlink.data.NetHelper;
+import cz.melkamar.andruian.viewlink.data.NetHelperProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
 import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
@@ -80,8 +80,8 @@ public class SparqlPlaceFetcher {
         }
         String query = getSparqlQuery(queryTemplate, dataDef, classToLocPaths.get(0), selectProperties, latitude, longitude, radius);
 
-        DataManager mgr = DataManagerProvider.getDataManager();
-        AsyncTaskResult<String> result = mgr.httpPost(
+        NetHelper netHelper = NetHelperProvider.getNetHelper();
+        AsyncTaskResult<String> result = netHelper.httpPost(
                 dataDef.getSourceClassDef().getSparqlEndpoint(),
                 new KeyVal[]{new KeyVal("query", query)},
                 new KeyVal("Accept", "text/csv"));

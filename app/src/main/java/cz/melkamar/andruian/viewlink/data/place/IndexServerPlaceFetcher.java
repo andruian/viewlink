@@ -9,8 +9,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.melkamar.andruian.viewlink.data.DataManager;
-import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
+import cz.melkamar.andruian.viewlink.data.NetHelper;
+import cz.melkamar.andruian.viewlink.data.NetHelperProvider;
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
@@ -28,10 +28,10 @@ public class IndexServerPlaceFetcher {
 
         String queryUri = dataDef.getIndexServer().getUri()+"/api/query";
 
-        DataManager mgr = DataManagerProvider.getDataManager();
+        NetHelper netHelper = NetHelperProvider.getNetHelper();
         double kmRadius = Util.convertRadiusToKilometers(latitude, longitude, radius);
 
-        AsyncTaskResult<String> result = mgr.httpGet(queryUri,
+        AsyncTaskResult<String> result = netHelper.httpGet(queryUri,
                 new KeyVal[]{
                         new KeyVal("lat", latitude + ""),
                         new KeyVal("long", longitude + ""),

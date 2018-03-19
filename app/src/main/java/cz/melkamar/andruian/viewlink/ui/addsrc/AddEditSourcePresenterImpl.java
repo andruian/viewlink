@@ -14,6 +14,7 @@ import cz.melkamar.andruian.viewlink.data.persistence.ParserDatadefPersistor;
 import cz.melkamar.andruian.viewlink.exception.PersistenceException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
+import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 /**
  * Created by Martin Melka on 12.03.2018.
@@ -32,67 +33,61 @@ public class AddEditSourcePresenterImpl extends BasePresenterImpl implements Add
         String uri = view.getSrcUri();
 
         view.showLoadingDialog("Fetching data source", "Contacting URI: " + uri);
-        DataManagerProvider.getDataManager().getDataDefs(uri, new DataManager.GetDataDefsCallback() {
-            @Override
-            public void onDataDefsFetched(List<cz.melkamar.andruian.ddfparser.model.DataDef> dataDefs) {
-                view.dismissLoadingDialog();
-                saveDataDefsAsync(dataDefs);
-            }
-
-            @Override
-            public void onFetchError(String error, int errorCode) {
-                view.dismissLoadingDialog();
-                view.showError("An error occurred: " + errorCode, error);
-            }
-        });
+        new FetchDataDefsTask(new WeakReference<>(view), uri).execute();
     }
 
-    /**
-     * Asynchronously save new DataDefs.
-     *
-     * @param dataDefs List of {@link DataDef} objects obtained from the {@link cz.melkamar.andruian.ddfparser.DataDefParser}.
-     */
-    private void saveDataDefsAsync(List<cz.melkamar.andruian.ddfparser.model.DataDef> dataDefs) {
-        Log.d("onDataDefsFetched", "Saving " + dataDefs.size() + " entries");
-
-        SaveDatadefsTask task = new SaveDatadefsTask(new WeakReference<>(view));
-        task.execute(dataDefs.toArray(new cz.melkamar.andruian.ddfparser.model.DataDef[dataDefs.size()]));
-    }
-
-    private static class SaveDatadefsTask extends AsyncTask<cz.melkamar.andruian.ddfparser.model.DataDef, Void, Throwable> {
+    private static class FetchDataDefsTask extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
         private WeakReference<AddEditSourceView> view;
+        private DataManager dataManager;
+        private final String dataDefUrl;
 
-        public SaveDatadefsTask(WeakReference<AddEditSourceView> view) {
+        public FetchDataDefsTask(WeakReference<AddEditSourceView> view, String dataDefUrl) {
             this.view = view;
+            this.dataDefUrl = dataDefUrl;
+            this.dataManager = DataManagerProvider.getDataManager();
         }
 
         @Override
-        protected Throwable doInBackground(cz.melkamar.andruian.ddfparser.model.DataDef... dataDefs) {
-            List<DataDef> result = new ArrayList<>();
-            for (cz.melkamar.andruian.ddfparser.model.DataDef dataDef : dataDefs) {
+        protected AsyncTaskResult<List<DataDef>> doInBackground(Void... voids) {
+            AsyncTaskResult<List<cz.melkamar.andruian.ddfparser.model.DataDef>> result = dataManager.getDataDefs(dataDefUrl);
+            if (result.hasError()) {
+                return new AsyncTaskResult<>(result.getError());
+            }
+
+            List<DataDef> transformedDatadefs = new ArrayList<>(result.getResult().size());
+            for (cz.melkamar.andruian.ddfparser.model.DataDef dataDef : result.getResult()) {
                 Log.d("onDataDefsFetched", "Saving datadef: " + dataDef.getUri());
                 try {
-                    result.add(ParserDatadefPersistor.saveParserDatadef(dataDef, view.get().getViewLinkApplication().getAppDatabase()));
+                    transformedDatadefs.add(ParserDatadefPersistor.saveParserDatadef(dataDef, view.get().getViewLinkApplication().getAppDatabase()));
                 } catch (PersistenceException e) {
+                    Log.i("FetchDataDefsTask", e.getMessage(), e);
                     e.printStackTrace();
-                    return e;
+                    return new AsyncTaskResult<>(e);
                 }
             }
-            return null;
+            return new AsyncTaskResult<>(transformedDatadefs);
         }
 
         @Override
-        protected void onPostExecute(Throwable error) {
-            if (view.get() != null) {
-                view.get().dismissLoadingDialog();
+        protected void onPostExecute(AsyncTaskResult<List<DataDef>> result) {
+            AddEditSourceView _view = view.get();
+            if (_view == null) {
+                Log.e("FetchDataDefsTask", "view is null!");
+            }
 
-                if (error!=null){
-                    view.get().showError("An error occurred while saving the Data Definition", error.getMessage());
-                } else {
-                    // If view/activity still exists, show the new data
-                    view.get().returnActivityResult(Activity.RESULT_OK);
+            if (result.hasError()) {
+                Log.i("addDatadef", result.getError().getMessage(), result.getError());
+                if (_view != null) {
+                    _view.dismissLoadingDialog();
+                    _view.showError("An error occurred.", result.getError().getMessage());
+                }
+            } else {
+                if (_view != null) {
+                    _view.dismissLoadingDialog();
+                    _view.returnActivityResult(Activity.RESULT_OK);
                 }
             }
+
         }
     }
 
