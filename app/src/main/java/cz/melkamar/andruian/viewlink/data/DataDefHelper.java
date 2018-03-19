@@ -9,6 +9,6 @@ import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
  * Created by Martin Melka on 11.03.2018.
  */
 
-public interface DataManager {
+public interface DataDefHelper {
     AsyncTaskResult<List<DataDef>> getDataDefs(String url);
 }

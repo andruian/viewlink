@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import cz.melkamar.andruian.viewlink.data.DataManager;
+import cz.melkamar.andruian.viewlink.data.DataDefHelper;
 import cz.melkamar.andruian.viewlink.ui.addsrc.AddEditSourceActivity;
 
 
@@ -28,19 +28,19 @@ public class AddEditSourceActivityTest {
             new IntentsTestRule<>(AddEditSourceActivity.class);
 
     @Mock
-    DataManager dataManagerMock;
+    DataDefHelper dataDefHelperMock;
 
     @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Before
     public void setUp() throws Exception {
-//        Mockito.when(dataManagerMock.getDataDefs(anyString(), any())).thenAnswer(i -> new DataDef(i.getArgument(0), i.getArgument(0),i.getArgument(0)));
-//        DataManagerProvider.setDataManager(dataManagerMock);
+//        Mockito.when(dataDefHelperMock.getDataDefs(anyString(), any())).thenAnswer(i -> new DataDef(i.getArgument(0), i.getArgument(0),i.getArgument(0)));
+//        DataDefHelperProvider.setDataDefHelper(dataDefHelperMock);
     }
 
     /**
      * Test adding a new data source. Check the result the activity returns.
-     * DataManager is mocked away.
+     * DataDefHelper is mocked away.
      */
     @Test
     public void addNewSourceTest() {

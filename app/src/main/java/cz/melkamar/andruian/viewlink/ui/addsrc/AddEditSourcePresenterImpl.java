@@ -8,8 +8,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.melkamar.andruian.viewlink.data.DataManager;
-import cz.melkamar.andruian.viewlink.data.DataManagerProvider;
+import cz.melkamar.andruian.viewlink.data.DataDefHelper;
+import cz.melkamar.andruian.viewlink.data.DataDefHelperProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.ParserDatadefPersistor;
 import cz.melkamar.andruian.viewlink.exception.PersistenceException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
@@ -38,18 +38,18 @@ public class AddEditSourcePresenterImpl extends BasePresenterImpl implements Add
 
     private static class FetchDataDefsTask extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
         private WeakReference<AddEditSourceView> view;
-        private DataManager dataManager;
+        private DataDefHelper dataDefHelper;
         private final String dataDefUrl;
 
         public FetchDataDefsTask(WeakReference<AddEditSourceView> view, String dataDefUrl) {
             this.view = view;
             this.dataDefUrl = dataDefUrl;
-            this.dataManager = DataManagerProvider.getDataManager();
+            this.dataDefHelper = DataDefHelperProvider.getDataDefHelper();
         }
 
         @Override
         protected AsyncTaskResult<List<DataDef>> doInBackground(Void... voids) {
-            AsyncTaskResult<List<cz.melkamar.andruian.ddfparser.model.DataDef>> result = dataManager.getDataDefs(dataDefUrl);
+            AsyncTaskResult<List<cz.melkamar.andruian.ddfparser.model.DataDef>> result = dataDefHelper.getDataDefs(dataDefUrl);
             if (result.hasError()) {
                 return new AsyncTaskResult<>(result.getError());
             }

@@ -18,10 +18,10 @@ import cz.melkamar.andruian.viewlink.util.KeyVal;
  * Created by Martin Melka on 11.03.2018.
  */
 
-public class DataManagerImpl implements DataManager {
+public class DataDefHelperImpl implements DataDefHelper {
     private final NetHelper netHelper;
 
-    public DataManagerImpl(NetHelper netHelper) {
+    public DataDefHelperImpl(NetHelper netHelper) {
         this.netHelper = netHelper;
     }
 

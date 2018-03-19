@@ -38,7 +38,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     @Override
     public void manageDataSources() {
         Log.i("manageDataSources", "foo");
-//        view.showMessage("add datasource: "+ DataManagerProvider.getDataManager().getHttpFileAsync("someUrl"));
+//        view.showMessage("add datasource: "+ DataDefHelperProvider.getDataDefHelper().getHttpFileAsync("someUrl"));
         view.showManageDatasourcesActivity();
     }
 
