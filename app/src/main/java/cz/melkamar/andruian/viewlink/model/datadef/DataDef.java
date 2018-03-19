@@ -26,10 +26,13 @@ package cz.melkamar.andruian.viewlink.model.datadef;
 
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 public class DataDef implements Serializable {
@@ -46,8 +49,8 @@ public class DataDef implements Serializable {
     private float markerColor;
     private boolean enabled;
 
-    // Labels will be referenced FK
-    //private final Map<String, String> labels;
+    @Ignore
+    private final Map<String, String> labels;
 
     public DataDef(String uri,
                    LocationClassDef locationClassDef,
@@ -59,8 +62,29 @@ public class DataDef implements Serializable {
         this.indexServer = indexServer;
         this.markerColor = markerColor;
         this.enabled = enabled;
+        this.labels = new HashMap<>();
     }
 
+    public void addLabel(PrefLabel prefLabel) {
+        labels.put(prefLabel.getLanguageTag(), prefLabel.getValue());
+    }
+
+    /**
+     * Return the best label for the DataDef, in order of precedence:
+     * <ol>
+     * <li>Label of the given language</li>
+     * <li>Label of no language</li>
+     * <li>The IRI of the object</li>
+     * </ol>
+     *
+     * @param language The language code, such as "en", "cs".
+     */
+    public String getLabel(String language) {
+        String label = labels.get(language);
+        if (label == null) label = labels.get("");
+        if (label == null) label = uri;
+        return label;
+    }
 
     public String getUri() {
         return uri;

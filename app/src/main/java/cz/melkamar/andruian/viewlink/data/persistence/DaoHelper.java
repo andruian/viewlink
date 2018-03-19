@@ -8,14 +8,31 @@ import java.util.List;
 import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
 import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.PrefLabel;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 public class DaoHelper {
-    // TODO use this everywhere where DAOs are accessed to avoid clutter with asynctasks
+//    public static void readAllDatadefs(AppDatabase database, ReadDatadefsTask.Listener callback) {
+//        new ReadDatadefsTask(database, callback).execute();
+//    }
 
-    public static void readAllDatadefs(AppDatabase database, ReadDatadefsTask.Listener callback) {
-        new ReadDatadefsTask(database, callback).execute();
+    /**
+     * Read all saved DataDef instances including their prefLabels.
+     *
+     * @param database
+     * @return
+     */
+    public static List<DataDef> readAllDatadefs(AppDatabase database){
+        List<DataDef> dataDefs = database.dataDefDao().getAll();
+        for (DataDef dataDef : dataDefs) {
+            List<PrefLabel> labels = database.prefLabelDao().getAllForDataDefUri(dataDef.getUri());
+            for (PrefLabel label : labels) {
+                dataDef.addLabel(label);
+            }
+        }
+
+        return dataDefs;
     }
 
     public static void readForSparqlQuery(AppDatabase database, String dataDefUri, String locClassUri, ReadForSparqlQueryATask.Listener callback) {
@@ -79,7 +96,7 @@ public class DaoHelper {
         @Override
         protected AsyncTaskResult<List<DataDef>> doInBackground(Void... voids) {
             try {
-                List<DataDef> result = database.dataDefDao().getAll();
+                List<DataDef> result = DaoHelper.readAllDatadefs(database);
                 return new AsyncTaskResult<>(result);
             } catch (SQLiteException e) {
                 return new AsyncTaskResult<>(e);

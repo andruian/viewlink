@@ -6,17 +6,20 @@ import android.arch.persistence.room.TypeConverters;
 
 import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.datadef.PrefLabel;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 
 @Database(entities = {
         DataDef.class,
         SelectProperty.class,
-        ClassToLocPath.class
-}, version = 9
+        ClassToLocPath.class,
+        PrefLabel.class
+}, version = 10
 )
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract DataDefDao dataDefDao();
     public abstract SelectPropertyDao selectPropertyDao();
     public abstract ClassToLocPathDao classToLocPathDao();
+    public abstract PrefLabelDao prefLabelDao();
 }

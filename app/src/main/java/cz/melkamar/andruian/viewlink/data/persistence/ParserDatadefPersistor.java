@@ -4,6 +4,7 @@ package cz.melkamar.andruian.viewlink.data.persistence;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
+import java.util.Map;
 import java.util.Random;
 
 import cz.melkamar.andruian.viewlink.exception.PersistenceException;
@@ -11,6 +12,7 @@ import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.datadef.IndexServer;
 import cz.melkamar.andruian.viewlink.model.datadef.LocationClassDef;
+import cz.melkamar.andruian.viewlink.model.datadef.PrefLabel;
 import cz.melkamar.andruian.viewlink.model.datadef.PropertyPath;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.model.datadef.SourceClassDef;
@@ -34,11 +36,21 @@ public class ParserDatadefPersistor {
             appDatabase.dataDefDao().insertAll(dataDef);
             appDatabase.selectPropertyDao().insertAll(transSelectPropsToLocal(parserDataDef));
             appDatabase.classToLocPathDao().insertAll(transClassToLocPathToLocal(parserDataDef));
+            appDatabase.prefLabelDao().insertAll(transPrefLabels(parserDataDef));
         } catch (SQLiteException e){
             Log.e("saveParserDatadef", "An exception occurred.", e);
             throw new PersistenceException(e.getMessage(), e);
         }
         return dataDef;
+    }
+
+    public static PrefLabel[] transPrefLabels(cz.melkamar.andruian.ddfparser.model.DataDef parserDataDef){
+        PrefLabel[] labels = new PrefLabel[parserDataDef.getLabels().size()];
+        int i=0;
+        for (Map.Entry<String, String> entry : parserDataDef.getLabels().entrySet()) {
+            labels[i++] = new PrefLabel(parserDataDef.getUri(), entry.getKey(), entry.getValue());
+        }
+        return labels;
     }
 
     public static ClassToLocPath[] transClassToLocPathToLocal(cz.melkamar.andruian.ddfparser.model.DataDef parserDataDef) {

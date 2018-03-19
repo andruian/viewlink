@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -36,6 +35,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindDrawable;
@@ -169,7 +169,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         menu.removeGroup(R.id.nav_group_datasources);
         int i = 0;
         for (DataDef dataDef : dataDefList) {
-            MenuItem menuItem = menu.add(R.id.nav_group_datasources, Menu.NONE, Menu.NONE, dataDef.getUri());
+            MenuItem menuItem = menu.add(R.id.nav_group_datasources, Menu.NONE, Menu.NONE, dataDef.getLabel(Locale.getDefault().getLanguage()));
 
             View menuItemView = getLayoutInflater().inflate(R.layout.switch_item, null);
 
@@ -371,35 +371,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            new MyTask(this).execute();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Just a quick dirty helper method for deleting the database of DataDefs.
-     */
-    static class MyTask extends AsyncTask<Void, Void, String> {
-        MainActivity activity;
-
-        public MyTask(MainActivity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            int before = activity.getViewLinkApplication().getAppDatabase().dataDefDao().getAll().size();
-            activity.getViewLinkApplication().getAppDatabase().dataDefDao().deleteAll();
-            int after = activity.getViewLinkApplication().getAppDatabase().dataDefDao().getAll().size();
-            return "Deleted datadefs:\n" + before + " -> " + after;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            activity.showMessage(s);
-        }
     }
 
     @Override

@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,7 +64,7 @@ public class DataDefAdapter extends RecyclerView.Adapter<DataDefAdapter.DataDefV
 
         public void bindDataDef() {
             DataDef dataDef = dataDefs.get(getAdapterPosition());
-            labelTV.setText(dataDef.getUri());
+            labelTV.setText(dataDef.getLabel(Locale.getDefault().getLanguage()));
             uriTV.setText(dataDef.getUri());
             setColorPickerColor(dataDef.getMarkerColor());
             mappingTV.setText(dataDef.getSourceClassDef().getClassUri() + " -> " + dataDef.getLocationClassDef().getClassUri());

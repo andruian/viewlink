@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
+import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.ui.DataDefAdapter;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
@@ -128,7 +129,7 @@ public class DatasourcesPresenterImpl extends BasePresenterImpl implements Datas
         @Override
         protected AsyncTaskResult<List<DataDef>> doInBackground(Void... voids) {
             try {
-                List<DataDef> result = view.get().getViewLinkApplication().getAppDatabase().dataDefDao().getAll();
+                List<DataDef> result = DaoHelper.readAllDatadefs(view.get().getViewLinkApplication().getAppDatabase());
                 return new AsyncTaskResult<>(result);
             } catch (Exception e) {
                 return new AsyncTaskResult<>(e);

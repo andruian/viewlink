@@ -61,17 +61,40 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     @Override
     public void refreshDatadefsShownInDrawer() {
         Log.v("MainPresenter", "refreshDatadefsShownInDrawer");
-        DaoHelper.readAllDatadefs(view.getViewLinkApplication().getAppDatabase(), result -> {
+        new RefreshDdfInDrawerAT(view, this).execute();
+    }
+
+
+    private static class RefreshDdfInDrawerAT extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
+        private final MainMvpView view;
+        private final MainPresenter presenter;
+
+        private RefreshDdfInDrawerAT(MainMvpView view, MainPresenter presenter) {
+            this.view = view;
+            this.presenter = presenter;
+        }
+
+        @Override
+        protected AsyncTaskResult<List<DataDef>> doInBackground(Void... voids) {
+            try {
+                return new AsyncTaskResult<>(DaoHelper.readAllDatadefs(view.getViewLinkApplication().getAppDatabase()));
+            } catch (Exception e) {
+                return new AsyncTaskResult<>(e);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(AsyncTaskResult<List<DataDef>> result) {
             if (result.hasError()) {
                 Log.w("refDatadefsShownDrawer", "An error occurred", result.getError());
             } else {
                 for (DataDef dataDef : result.getResult()) {
                     Log.v("refreshDatadefsSID", dataDef.toString());
                 }
-                this.dataDefsShownInDrawer = result.getResult();
+                presenter.dataDefsShownInDrawer = result.getResult();
                 view.showDataDefsInDrawer(result.getResult());
             }
-        });
+        }
     }
 
     private double getRadiusFromMap() {
@@ -227,7 +250,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
         @Override
         protected void onPostExecute(AsyncTaskResult<Object> result) {
-            if (result.hasError()){
+            if (result.hasError()) {
                 Log.e("updateDdf", result.getError().getMessage(), result.getError());
                 return;
             }
