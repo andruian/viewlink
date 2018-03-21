@@ -45,14 +45,19 @@ public class SparqlPlaceFetcher {
             List<String> line = listReader.read();
             if (line == null) break;
 
+            String label = line.get(5);
+            if (label == null || label.isEmpty()) label = line.get(6);
+
             Place place = new Place(
                     line.get(0),
                     line.get(1),
                     Double.parseDouble(line.get(2)),
                     Double.parseDouble(line.get(3)),
                     line.get(4),
-                    dataDef);
-            for (int i=5; i<line.size(); i++)
+                    dataDef,
+                    label
+                    );
+            for (int i=7; i<line.size(); i++)
                 place.addProperty(new Property(header.get(i), line.get(i)));
 
             result.add(place);

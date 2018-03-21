@@ -58,14 +58,20 @@ public class IndexServerPlaceFetcher {
         JSONArray arr = new JSONArray(json);
         for (int i = 0; i < arr.length(); i++) {
             JSONObject jsonPlace = arr.getJSONObject(i);
+            String label = null;
+            try{
+                label = jsonPlace.getString("label");
+            } catch (JSONException ex){
+                // Label not provided in JSON, just use null
+            }
             Place newPlace = new Place(
                     jsonPlace.getString("uri"),
                     jsonPlace.getString("locationObjectUri"),
                     jsonPlace.getDouble("latPos"),
                     jsonPlace.getDouble("longPos"),
                     jsonPlace.getString("classUri"),
-                    parentDataDef
-            );
+                    parentDataDef,
+                    label);
 
             JSONArray properties = jsonPlace.getJSONArray("properties");
             for (int j = 0; j < properties.length(); j++) {

@@ -6,13 +6,21 @@ prefix ruian: <http://ruian.linked.opendata.cz/ontology/>
 prefix s: <http://schema.org/>
 prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT distinct ?dataObj ?locationObj ?lat ?long ?dataClassType {selectProps}
+SELECT distinct ?dataObj ?locationObj ?lat ?long ?dataClassType ?__prefLab__ ?__name__ {selectProps}
 WHERE {
   BIND(<{dataClassUri}> as ?dataClassType)
 
   ?dataObj a <{dataClassUri}>;
          {pathToLocClass} ?locationObj;
          .
+
+  OPTIONAL {
+    ?dataObj skos:prefLabel ?__prefLab__.
+  }
+
+  OPTIONAL {
+    ?dataObj s:name ?__name.
+  }
 
   #
   # Optional filter when reindexingto exclude all objects that already exist

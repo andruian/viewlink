@@ -14,14 +14,16 @@ public class Place implements Serializable {
     private final String classType;
     private final DataDef parentDatadef;
     private final List<Property> properties;
+    private final String label;
 
-    public Place(String uri, String locationObjectUri, double latitude, double longitude, String classType, DataDef parentDatadef) {
+    public Place(String uri, String locationObjectUri, double latitude, double longitude, String classType, DataDef parentDatadef, String label) {
         this.uri = uri;
         this.locationObjectUri = locationObjectUri;
         this.latitude = latitude;
         this.longitude = longitude;
         this.classType = classType;
         this.parentDatadef = parentDatadef;
+        this.label = label;
         this.properties = new ArrayList<>();
     }
 
@@ -61,7 +63,7 @@ public class Place implements Serializable {
      * Provide a best possible name for this object to display.
      */
     public String getDisplayName(){
-        // TODO preflabel
+        if (label!= null && !label.isEmpty()) return label;
         return uri;
     }
 
