@@ -26,13 +26,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +57,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private MainMvpPresenter presenter;
     private LocationHelper locationHelper;
     private GoogleMap map;
+//    private ClusterManager<Place> clusterManager;
+    private MultiClusterListener<Place> clusterListener;
 
     private boolean centerMapOnNextLocation = false;
     private boolean keepMapCentered = false;
@@ -194,6 +194,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * MAP and markers related functionality
      */
     Map<DataDef, List<Marker>> markers = new HashMap<>();
+    Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
 
     @Override
     public void clearMapMarkers() {
@@ -210,43 +211,72 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         for (Marker marker : markersOfDatadef) {
             marker.remove();
         }
+
+//        clusterManager.clearItems();
     }
 
     public static final int MAX_MARKERS_THRESHOLD = 250;
 
     @Override
-    public void addMapMarkers(List<Place> places) {
+    public void addMapMarkers(DataDef datadef, List<Place> places) {
         if (map == null) {
             Log.e("addMapMarkers", "map is null!");
             return;
         }
-        Log.d("addMapMarkers", "Adding " + places.size() + " markers");
-        int i = 0;
-        for (Place place : places) {
-            if (i > MAX_MARKERS_THRESHOLD) {
-                showMessage("Too many markers to show. Only showing " + MAX_MARKERS_THRESHOLD + ".");
-                break;
-            }
-            Marker marker = map.addMarker(new MarkerOptions()
-                    .position(new LatLng(place.getLatitude(), place.getLongitude()))
-                    .title(place.getDisplayName())
-                    .icon(BitmapDescriptorFactory.defaultMarker(place.getParentDatadef().getMarkerColor()))
-            );
-            marker.setTag(place);
-            List<Marker> markersOfDatadef = markers.get(place.getParentDatadef());
-            if (markersOfDatadef == null) {
-                markersOfDatadef = new ArrayList<>();
-                markers.put(place.getParentDatadef(), markersOfDatadef);
-            }
-            markersOfDatadef.add(marker);
-            i++;
+        if (places == null || places.isEmpty()) {
+            Log.d("addMapMarkers", "List empty.");
+            return;
         }
+
+        Log.d("addMapMarkers", "Adding " + places.size() + " markers");
+
+
+        ClusterManager<Place> clusterManager = clusterMgrs.get(datadef);
+        if (clusterManager == null) {
+            clusterManager = new ClusterManager<>(this, map);
+            clusterManager.setRenderer(new MarkerRenderer(datadef, this, map, clusterManager));
+            clusterManager.setOnClusterItemInfoWindowClickListener(place -> {
+                Intent i = new Intent(this, PlaceDetailActivity.class);
+                i.putExtra(PlaceDetailActivity.TAG_DATA_PLACE, place);
+                startActivity(i);
+            });
+
+            clusterMgrs.put(datadef, clusterManager);
+            clusterListener.addListener(datadef, clusterManager);
+        }
+
+        // TODO marker click does not workf
+
+        clusterManager.addItems(places);
+        clusterManager.cluster();
+
+//        int i = 0;
+//        for (Place place : places) {
+//            if (i > MAX_MARKERS_THRESHOLD) {
+//                showMessage("Too many markers to show. Only showing " + MAX_MARKERS_THRESHOLD + ".");
+//                break;
+//            }
+//
+//            Marker marker = map.addMarker(new MarkerOptions()
+//                    .position(new LatLng(place.getLatitude(), place.getLongitude()))
+//                    .title(place.getDisplayName())
+//                    .icon(BitmapDescriptorFactory.defaultMarker(place.getParentDatadef().getMarkerColor()))
+//            );
+//            marker.setTag(place);
+//            List<Marker> markersOfDatadef = markers.get(place.getParentDatadef());
+//            if (markersOfDatadef == null) {
+//                markersOfDatadef = new ArrayList<>();
+//                markers.put(place.getParentDatadef(), markersOfDatadef);
+//            }
+//            markersOfDatadef.add(marker);
+//            i++;
+//        }
     }
 
     @Override
     public void replaceMapMarkers(DataDef dataDef, List<Place> places) {
         clearMapMarkers(dataDef);
-        addMapMarkers(places);
+        addMapMarkers(dataDef, places);
     }
 
     @Override
@@ -296,6 +326,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
+
         setKeepMapCentered(true);
         googleMap.setOnCameraMoveStartedListener(reason -> {
             if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
@@ -305,13 +336,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             presenter.onMapCameraMoved(map, reason);
         });
-        googleMap.setOnCameraIdleListener(() -> presenter.onMapCameraIdle(map));
 
-        googleMap.setOnInfoWindowClickListener(marker -> {
-            Intent i = new Intent(this, PlaceDetailActivity.class);
-            i.putExtra(PlaceDetailActivity.TAG_DATA_PLACE, (Place) marker.getTag());
-            startActivity(i);
+        // CLUSTERS
+        clusterListener = new MultiClusterListener<>();
+        googleMap.setOnCameraIdleListener(() ->
+        {
+            presenter.onMapCameraIdle(map);
+            clusterListener.onCameraIdle();
         });
+        googleMap.setOnMarkerClickListener(marker -> clusterListener.onMarkerClick(marker));
+
+//        googleMap.setOnInfoWindowClickListener(marker -> {
+//            Intent i = new Intent(this, PlaceDetailActivity.class);
+//            i.putExtra(PlaceDetailActivity.TAG_DATA_PLACE, (Place) marker.getTag());
+//            startActivity(i);
+//        });
     }
 
 

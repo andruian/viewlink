@@ -1,12 +1,15 @@
 package cz.melkamar.andruian.viewlink.model.place;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
-public class Place implements Serializable {
+public class Place implements Serializable, ClusterItem {
     private final String uri;
     private final String locationObjectUri;
     private final double latitude;
@@ -78,5 +81,20 @@ public class Place implements Serializable {
                 ", parentDatadef=" + parentDatadef +
                 ", properties=" + properties +
                 '}';
+    }
+
+    @Override
+    public LatLng getPosition() {
+        return new LatLng(latitude, longitude);
+    }
+
+    @Override
+    public String getTitle() {
+        return this.getDisplayName();
+    }
+
+    @Override
+    public String getSnippet() {
+        return null;
     }
 }
