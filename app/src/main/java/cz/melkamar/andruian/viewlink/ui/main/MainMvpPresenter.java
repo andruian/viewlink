@@ -1,6 +1,5 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.v7.widget.SwitchCompat;
 
@@ -12,7 +11,7 @@ import cz.melkamar.andruian.viewlink.ui.base.BasePresenter;
  * Created by Martin on 11.03.2018.
  */
 
-public interface MainMvpPresenter extends BasePresenter, SharedPreferences.OnSharedPreferenceChangeListener {
+public interface MainMvpPresenter extends BasePresenter {
     void manageDataSources();
     void onResume();
     void onDestroy();

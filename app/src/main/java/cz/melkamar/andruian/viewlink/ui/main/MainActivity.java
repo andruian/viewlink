@@ -2,7 +2,6 @@ package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -53,8 +52,7 @@ import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener, OnMapReadyCallback,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener, OnMapReadyCallback {
 
     private final static String TAG_MAP_POSITION = "map_position";
 
@@ -443,10 +441,5 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void onProviderDisabled(String s) {
 
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        presenter.onSharedPreferenceChanged(sharedPreferences, s);
     }
 }

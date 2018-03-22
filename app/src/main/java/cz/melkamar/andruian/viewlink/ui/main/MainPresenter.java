@@ -1,6 +1,5 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
@@ -43,7 +42,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     public MainPresenter(MainMvpView view) {
         super(view);
         this.view = view;
-        this.prefAutoRefreshMarkers = PreferenceManager.getDefaultSharedPreferences(view.getActivity()).getBoolean(KEY_PREF_AUTO_REFRESH, true);
+        updatePrefs();
     }
 
     @Override
@@ -53,9 +52,15 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         view.showManageDatasourcesActivity();
     }
 
+    protected void updatePrefs() {
+        this.prefAutoRefreshMarkers = PreferenceManager.getDefaultSharedPreferences(view.getActivity()).getBoolean(KEY_PREF_AUTO_REFRESH, true);
+
+        Log.v("MainPresenter", "updatePrefs | prefAutoRefreshMarkers " + this.prefAutoRefreshMarkers);
+    }
+
     @Override
     public void onResume() {
-
+        updatePrefs();
     }
 
     @Override
@@ -74,14 +79,6 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         Log.v("MainPresenter", "refreshDatadefsShownInDrawer");
         new RefreshDdfInDrawerAT(view, this).execute();
     }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(KEY_PREF_AUTO_REFRESH)){
-            sharedPreferences.getBoolean(KEY_PREF_AUTO_REFRESH, true);
-        }
-    }
-
 
     private static class RefreshDdfInDrawerAT extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
         private final MainMvpView view;
@@ -138,11 +135,13 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         // TODO get all places around location
         if (enabled) {
             // TODO add progressbar to the main activity while loading markers
-            if (lastLocation != null) {
+            if (lastLocation != null && view.getMap() != null && view.getMap().getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
                 fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
                         view.getMap().getCameraPosition().target.latitude,
                         view.getMap().getCameraPosition().target.longitude,
                         getRadiusFromMap()); // TODO what radius?
+            } else {
+                view.showUpdatePlacesButton();
             }
         } else {
             view.clearMapMarkers(dataDefsShownInDrawer.get(itemId));
@@ -191,7 +190,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
     @Override
     public void onMapCameraIdle(GoogleMap googleMap) {
-        if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
+        if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD && prefAutoRefreshMarkers) {
             LatLng mapPosition = view.getMap().getCameraPosition().target;
             refreshMarkers(mapPosition.latitude, mapPosition.longitude);
         } else {
@@ -221,6 +220,9 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         refreshMarkers(mapPosition.latitude, mapPosition.longitude);
     }
 
+    /**
+     * Fetch new places and refresh markers for all DataDefs currently ticked as enabled.
+     */
     private void refreshMarkers(double lat, double lng) {
         view.hideUpdatePlacesButton();
 
