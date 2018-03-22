@@ -23,6 +23,7 @@ public interface MainMvpPresenter extends BasePresenter {
      */
     void dataDefSwitchClicked(SwitchCompat switchButton, int itemId, boolean enabled);
     void onMapCameraMoved(GoogleMap googleMap, int reason);
+    void onMapCameraIdle(GoogleMap googleMap);
     void onLocationChanged(Location newLocation);
     void onUpdatePlacesButtonClicked();
 }

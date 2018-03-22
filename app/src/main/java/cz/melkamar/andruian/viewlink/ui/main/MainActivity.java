@@ -296,6 +296,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             presenter.onMapCameraMoved(map, reason);
         });
+        googleMap.setOnCameraIdleListener(() -> presenter.onMapCameraIdle(map));
 
         googleMap.setOnInfoWindowClickListener(marker -> {
             Intent i = new Intent(this, PlaceDetailActivity.class);
@@ -303,6 +304,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             startActivity(i);
         });
     }
+
+
+
     /*
      ***********************************************************************************************
      */

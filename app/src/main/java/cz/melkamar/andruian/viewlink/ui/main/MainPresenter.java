@@ -175,6 +175,12 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     }
 
     @Override
+    public void onMapCameraIdle(GoogleMap googleMap) {
+        LatLng mapPosition = view.getMap().getCameraPosition().target;
+        refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+    }
+
+    @Override
     public void onLocationChanged(Location newLocation) {
         float metersDelta = 0;
         if (lastLocation != null)
