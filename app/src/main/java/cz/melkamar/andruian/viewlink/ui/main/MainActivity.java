@@ -12,6 +12,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -19,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -178,9 +178,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             menuItem.setActionView(menuItemView);
             menuItem.setCheckable(true);
 
-            Switch switchButton = menuItemView.findViewById(R.id.nav_switch);
+            SwitchCompat switchButton = menuItemView.findViewById(R.id.nav_switch);
             switchButton.setOnCheckedChangeListener((compoundButton, b) -> {
-                presenter.dataDefSwitchClicked((int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
+                presenter.dataDefSwitchClicked(switchButton, (int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
             });
             switchButton.setChecked(dataDef.isEnabled());
 

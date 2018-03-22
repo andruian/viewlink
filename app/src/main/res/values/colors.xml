@@ -3,4 +3,7 @@
     <color name="colorPrimary">#439bd7</color>
     <color name="colorPrimaryDark">#3E7396</color>
     <color name="colorAccent">#fab44e</color>
+
+    <color name="switch_disabled_thumb">#B9B9B9</color>
+    <color name="switch_disabled_track">#E5E5E5</color>
 </resources>

@@ -1,6 +1,7 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.location.Location;
+import android.support.v7.widget.SwitchCompat;
 
 import com.google.android.gms.maps.GoogleMap;
 
@@ -20,7 +21,7 @@ public interface MainMvpPresenter extends BasePresenter {
     /**
      * Called when a DataDef switch in the navigation drawer is clicked.
      */
-    void dataDefSwitchClicked(int itemId, boolean enabled);
+    void dataDefSwitchClicked(SwitchCompat switchButton, int itemId, boolean enabled);
     void onMapCameraMoved(GoogleMap googleMap, int reason);
     void onLocationChanged(Location newLocation);
     void onUpdatePlacesButtonClicked();

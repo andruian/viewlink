@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.data.NetHelper;
@@ -21,12 +22,12 @@ import cz.melkamar.andruian.viewlink.util.Util;
 
 public class IndexServerPlaceFetcher {
     public List<Place> fetchPlaces(DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException {
-        Log.v("IndexServerPlaceFetcher", "fetchPlaces ["+latitude+","+longitude+"("+radius+") for "+dataDef);
+        Log.v("IndexServerPlaceFetcher", "fetchPlaces [" + latitude + "," + longitude + "(" + radius + ") for " + dataDef);
         if (dataDef.getIndexServer() == null) {
             throw new PlaceFetchException("No index server defined");
         }
 
-        String queryUri = dataDef.getIndexServer().getUri()+"/api/query";
+        String queryUri = dataDef.getIndexServer().getUri() + "/api/query";
 
         NetHelper netHelper = NetHelperProvider.getNetHelper();
         double kmRadius = Util.convertRadiusToKilometers(latitude, longitude, radius);
@@ -53,15 +54,15 @@ public class IndexServerPlaceFetcher {
 
     private List<Place> parsePlaces(String json, DataDef parentDataDef) throws JSONException {
         List<Place> result = new ArrayList<>();
-        Log.v("parsePlaces", "Raw data: "+json);
+        Log.v("parsePlaces", "Raw data: " + json);
 
         JSONArray arr = new JSONArray(json);
         for (int i = 0; i < arr.length(); i++) {
             JSONObject jsonPlace = arr.getJSONObject(i);
             String label = null;
-            try{
+            try {
                 label = jsonPlace.getString("label");
-            } catch (JSONException ex){
+            } catch (JSONException ex) {
                 // Label not provided in JSON, just use null
             }
             Place newPlace = new Place(
@@ -69,16 +70,19 @@ public class IndexServerPlaceFetcher {
                     jsonPlace.getString("locationObjectUri"),
                     jsonPlace.getDouble("latPos"),
                     jsonPlace.getDouble("longPos"),
-                    jsonPlace.getString("classUri"),
+                    jsonPlace.getString("type"),
                     parentDataDef,
                     label);
 
-            JSONArray properties = jsonPlace.getJSONArray("properties");
-            for (int j = 0; j < properties.length(); j++) {
-                newPlace.addProperty(new Property(
-                        properties.getJSONObject(j).getString("name"),
-                        properties.getJSONObject(j).get("value").toString()
-                ));
+            JSONObject properties = jsonPlace.getJSONObject("properties");
+            Iterator<String> keyIter = properties.keys();
+            while (keyIter.hasNext()) {
+                try {
+                    String key = keyIter.next();
+                    newPlace.addProperty(new Property(key, properties.getString(key)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             result.add(newPlace);

@@ -72,7 +72,7 @@ public class NetHelperImpl implements NetHelper {
     @Override
     public AsyncTaskResult<String> httpPost(String url, KeyVal[] data, KeyVal... headers) {
         try {
-            Log.v("httpPost", "url:" + url + " | data: " + data + " | keyVals: " + Arrays.toString(headers));
+            Log.v("httpPost", "url:" + url + " | data: " + Arrays.toString(data) + " | keyVals: " + Arrays.toString(headers));
 
             Request.Builder builder = new Request.Builder().url(url);
             if (headers != null) {
