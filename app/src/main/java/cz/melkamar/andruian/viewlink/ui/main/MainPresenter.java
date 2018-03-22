@@ -1,9 +1,11 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 
@@ -33,11 +35,15 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     private List<DataDef> dataDefsShownInDrawer = null; // To keep track of what is shown, so we can enable/disable it
     private Location lastLocation = null;
 
+    private boolean prefAutoRefreshMarkers = true;
+
     public final int MIN_DIST_DATA_REFRESH = 200; // Minimal distance in meters to trigger data refresh
+    public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
 
     public MainPresenter(MainMvpView view) {
         super(view);
         this.view = view;
+        this.prefAutoRefreshMarkers = PreferenceManager.getDefaultSharedPreferences(view.getActivity()).getBoolean(KEY_PREF_AUTO_REFRESH, true);
     }
 
     @Override
@@ -67,6 +73,13 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     public void refreshDatadefsShownInDrawer() {
         Log.v("MainPresenter", "refreshDatadefsShownInDrawer");
         new RefreshDdfInDrawerAT(view, this).execute();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(KEY_PREF_AUTO_REFRESH)){
+            sharedPreferences.getBoolean(KEY_PREF_AUTO_REFRESH, true);
+        }
     }
 
 
@@ -167,17 +180,23 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     @Override
     public void onMapCameraMoved(GoogleMap map, int reason) {
         if (view != null) {
-            if (!view.isCameraFollowing()) {
+            if (!view.isCameraFollowing() && !prefAutoRefreshMarkers) {
                 view.showUpdatePlacesButton();
             }
         }
 //        map.getCameraPosition().zoom
     }
 
+    public static final int AUTO_ZOOM_THRESHOLD = 13;
+
     @Override
     public void onMapCameraIdle(GoogleMap googleMap) {
-        LatLng mapPosition = view.getMap().getCameraPosition().target;
-        refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+        if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
+            LatLng mapPosition = view.getMap().getCameraPosition().target;
+            refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+        } else {
+            view.showUpdatePlacesButton();
+        }
     }
 
     @Override

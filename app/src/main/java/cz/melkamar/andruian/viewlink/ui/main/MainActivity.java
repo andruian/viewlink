@@ -2,6 +2,7 @@ package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -47,11 +48,13 @@ import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 import cz.melkamar.andruian.viewlink.ui.placedetail.PlaceDetailActivity;
+import cz.melkamar.andruian.viewlink.ui.settings.SettingsActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener, OnMapReadyCallback {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener, OnMapReadyCallback,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final static String TAG_MAP_POSITION = "map_position";
 
@@ -211,6 +214,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    public static final int MAX_MARKERS_THRESHOLD = 250;
+
     @Override
     public void addMapMarkers(List<Place> places) {
         if (map == null) {
@@ -218,7 +223,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             return;
         }
         Log.d("addMapMarkers", "Adding " + places.size() + " markers");
+        int i = 0;
         for (Place place : places) {
+            if (i > MAX_MARKERS_THRESHOLD) {
+                showMessage("Too many markers to show. Only showing " + MAX_MARKERS_THRESHOLD + ".");
+                break;
+            }
             Marker marker = map.addMarker(new MarkerOptions()
                     .position(new LatLng(place.getLatitude(), place.getLongitude()))
                     .title(place.getDisplayName())
@@ -231,6 +241,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 markers.put(place.getParentDatadef(), markersOfDatadef);
             }
             markersOfDatadef.add(marker);
+            i++;
         }
     }
 
@@ -300,7 +311,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         googleMap.setOnInfoWindowClickListener(marker -> {
             Intent i = new Intent(this, PlaceDetailActivity.class);
-            i.putExtra(PlaceDetailActivity.TAG_DATA_PLACE, (Place)marker.getTag());
+            i.putExtra(PlaceDetailActivity.TAG_DATA_PLACE, (Place) marker.getTag());
             startActivity(i);
         });
     }
@@ -321,6 +332,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if (id == R.id.nav_manage_sources) {
             presenter.manageDataSources();
+            return true;
+        } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -429,5 +443,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        presenter.onSharedPreferenceChanged(sharedPreferences, s);
     }
 }

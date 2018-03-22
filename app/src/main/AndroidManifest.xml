@@ -62,6 +62,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="cz.melkamar.andruian.viewlink.ui.main.MainActivity" />
         </activity>
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="cz.melkamar.andruian.viewlink.ui.main.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
