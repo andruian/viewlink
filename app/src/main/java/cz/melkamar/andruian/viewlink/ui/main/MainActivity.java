@@ -212,7 +212,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             marker.remove();
         }
 
-//        clusterManager.clearItems();
+        // TODO tady to nemaže místa z nějakýho důvodu...
+        ClusterManager<Place> clusterManager = clusterMgrs.get(dataDef);
+        if (clusterManager!=null){
+            clusterManager.clearItems();
+            clusterManager.cluster();
+        }
     }
 
     public static final int MAX_MARKERS_THRESHOLD = 250;
@@ -344,7 +349,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             presenter.onMapCameraIdle(map);
             clusterListener.onCameraIdle();
         });
-        googleMap.setOnMarkerClickListener(marker -> clusterListener.onMarkerClick(marker));
+//        googleMap.setOnMarkerClickListener(marker -> clusterListener.onMarkerClick(marker));
 
 //        googleMap.setOnInfoWindowClickListener(marker -> {
 //            Intent i = new Intent(this, PlaceDetailActivity.class);
