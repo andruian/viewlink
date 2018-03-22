@@ -47,6 +47,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="http://datadef.uri.org"
                 android:textColor="@android:color/black"
+                android:textIsSelectable="true"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/recycler_row_place_detail_label" />
 
