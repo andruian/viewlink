@@ -10,7 +10,7 @@ import java.util.Map;
 
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
-public class MultiClusterListener<T> implements GoogleMap.OnCameraIdleListener, GoogleMap.OnMarkerClickListener {
+public class MultiClusterListener<T> implements GoogleMap.OnCameraIdleListener, GoogleMap.OnInfoWindowClickListener {
     Map<DataDef, ClusterManager> managers;
 
     public MultiClusterListener() {
@@ -30,11 +30,11 @@ public class MultiClusterListener<T> implements GoogleMap.OnCameraIdleListener, 
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
-        Log.d("onMarkerClick", "onCameraIdle");
+    public void onInfoWindowClick(Marker marker) {
+        Log.d("MultiClusterListener", "onInfoWindowClick");
         for (ClusterManager clusterManager : managers.values()) {
             clusterManager.onMarkerClick(marker);
+            clusterManager.onInfoWindowClick(marker);
         }
-        return true;
     }
 }
