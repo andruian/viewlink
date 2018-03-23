@@ -57,19 +57,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private MainMvpPresenter presenter;
     private LocationHelper locationHelper;
     private GoogleMap map;
-//    private ClusterManager<Place> clusterManager;
     private MultiClusterListener<Place> clusterListener;
+    Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
 
     private boolean centerMapOnNextLocation = false;
     private boolean keepMapCentered = false;
     private CameraPosition preferredCameraPosition = null; // If non-null, set map to this position as soon as possible (after it's loaded)
 
-    @BindView(R.id.fab) protected FloatingActionButton fab;
-    @BindView(R.id.progressbar) protected ProgressBar progressBar;
-    @BindView(R.id.update_places_btn) protected Button updatePlacesButton;
+    @BindView(R.id.fab)
+    protected FloatingActionButton fab;
+    @BindView(R.id.progressbar)
+    protected ProgressBar progressBar;
+    @BindView(R.id.update_places_btn)
+    protected Button updatePlacesButton;
 
-    @BindDrawable(R.drawable.ic_location_searching_black_24dp) protected Drawable iconGpsSearching;
-    @BindDrawable(R.drawable.ic_gps_fixed_black_24dp) protected Drawable iconGpsLocked;
+    @BindDrawable(R.drawable.ic_location_searching_black_24dp)
+    protected Drawable iconGpsSearching;
+    @BindDrawable(R.drawable.ic_gps_fixed_black_24dp)
+    protected Drawable iconGpsLocked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,8 +198,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      ***********************************************************************************************
      * MAP and markers related functionality
      */
-    Map<DataDef, List<Marker>> markers = new HashMap<>();
-    Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
+
 
     @Override
     public void clearMapMarkers() {
@@ -204,23 +208,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void clearMapMarkers(DataDef dataDef) {
-        Log.d("clearMapMarkers", "Removing markers " + dataDef.getUri());
-        List<Marker> markersOfDatadef = markers.get(dataDef);
-        if (markersOfDatadef == null) return;
+        Log.d("MainActivity", "clearMapMarkers - removing markers for" + dataDef.getUri());
 
-        for (Marker marker : markersOfDatadef) {
-            marker.remove();
-        }
-
-        // TODO tady to nemaže místa z nějakýho důvodu...
         ClusterManager<Place> clusterManager = clusterMgrs.get(dataDef);
-        if (clusterManager!=null){
+        if (clusterManager != null) {
             clusterManager.clearItems();
             clusterManager.cluster();
+            Log.v("MainActivity", "clearMapMarkers - now size: " + clusterManager.getClusterMarkerCollection().getMarkers().size());
+        } else {
+            Log.v("MainActivity", "clearMapMarkers - clusterManager was null for " + dataDef.getUri());
         }
     }
-
-    public static final int MAX_MARKERS_THRESHOLD = 250;
 
     @Override
     public void addMapMarkers(DataDef datadef, List<Place> places) {
@@ -254,28 +252,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         clusterManager.addItems(places);
         clusterManager.cluster();
-
-//        int i = 0;
-//        for (Place place : places) {
-//            if (i > MAX_MARKERS_THRESHOLD) {
-//                showMessage("Too many markers to show. Only showing " + MAX_MARKERS_THRESHOLD + ".");
-//                break;
-//            }
-//
-//            Marker marker = map.addMarker(new MarkerOptions()
-//                    .position(new LatLng(place.getLatitude(), place.getLongitude()))
-//                    .title(place.getDisplayName())
-//                    .icon(BitmapDescriptorFactory.defaultMarker(place.getParentDatadef().getMarkerColor()))
-//            );
-//            marker.setTag(place);
-//            List<Marker> markersOfDatadef = markers.get(place.getParentDatadef());
-//            if (markersOfDatadef == null) {
-//                markersOfDatadef = new ArrayList<>();
-//                markers.put(place.getParentDatadef(), markersOfDatadef);
-//            }
-//            markersOfDatadef.add(marker);
-//            i++;
-//        }
     }
 
     @Override
@@ -334,20 +310,27 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         setKeepMapCentered(true);
         googleMap.setOnCameraMoveStartedListener(reason -> {
+            Log.v("MainActivity", "onMapCameraMoved " + reason);
+            lastCameraMoveReason = reason;
+
             if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
                 Log.d("cameraMovedListener", "stopping centering camera");
                 setKeepMapCentered(false);
+                presenter.onMapCameraMoved(map, reason);
             }
 
-            presenter.onMapCameraMoved(map, reason);
+
         });
 
         // CLUSTERS
         clusterListener = new MultiClusterListener<>();
         googleMap.setOnCameraIdleListener(() ->
         {
-            presenter.onMapCameraIdle(map);
-            clusterListener.onCameraIdle();
+            Log.v("MainActivity", "onCameraIdle - lastReason " + lastCameraMoveReason);
+            if (lastCameraMoveReason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                presenter.onMapCameraIdle(map);
+                clusterListener.onCameraIdle();
+            }
         });
 //        googleMap.setOnMarkerClickListener(marker -> clusterListener.onMarkerClick(marker));
 
@@ -357,6 +340,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 //            startActivity(i);
 //        });
     }
+
+    private int lastCameraMoveReason = 0;
 
 
 

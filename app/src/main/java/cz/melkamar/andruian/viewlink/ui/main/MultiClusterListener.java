@@ -1,5 +1,6 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
+import android.util.Log;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
@@ -22,6 +23,7 @@ public class MultiClusterListener<T> implements GoogleMap.OnCameraIdleListener, 
 
     @Override
     public void onCameraIdle() {
+        Log.d("MultiClusterListener", "onCameraIdle");
         for (ClusterManager clusterManager : managers.values()) {
             clusterManager.onCameraIdle();
         }
@@ -29,6 +31,7 @@ public class MultiClusterListener<T> implements GoogleMap.OnCameraIdleListener, 
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Log.d("onMarkerClick", "onCameraIdle");
         for (ClusterManager clusterManager : managers.values()) {
             clusterManager.onMarkerClick(marker);
         }
