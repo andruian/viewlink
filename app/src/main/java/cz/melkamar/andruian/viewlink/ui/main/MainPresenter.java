@@ -277,9 +277,6 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
             }
 
             Log.v("postFetchPlaces", "Got " + result.getResult().size() + " places from datadef" + dataDef.getUri());
-            for (Place place : result.getResult()) {
-                Log.v("    result    ", place.toString());
-            }
             // TODO for production do not delete markers - just add new ones - merge
             view.replaceMapMarkers(dataDef, result.getResult());
         }
