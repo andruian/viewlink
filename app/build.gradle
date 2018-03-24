@@ -90,5 +90,5 @@ dependencies {
     implementation 'net.sf.supercsv:super-csv:2.4.0'
 
     // Marker groups
-    implementation 'com.google.maps.android:android-maps-utils:0.5+'
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
 }
