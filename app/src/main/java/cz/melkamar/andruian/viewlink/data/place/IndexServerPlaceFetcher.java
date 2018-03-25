@@ -12,6 +12,7 @@ import java.util.List;
 
 import cz.melkamar.andruian.viewlink.data.NetHelper;
 import cz.melkamar.andruian.viewlink.data.NetHelperProvider;
+import cz.melkamar.andruian.viewlink.exception.IndexServerNotDefinedException;
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
@@ -21,10 +22,10 @@ import cz.melkamar.andruian.viewlink.util.KeyVal;
 import cz.melkamar.andruian.viewlink.util.Util;
 
 public class IndexServerPlaceFetcher {
-    public List<Place> fetchPlaces(DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException {
+    public List<Place> fetchPlaces(DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException, IndexServerNotDefinedException {
         Log.v("IndexServerPlaceFetcher", "fetchPlaces [" + latitude + "," + longitude + "(" + radius + ") for " + dataDef);
         if (dataDef.getIndexServer() == null) {
-            throw new PlaceFetchException("No index server defined");
+            throw new IndexServerNotDefinedException("No index server defined");
         }
 
         String queryUri = dataDef.getIndexServer().getUri() + "/api/query";

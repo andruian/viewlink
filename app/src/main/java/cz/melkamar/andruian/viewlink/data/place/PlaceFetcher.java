@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.List;
 
+import cz.melkamar.andruian.viewlink.exception.IndexServerNotDefinedException;
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
 import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
@@ -42,6 +43,10 @@ public class PlaceFetcher {
         } catch (PlaceFetchException e) {
             lastException = e;
             Log.i("fetchPlaces", "Could not fetch places from the index server", e);
+            view.showMessage("An error occurred when fetching data from the index server. "+e.getMessage());
+        } catch (IndexServerNotDefinedException e) {
+            e.printStackTrace();
+            Log.i("fetchPlaces", "Index server not defined", e);
         }
 
         try {
