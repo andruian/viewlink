@@ -66,8 +66,8 @@ public class IndexServerPlaceFetcher {
                 // Label not provided in JSON, just use null
             }
             Place newPlace = new Place(
-                    jsonPlace.getString("uri"),
-                    jsonPlace.getString("locationObjectUri"),
+                    jsonPlace.getString("iri"),
+                    jsonPlace.getString("locationObjectIri"),
                     jsonPlace.getDouble("latPos"),
                     jsonPlace.getDouble("longPos"),
                     jsonPlace.getString("type"),

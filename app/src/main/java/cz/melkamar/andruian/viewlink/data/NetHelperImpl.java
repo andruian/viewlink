@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import cz.melkamar.andruian.viewlink.exception.HttpException;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
@@ -20,7 +21,14 @@ import okhttp3.Response;
  */
 
 public class NetHelperImpl implements NetHelper {
-    OkHttpClient client = new OkHttpClient();
+    private OkHttpClient client;
+
+    public NetHelperImpl() {
+        client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
+    }
 
     @Override
     public AsyncTaskResult<String> httpGet(String url, KeyVal[] params, KeyVal... headers) {
