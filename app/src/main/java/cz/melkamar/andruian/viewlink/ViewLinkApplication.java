@@ -1,12 +1,12 @@
 package cz.melkamar.andruian.viewlink;
 
-import android.app.Application;
 import android.arch.persistence.room.Room;
+import android.support.multidex.MultiDexApplication;
 
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 
 
-public class ViewLinkApplication extends Application {
+public class ViewLinkApplication extends MultiDexApplication {
 //    private DaoSession daoSession;
 //    @BindString(R.string.database_id) String DB_ID;
 

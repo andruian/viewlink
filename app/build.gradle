@@ -1,6 +1,19 @@
 apply plugin: 'com.android.application'
 
+// keystore.properties file must be present in the root folder. See keystore.properties.example
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
+    signingConfigs {
+        releasesign {
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            storeFile = file(keystoreProperties['storeFile'])
+            storePassword = keystoreProperties['storePassword']
+        }
+    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "cz.melkamar.andruian.viewlink"
@@ -11,16 +24,22 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionCode 1
         versionName "1.0.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+            signingConfig signingConfigs.releasesign
         }
     }
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
+    }
+    dexOptions {
+        additionalParameters = ['--core-library']
     }
 }
 
@@ -50,7 +69,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.android.support:design:26.1.0'
@@ -61,36 +80,27 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.1'
     androidTestCompile 'com.android.support.test.espresso:espresso-intents:3.0.1'
-
+    implementation 'com.android.support:multidex:1.0.1'
     // required if you want to use Mockito for unit tests
     testCompile 'org.mockito:mockito-core:2.7.22'
     // required if you want to use Mockito for Android tests
     androidTestCompile 'org.mockito:mockito-android:2.7.22'
-
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-
-
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-
     //
     // Both of these are necessary for the rdf4j parser to work
     //
     // https://mvnrepository.com/artifact/org.eclipse.rdf4j/rdf4j-rio-turtle
-//    implementation group: 'org.eclipse.rdf4j', name: 'rdf4j-rio-turtle', version: '2.3-M1'
-
-//     https://mvnrepository.com/artifact/xerces/xercesImpl
-    implementation group: 'xerces', name: 'xercesImpl', version: '2.11.0'
-
-    implementation('cz.melkamar.andruian:ddfparser:1.0.7')
-
-    implementation "android.arch.persistence.room:runtime:1.0.0"
+    //    implementation group: 'org.eclipse.rdf4j', name: 'rdf4j-rio-turtle', version: '2.3-M1'
+    //     https://mvnrepository.com/artifact/xerces/xercesImpl
+    implementation 'xerces:xercesImpl:2.11.0'
+    implementation 'cz.melkamar.andruian:ddfparser:1.0.7'
+    implementation 'android.arch.persistence.room:runtime:1.0.0'
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
-    androidTestImplementation "android.arch.persistence.room:testing:1.0.0"
-
+    androidTestImplementation 'android.arch.persistence.room:testing:1.0.0'
     implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'net.sf.supercsv:super-csv:2.4.0'
-
     // Marker groups
     implementation 'com.google.maps.android:android-maps-utils:0.5'
 }
