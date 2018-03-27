@@ -28,7 +28,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.HashMap;
@@ -416,6 +415,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onPause() {
         super.onPause();
+        presenter.onPause();
+        locationHelper.stopReportingGps();
+
         // TODO save map location and restore it onResume
     }
 
@@ -423,6 +425,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onResume() {
         super.onResume();
         presenter.onResume();
+
+        try {
+            locationHelper.startReportingGps();
+        } catch (PermissionException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

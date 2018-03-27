@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 
 /**
@@ -23,6 +25,7 @@ public class LocationHelper implements LocationListener {
     private final LocationListener listener;
     private boolean reportingGps = false;
     private Location lastKnownLocation = null;
+    private LocationManager locationManager = null;
 
     public final static int LOC_REQUEST_CODE = 1;
     public final static int LOC_REQUEST_MAP = 2;
@@ -37,6 +40,7 @@ public class LocationHelper implements LocationListener {
     public LocationHelper(AppCompatActivity activity, LocationListener locationListener) {
         this.activity = activity;
         this.listener = locationListener;
+        this.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
     }
 
     /**
@@ -45,7 +49,6 @@ public class LocationHelper implements LocationListener {
      * @throws PermissionException Thrown when permissions are denied.
      */
     public void startReportingGps() throws PermissionException {
-        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = locationManager.getBestProvider(criteria, false);
         if (ActivityCompat.checkSelfPermission(activity,
@@ -59,6 +62,14 @@ public class LocationHelper implements LocationListener {
 
         locationManager.requestLocationUpdates(provider, 1000, 5, this);
         reportingGps = true;
+    }
+
+    public void stopReportingGps() {
+        Log.i("LocationHelper", "stopReportingGps");
+        if (locationManager!=null) {
+            Log.d("LocationHelper", "removing updates");
+            locationManager.removeUpdates(this);
+        }
     }
 
     public boolean checkPermissions() {

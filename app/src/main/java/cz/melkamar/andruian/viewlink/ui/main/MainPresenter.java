@@ -64,6 +64,11 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     }
 
     @Override
+    public void onPause() {
+
+    }
+
+    @Override
     public void onDestroy() {
         view = null;
     }
