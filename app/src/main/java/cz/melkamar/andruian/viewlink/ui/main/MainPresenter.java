@@ -70,7 +70,6 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
     @Override
     public void onFabClicked() {
-        // TODO This takes ages on hardware after start
         view.setKeepMapCentered(true);
     }
 
@@ -117,8 +116,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         //  - whichever direction is longer
         LatLng northeast = view.getMap().getProjection().getVisibleRegion().latLngBounds.northeast;
         LatLng camTarget = view.getMap().getCameraPosition().target;
-        // TODO remove 0.5, it's just debug
-        return 0.5 * Math.max(
+        return Math.max(
                 Math.abs(northeast.latitude - camTarget.latitude),
                 Math.abs(northeast.longitude - camTarget.longitude));
     }
