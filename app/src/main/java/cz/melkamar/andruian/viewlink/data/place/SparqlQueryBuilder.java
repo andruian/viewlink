@@ -16,7 +16,6 @@ import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.util.MapFormat;
 
 public class SparqlQueryBuilder {
-    // TODO rename thsi class
     public static final Set<String> RESERVED_VAR_NAMES = new HashSet<>(Arrays.asList("dataObj",
             "locationObj",
             "lat",
@@ -88,8 +87,8 @@ public class SparqlQueryBuilder {
      *
      * @param latitude
      * @param longitude
-     * @param radius Radius around the latlng from which elements will be included. The radius uses
-     *               the same "units" as the latlng - it specifies "offset" of the coordinates.
+     * @param radius    Radius around the latlng from which elements will be included. The radius uses
+     *                  the same "units" as the latlng - it specifies "offset" of the coordinates.
      */
     public void limitToArea(double latitude, double longitude, double radius) {
         limitToAreaEnabled = true;
@@ -98,12 +97,12 @@ public class SparqlQueryBuilder {
         limitRadius = radius;
     }
 
-    private String buildLimitToAreaClause(){
+    private String buildLimitToAreaClause() {
         if (!limitToAreaEnabled) return "";
 
-        return "BIND("+limitLat+" as ?___limitLat___)\n" +
-                "BIND("+limitLong+" as ?___limitLong___)\n" +
-                "BIND("+limitRadius+" as ?___limitRadius___)\n" +
+        return "BIND(" + limitLat + " as ?___limitLat___)\n" +
+                "BIND(" + limitLong + " as ?___limitLong___)\n" +
+                "BIND(" + limitRadius + " as ?___limitRadius___)\n" +
                 "\n" +
                 "FILTER (\n" +
                 "  ?long > ?___limitLong___ - ?___limitRadius___ && ?long < ?___limitLong___ + ?___limitRadius___ &&\n" +
@@ -151,11 +150,13 @@ public class SparqlQueryBuilder {
         for (SelectProperty selectProperty : selectProperties) {
             checkReservedVariableUsed(selectProperty.getName());
 
-            builder.append("?dataObj ")
+            builder.append("OPTIONAL {\n")
+                    .append("?dataObj ")
                     .append(selectProperty.getPath().toString())
                     .append(" ?")
                     .append(selectProperty.getName())
-                    .append(" .\n");
+                    .append(" .\n")
+                    .append("}\n");
         }
         return builder.toString();
     }

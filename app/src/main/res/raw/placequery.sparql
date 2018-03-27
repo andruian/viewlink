@@ -51,18 +51,12 @@ WHERE {
   #   [lat,long]LocationPathForLocationClass will contain a
   #   property path from the Location class to its coordinates.
   SERVICE <{locationSparqlEndpoint}> {
-    ?locationObj {latLocationPathForLocationClass} ?lat;
-                 {longLocationPathForLocationClass} ?long;
+    ?locationObj {latLocationPathForLocationClass} ?latStr;
+                 {longLocationPathForLocationClass} ?longStr;
     .
 
-    #
-    # RUIAN-specific
-    #   For some reason RUIAN has two values for object's coordinates.
-    #   Make sure we get the one we expect by filtering.
-    FILTER(
-      datatype(?lat) = xsd:decimal &&
-      datatype(?long) = xsd:decimal
-    )
+    BIND(xsd:float(?latStr) as ?lat)
+    BIND(xsd:float(?longStr) as ?long)
 
     {limitToAreaClause}
   }
