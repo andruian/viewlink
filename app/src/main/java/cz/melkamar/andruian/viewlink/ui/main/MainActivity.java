@@ -2,6 +2,7 @@ package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -115,12 +116,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         preferredCameraPosition = savedInstanceState.getParcelable(TAG_MAP_POSITION);
         Log.v("onRestoreInstanceState", "preferredCameraPosition: " + preferredCameraPosition);
         if (map != null) {
+            Log.v("onRestoreInstanceState", "animating camera");
             map.animateCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition));
+        } else {
+            Log.v("onRestoreInstanceState", "map is null");
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Log.v("MainActivity", "onSaveInstanceState");
+
         if (map != null)
             outState.putParcelable(TAG_MAP_POSITION, map.getCameraPosition());
 
@@ -299,15 +305,20 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             return;
         }
 
-        Log.d("onMapReady", "Permissions ok");
+        Log.d("onMapReady", "Permissions ok. PreferredCameraPosition: " + preferredCameraPosition);
         googleMap.setMyLocationEnabled(true); // Permissions are always granted here
 //        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.747283, 13.387336), 15), 250, null);
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266, 14.43346828222275), 17), 250, null);
+        if (preferredCameraPosition == null) {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266, 14.43346828222275), 17), 250, null);
+            setKeepMapCentered(true);
+        } else {
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition), 100, null);
+        }
+
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
 
-        setKeepMapCentered(true);
         googleMap.setOnCameraMoveStartedListener(reason -> {
             Log.v("MainActivity", "onMapCameraMoved " + reason);
             lastCameraMoveReason = reason;
@@ -421,6 +432,51 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             locationHelper.startReportingGps();
         } catch (PermissionException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        restoreMapPosition();
+    }
+
+    protected void restoreMapPosition() {
+        SharedPreferences prefs = this.getSharedPreferences("com.ex.app.loc", MODE_PRIVATE);
+        if (prefs.contains("lat") && prefs.contains("long") && prefs.contains("zoom")) {
+            double lat = Double.longBitsToDouble(prefs.getLong("lat", 0));
+            double lng = Double.longBitsToDouble(prefs.getLong("long", 0));
+            float zoom = prefs.getFloat("zoom", 10);
+            boolean keepCentered = prefs.getBoolean("keepCentered", true);
+            Log.d("MainActivity", "onResume - restoring map position: " + lat + "," + lng + "(" + zoom + "). Center: " + keepCentered);
+
+            setKeepMapCentered(keepCentered);
+
+            if (map != null) {
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom), 250, null);
+            } else {
+                preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lng), zoom);
+            }
+        } else {
+            Log.d("MainActivity", "onResume - not restoring map position");
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveMapPosition();
+    }
+
+    protected void saveMapPosition() {
+        if (map != null) {
+            SharedPreferences prefs = this.getSharedPreferences("com.ex.app.loc", MODE_PRIVATE);
+            prefs.edit()
+                    .putLong("lat", Double.doubleToRawLongBits(map.getCameraPosition().target.latitude))
+                    .putLong("long", Double.doubleToRawLongBits(map.getCameraPosition().target.longitude))
+                    .putFloat("zoom", map.getCameraPosition().zoom)
+                    .putBoolean("keepCentered", keepMapCentered)
+                    .apply();
         }
     }
 
