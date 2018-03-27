@@ -63,6 +63,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private boolean centerMapOnNextLocation = false;
     private boolean keepMapCentered = false;
     private CameraPosition preferredCameraPosition = null; // If non-null, set map to this position as soon as possible (after it's loaded)
+    private boolean updateMarkersWhenPossible = false;
+    private int lastCameraMoveReason = 0;
 
     @BindView(R.id.fab)
     protected FloatingActionButton fab;
@@ -108,29 +110,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         presenter.refreshDatadefsShownInDrawer();
         // TODO on activity resume check already-displayed colors of markers vs what is defined in DataDefs - in case the user changed a color
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.v("MainActivity", "onRestoreInstanceState");
-        preferredCameraPosition = savedInstanceState.getParcelable(TAG_MAP_POSITION);
-        Log.v("onRestoreInstanceState", "preferredCameraPosition: " + preferredCameraPosition);
-        if (map != null) {
-            Log.v("onRestoreInstanceState", "animating camera");
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition));
-        } else {
-            Log.v("onRestoreInstanceState", "map is null");
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.v("MainActivity", "onSaveInstanceState");
-
-        if (map != null)
-            outState.putParcelable(TAG_MAP_POSITION, map.getCameraPosition());
-
-        super.onSaveInstanceState(outState);
     }
 
     public void centerCamera() {
@@ -294,6 +273,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return map;
     }
 
+    @Override
+    public void updateMarkersWhenPossible(){
+        if (map == null) {
+            updateMarkersWhenPossible = true;
+            return;
+        }
+
+        presenter.onUpdatePlacesButtonClicked();
+    }
+
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -309,10 +298,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         googleMap.setMyLocationEnabled(true); // Permissions are always granted here
 //        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.747283, 13.387336), 15), 250, null);
         if (preferredCameraPosition == null) {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266, 14.43346828222275), 17), 250, null);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266, 14.43346828222275), 17));
             setKeepMapCentered(true);
         } else {
-            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition), 100, null);
+            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition));
         }
 
         googleMap.getUiSettings().setMapToolbarEnabled(false);
@@ -347,9 +336,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             Log.d("MainActivity", "onInfoWindowClick " + marker);
             clusterListener.onInfoWindowClick(marker);
         });
-    }
 
-    private int lastCameraMoveReason = 0;
+        if (updateMarkersWhenPossible){
+            Log.d("MainActivity", "onMapReady - updating places");
+            presenter.onUpdatePlacesButtonClicked();
+        }
+    }
 
 
 
@@ -439,6 +431,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onResume() {
         super.onResume();
         restoreMapPosition();
+        updateMarkersWhenPossible();
     }
 
     protected void restoreMapPosition() {
@@ -448,12 +441,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             double lng = Double.longBitsToDouble(prefs.getLong("long", 0));
             float zoom = prefs.getFloat("zoom", 10);
             boolean keepCentered = prefs.getBoolean("keepCentered", true);
-            Log.d("MainActivity", "onResume - restoring map position: " + lat + "," + lng + "(" + zoom + "). Center: " + keepCentered);
+            Log.d("MainActivity", "onResume - restoring map position: " + lat + "," + lng + "(" + zoom + "). Center: " + keepCentered+". map: "+map);
 
             setKeepMapCentered(keepCentered);
 
             if (map != null) {
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom), 250, null);
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom), 0, null);
             } else {
                 preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lng), zoom);
             }

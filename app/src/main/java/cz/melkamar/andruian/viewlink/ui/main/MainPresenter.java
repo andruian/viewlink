@@ -35,6 +35,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     private Location lastLocation = null;
 
     private boolean prefAutoRefreshMarkers = true;
+    private boolean refreshMarkersWhenDdfReady = false; // If true, refresh markers shown as soon as datadefs are loaded
 
     public final int MIN_DIST_DATA_REFRESH = 200; // Minimal distance in meters to trigger data refresh
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
@@ -43,6 +44,10 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         super(view);
         this.view = view;
         updatePrefs();
+    }
+
+    public boolean isRefreshMarkersWhenDdfReady() {
+        return refreshMarkersWhenDdfReady;
     }
 
     @Override
@@ -108,6 +113,11 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
                 }
                 presenter.dataDefsShownInDrawer = result.getResult();
                 view.showDataDefsInDrawer(result.getResult());
+
+                if (presenter.isRefreshMarkersWhenDdfReady()) {
+                    Log.d("MainPresenter", "RefreshDdfInDrawerAT - refreshing shown markers");
+                    presenter.onUpdatePlacesButtonClicked();
+                }
             }
         }
     }
@@ -215,8 +225,12 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
     @Override
     public void onUpdatePlacesButtonClicked() {
-        LatLng mapPosition = view.getMap().getCameraPosition().target;
-        refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+        if (view.getMap() != null) {
+            LatLng mapPosition = view.getMap().getCameraPosition().target;
+            refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+        } else {
+            view.updateMarkersWhenPossible();
+        }
     }
 
     /**
@@ -225,12 +239,15 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     private void refreshMarkers(double lat, double lng) {
         view.hideUpdatePlacesButton();
 
-        if (dataDefsShownInDrawer != null) {
-            for (DataDef dataDef : dataDefsShownInDrawer) {
-                if (dataDef.isEnabled()) {
-                    Log.i("refreshMarkers", "Refreshing data shown for datadef " + dataDef.getUri());
-                    fetchNewPlaces(view, dataDef, lat, lng, getRadiusFromMap());
-                }
+        if (dataDefsShownInDrawer == null) {
+            refreshMarkersWhenDdfReady = true;
+            return;
+        }
+
+        for (DataDef dataDef : dataDefsShownInDrawer) {
+            if (dataDef.isEnabled()) {
+                Log.i("refreshMarkers", "Refreshing data shown for datadef " + dataDef.getUri());
+                fetchNewPlaces(view, dataDef, lat, lng, getRadiusFromMap());
             }
         }
     }

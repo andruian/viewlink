@@ -26,4 +26,10 @@ public interface MainMvpView extends BaseView {
     void hideUpdatePlacesButton();
     boolean isCameraFollowing();
     GoogleMap getMap();
+
+    /**
+     * Update map markers as soon as possible. If map is already created, request updating
+     * immediately. If map does not exist, set a flag which is checked when the map becomes ready.
+     */
+    void updateMarkersWhenPossible();
 }
