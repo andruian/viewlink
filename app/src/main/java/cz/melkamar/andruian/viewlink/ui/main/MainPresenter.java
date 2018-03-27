@@ -59,18 +59,14 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     }
 
     @Override
-    public void onResume() {
+    public void onViewAttached(MainMvpView view) {
+        this.view = view;
         updatePrefs();
     }
 
     @Override
-    public void onPause() {
-
-    }
-
-    @Override
-    public void onDestroy() {
-        view = null;
+    public void onViewDetached() {
+        this.view = null;
     }
 
     @Override

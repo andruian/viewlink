@@ -238,7 +238,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             clusterManager = new ClusterManager<>(this, map);
             clusterManager.setRenderer(new MarkerRenderer(datadef, this, map, clusterManager));
             clusterManager.setOnClusterItemInfoWindowClickListener(place -> {
-                Log.v("MainActivity", "OnClusterItemInfoWindowClick "+place);
+                Log.v("MainActivity", "OnClusterItemInfoWindowClick " + place);
                 Intent i = new Intent(this, PlaceDetailActivity.class);
                 i.putExtra(PlaceDetailActivity.TAG_DATA_PLACE, place);
                 startActivity(i);
@@ -302,7 +302,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Log.d("onMapReady", "Permissions ok");
         googleMap.setMyLocationEnabled(true); // Permissions are always granted here
 //        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.747283, 13.387336), 15), 250, null);
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266,14.43346828222275), 17), 250, null);
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266, 14.43346828222275), 17), 250, null);
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
@@ -333,7 +333,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         });
 
         googleMap.setOnInfoWindowClickListener(marker -> {
-            Log.d("MainActivity", "onInfoWindowClick "+marker);
+            Log.d("MainActivity", "onInfoWindowClick " + marker);
             clusterListener.onInfoWindowClick(marker);
         });
     }
@@ -413,18 +413,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        presenter.onPause();
-        locationHelper.stopReportingGps();
-
-        // TODO save map location and restore it onResume
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        presenter.onResume();
+    protected void onStart() {
+        super.onStart();
+        presenter.onViewAttached(this);
 
         try {
             locationHelper.startReportingGps();
@@ -434,11 +425,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        presenter.onDestroy();
+    protected void onStop() {
+        super.onStop();
+        locationHelper.stopReportingGps();
+        presenter.onViewDetached();
     }
-
 
     @Override
     public void showManageDatasourcesActivity() {

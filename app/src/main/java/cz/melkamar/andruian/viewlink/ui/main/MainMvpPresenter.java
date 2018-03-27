@@ -13,9 +13,9 @@ import cz.melkamar.andruian.viewlink.ui.base.BasePresenter;
 
 public interface MainMvpPresenter extends BasePresenter {
     void manageDataSources();
-    void onResume();
-    void onPause();
-    void onDestroy();
+    void onViewAttached(MainMvpView view);
+    void onViewDetached();
+
     void onFabClicked();
     void refreshDatadefsShownInDrawer();
 
