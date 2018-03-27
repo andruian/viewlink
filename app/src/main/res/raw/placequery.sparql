@@ -54,10 +54,10 @@ WHERE {
     ?locationObj {latLocationPathForLocationClass} ?latStr;
                  {longLocationPathForLocationClass} ?longStr;
     .
-
-    BIND(xsd:float(?latStr) as ?lat)
-    BIND(xsd:float(?longStr) as ?long)
-
-    {limitToAreaClause}
   }
+
+  BIND(xsd:float(?latStr) as ?lat)
+  BIND(xsd:float(?longStr) as ?long)
+
+  {limitToAreaClause}
 }
