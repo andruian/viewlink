@@ -12,7 +12,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
@@ -39,6 +41,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     private boolean refreshMarkersWhenDdfReady = false; // If true, refresh markers shown as soon as datadefs are loaded
 
     private MapViewPort lastRefreshedArea = null;
+    private Map<DataDef, FetchPlacesAT> fetchPlacesTasks = new HashMap<>();
 
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
     public static final int AUTO_ZOOM_THRESHOLD = 13;
@@ -75,6 +78,10 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     @Override
     public void onViewDetached() {
         this.view = null;
+        for (FetchPlacesAT fetchPlacesAT : fetchPlacesTasks.values()) {
+            Log.v("MainPresenter", "onViewDetached - cancelling fetch task for " + fetchPlacesAT.dataDef.getUri());
+            fetchPlacesAT.cancel(true);
+        }
     }
 
     @Override
@@ -133,7 +140,16 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         double radius = Math.max(
                 Math.abs(northeast.latitude - camTarget.latitude),
                 Math.abs(northeast.longitude - camTarget.longitude));
-        Log.v("MainPresenter", "getRadiusFromMap " + radius+" (NE: "+northeast+", tgt: "+camTarget+")");
+
+        // Sometimes it happens that the camTarget gives normal values but northeast contains 0,0
+        // -- not sure why and when, so just to avoid weird behavior, replace radius with a reasonably
+        // small value when that happens.
+        if (Math.abs(northeast.longitude) < 0.0001 && Math.abs(northeast.latitude) < 0.0001 &&
+                Math.abs(camTarget.latitude) > 1 && Math.abs(camTarget.longitude) > 1) {
+            Log.wtf("MainPresenter", "getRadiusFromMap - northeast gives 0,0 value :(");
+            radius = 0.001;
+        }
+        Log.v("MainPresenter", "getRadiusFromMap " + radius + " (NE: " + northeast + ", tgt: " + camTarget + ")");
         return radius;
     }
 
@@ -148,11 +164,11 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
         if (enabled) {
             if (view.getMap() != null && view.getMap().getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
-                Log.d("dataDefSwitchClicked", "fetching places. Radius: "+getRadiusFromMap());
-                    fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
-                            view.getMap().getCameraPosition().target.latitude,
-                            view.getMap().getCameraPosition().target.longitude,
-                            getRadiusFromMap());
+                Log.d("dataDefSwitchClicked", "fetching places. Radius: " + getRadiusFromMap());
+                fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
+                        view.getMap().getCameraPosition().target.latitude,
+                        view.getMap().getCameraPosition().target.longitude,
+                        getRadiusFromMap());
             } else {
                 view.showUpdatePlacesButton();
             }
@@ -186,7 +202,14 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
                 new IndexServerPlaceFetcher(),
                 new SparqlPlaceFetcher()
         );
-        new FetchPlacesAT(placeFetcher, view, dataDef, latitude, longitude, radius).execute();
+        FetchPlacesAT task = fetchPlacesTasks.get(dataDef);
+        if (task != null){
+            Log.v("MainPresenter", "fetchNewPlaces - cancelling task for "+dataDef.getUri());
+            task.cancel(true);
+        }
+        task = new FetchPlacesAT(placeFetcher, view, this, dataDef, latitude, longitude, radius);
+        fetchPlacesTasks.put(dataDef, task);
+        task.execute();
         view.showProgressBar();
     }
 
@@ -247,7 +270,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
      * Fetch new places and refresh markers for all DataDefs currently ticked as enabled.
      */
     private void refreshMarkers(double lat, double lng) {
-        Log.v("MainPresenter", "refreshMarkers "+lat+","+lng);
+        Log.v("MainPresenter", "refreshMarkers " + lat + "," + lng);
         view.hideUpdatePlacesButton();
 
         if (dataDefsShownInDrawer == null) {
@@ -268,17 +291,26 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         }
     }
 
+    @Override
+    public void onPlacesFetched(DataDef dataDef) {
+        fetchPlacesTasks.remove(dataDef);
+        if (fetchPlacesTasks.size() == 0)
+            view.hideProgressBar();
+    }
+
     private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<List<Place>>> {
         private final PlaceFetcher placeFetcher;
         private final MainMvpView view;
+        private final MainMvpPresenter presenter;
         private final DataDef dataDef;
         private final double latitude;
         private final double longitude;
         private final double radius;
 
-        private FetchPlacesAT(PlaceFetcher placeFetcher, MainMvpView view, DataDef dataDef, double latitude, double longitude, double radius) {
+        private FetchPlacesAT(PlaceFetcher placeFetcher, MainMvpView view, MainMvpPresenter presenter, DataDef dataDef, double latitude, double longitude, double radius) {
             this.placeFetcher = placeFetcher;
             this.view = view;
+            this.presenter = presenter;
             this.dataDef = dataDef;
             this.latitude = latitude;
             this.longitude = longitude;
@@ -298,7 +330,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
         @Override
         protected void onPostExecute(AsyncTaskResult<List<Place>> result) {
-            view.hideProgressBar();
+            presenter.onPlacesFetched(dataDef);
 
             if (result.hasError()) {
                 if (view != null)

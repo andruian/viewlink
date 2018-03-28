@@ -19,6 +19,7 @@ public interface MainMvpPresenter extends BasePresenter {
 
     void onFabClicked();
     void refreshDatadefsShownInDrawer();
+    void onPlacesFetched(DataDef dataDef);
 
     /**
      * Called when a DataDef switch in the navigation drawer is clicked.
