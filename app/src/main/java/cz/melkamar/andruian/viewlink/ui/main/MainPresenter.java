@@ -129,9 +129,11 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         //  - whichever direction is longer
         LatLng northeast = view.getMap().getProjection().getVisibleRegion().latLngBounds.northeast;
         LatLng camTarget = view.getMap().getCameraPosition().target;
-        return Math.max(
+        double radius = Math.max(
                 Math.abs(northeast.latitude - camTarget.latitude),
                 Math.abs(northeast.longitude - camTarget.longitude));
+        Log.v("MainPresenter", "getRadiusFromMap " + radius);
+        return radius;
     }
 
     @Override
