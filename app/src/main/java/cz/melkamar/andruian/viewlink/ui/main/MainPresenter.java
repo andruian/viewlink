@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.List;
 
@@ -36,6 +37,8 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
     private boolean prefAutoRefreshMarkers = true;
     private boolean refreshMarkersWhenDdfReady = false; // If true, refresh markers shown as soon as datadefs are loaded
+
+    private MapViewPort lastRefreshedArea = null;
 
     public final int MIN_DIST_DATA_REFRESH = 200; // Minimal distance in meters to trigger data refresh
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
@@ -141,14 +144,12 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
         new SaveDataDefATask(dataDefsShownInDrawer.get(itemId), view.getViewLinkApplication().getAppDatabase()).execute();
 
-        // TODO get all places around location
         if (enabled) {
-            // TODO add progressbar to the main activity while loading markers
-            if (lastLocation != null && view.getMap() != null && view.getMap().getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
+            if (view.getMap() != null && view.getMap().getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
                 fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
                         view.getMap().getCameraPosition().target.latitude,
                         view.getMap().getCameraPosition().target.longitude,
-                        getRadiusFromMap()); // TODO what radius?
+                        getRadiusFromMap());
             } else {
                 view.showUpdatePlacesButton();
             }
@@ -200,6 +201,18 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     @Override
     public void onMapCameraIdle(GoogleMap googleMap) {
         if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD && prefAutoRefreshMarkers) {
+            if (lastRefreshedArea != null){
+                LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
+                MapViewPort newViewPort = new MapViewPort(bounds.northeast, bounds.southwest);
+                if (lastRefreshedArea.contains(newViewPort.getMustBeVisiblePort())){
+                    Log.v("MainPresenter", "onMapCameraIdle - new viewport is contained in the old, not refreshing");
+                    return;
+                }
+                Log.v("MainPresenter", "onMapCameraIdle - new viewport is NOT contained in the old, refreshing");
+            } else {
+                Log.v("MainPresenter", "onMapCameraIdle - lastRefreshedArea is null, refreshing");
+            }
+
             LatLng mapPosition = view.getMap().getCameraPosition().target;
             refreshMarkers(mapPosition.latitude, mapPosition.longitude);
         } else {
@@ -242,6 +255,11 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         if (dataDefsShownInDrawer == null) {
             refreshMarkersWhenDdfReady = true;
             return;
+        }
+
+        if (view.getMap() != null){
+            LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
+            lastRefreshedArea = new MapViewPort(bounds.northeast, bounds.southwest);
         }
 
         for (DataDef dataDef : dataDefsShownInDrawer) {

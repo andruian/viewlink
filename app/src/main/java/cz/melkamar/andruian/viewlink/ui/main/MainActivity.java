@@ -446,7 +446,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             setKeepMapCentered(keepCentered);
 
             if (map != null) {
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom), 0, null);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom));
             } else {
                 preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lng), zoom);
             }
