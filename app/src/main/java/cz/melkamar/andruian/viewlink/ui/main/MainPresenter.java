@@ -41,6 +41,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     private MapViewPort lastRefreshedArea = null;
 
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
+    public static final int AUTO_ZOOM_THRESHOLD = 13;
 
     public MainPresenter(MainMvpView view) {
         super(view);
@@ -132,7 +133,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         double radius = Math.max(
                 Math.abs(northeast.latitude - camTarget.latitude),
                 Math.abs(northeast.longitude - camTarget.longitude));
-        Log.v("MainPresenter", "getRadiusFromMap " + radius);
+        Log.v("MainPresenter", "getRadiusFromMap " + radius+" (NE: "+northeast+", tgt: "+camTarget+")");
         return radius;
     }
 
@@ -147,10 +148,11 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
         if (enabled) {
             if (view.getMap() != null && view.getMap().getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
-                fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
-                        view.getMap().getCameraPosition().target.latitude,
-                        view.getMap().getCameraPosition().target.longitude,
-                        getRadiusFromMap());
+                Log.d("dataDefSwitchClicked", "fetching places. Radius: "+getRadiusFromMap());
+                    fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
+                            view.getMap().getCameraPosition().target.latitude,
+                            view.getMap().getCameraPosition().target.longitude,
+                            getRadiusFromMap());
             } else {
                 view.showUpdatePlacesButton();
             }
@@ -164,7 +166,8 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
      * When enabled, use the {@link DataDef} marker color as the thumb color and calculate a slightly
      * darker version for the track color.
      */
-    private void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled) {
+    @Override
+    public void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled) {
         float hsv[] = new float[]{dataDef.getMarkerColor(), 1, 0.8f};
         int trackColor = Color.HSVToColor(hsv);
 
@@ -196,8 +199,6 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
         }
 //        map.getCameraPosition().zoom
     }
-
-    public static final int AUTO_ZOOM_THRESHOLD = 13;
 
     @Override
     public void onMapCameraIdle(GoogleMap googleMap) {
@@ -246,6 +247,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
      * Fetch new places and refresh markers for all DataDefs currently ticked as enabled.
      */
     private void refreshMarkers(double lat, double lng) {
+        Log.v("MainPresenter", "refreshMarkers "+lat+","+lng);
         view.hideUpdatePlacesButton();
 
         if (dataDefsShownInDrawer == null) {
@@ -260,7 +262,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
         for (DataDef dataDef : dataDefsShownInDrawer) {
             if (dataDef.isEnabled()) {
-                Log.i("refreshMarkers", "Refreshing data shown for datadef " + dataDef.getUri());
+                Log.i("MainPresenter", "refreshMarkers - Refreshing data shown for datadef " + dataDef.getUri());
                 fetchNewPlaces(view, dataDef, lat, lng, getRadiusFromMap());
             }
         }

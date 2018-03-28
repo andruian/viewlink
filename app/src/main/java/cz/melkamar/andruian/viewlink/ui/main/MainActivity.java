@@ -169,10 +169,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             menuItem.setCheckable(true);
 
             SwitchCompat switchButton = menuItemView.findViewById(R.id.nav_switch);
+            switchButton.setChecked(dataDef.isEnabled());
+            presenter.setSwitchButtonColor(switchButton, dataDef, dataDef.isEnabled());
             switchButton.setOnCheckedChangeListener((compoundButton, b) -> {
                 presenter.dataDefSwitchClicked(switchButton, (int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
             });
-            switchButton.setChecked(dataDef.isEnabled());
+
 
             i++;
         }
@@ -430,11 +432,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onResume() {
         super.onResume();
-        restoreMapPosition();
-        updateMarkersWhenPossible();
+        float zoom = restoreMapPosition();
+        if (zoom > MainPresenter.AUTO_ZOOM_THRESHOLD) {
+            updateMarkersWhenPossible();
+        }
     }
 
-    protected void restoreMapPosition() {
+    protected float restoreMapPosition() {
         SharedPreferences prefs = this.getSharedPreferences("com.ex.app.loc", MODE_PRIVATE);
         if (prefs.contains("lat") && prefs.contains("long") && prefs.contains("zoom")) {
             double lat = Double.longBitsToDouble(prefs.getLong("lat", 0));
@@ -450,8 +454,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             } else {
                 preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lng), zoom);
             }
+            return zoom;
         } else {
             Log.d("MainActivity", "onResume - not restoring map position");
+            return -1;
         }
     }
 

@@ -5,6 +5,7 @@ import android.support.v7.widget.SwitchCompat;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenter;
 
 /**
@@ -27,4 +28,5 @@ public interface MainMvpPresenter extends BasePresenter {
     void onMapCameraIdle(GoogleMap googleMap);
     void onLocationChanged(Location newLocation);
     void onUpdatePlacesButtonClicked();
+    void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled);
 }
