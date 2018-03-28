@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
 
     @BindView(R.id.datadefs_rv) RecyclerView rv;
     @BindView(R.id.no_datasources_tv) TextView noDatadefsTV;
+    @BindView(R.id.progressbar) ProgressBar progressBar;
 
     private final int RESULT_ACTIVITY_NEW_DATASOURCE = 1;
 
@@ -56,20 +58,12 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         rv.setLayoutManager(manager);
 
-//        DividerItemDecoration divider = new DividerItemDecoration(rv.getContext(), manager.getOrientation());
-//        rv.addItemDecoration(divider);
-
         presenter.refreshDatadefsShown();
+
     }
 
     @Override
     public void showAddNewResourceActivity() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        AlertDialog dialog = builder.create();
-//        dialog.show();
-//        NewDatasourceDialogFragment dialog = new NewDatasourceDialogFragment();
-//        dialog.setListener(presenter);
-//        dialog.show(getSupportFragmentManager(), "xxx");
         Intent intent = new Intent(this, AddEditSourceActivity.class);
         startActivityForResult(intent, RESULT_ACTIVITY_NEW_DATASOURCE);
     }
@@ -79,6 +73,7 @@ public class DatasourcesActivity extends BaseActivity implements DatasourcesView
         DataDefAdapter adapter = new DataDefAdapter(dataDefList, presenter);
         rv.setAdapter(adapter);
 
+        progressBar.setVisibility(View.GONE);
         if (dataDefList.size() == 0){
             rv.setVisibility(View.GONE);
             noDatadefsTV.setVisibility(View.VISIBLE);

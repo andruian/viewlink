@@ -29,7 +29,6 @@ public class DatasourcesPresenterImpl extends BasePresenterImpl implements Datas
 
     @Override
     public void refreshDatadefsShown() {
-        // TODO this should get all datadefs from database
         Log.i("refreshDatadefsShInDr", "Loading new datadefs from the database.");
 //        view.showMessage("Loading new datadefs from the database.");
         new ReadDatadefsTask(view).execute();
@@ -118,7 +117,7 @@ public class DatasourcesPresenterImpl extends BasePresenterImpl implements Datas
             }
         }
     }
-    // TODO allow color picking for datadefs
+
     static class ReadDatadefsTask extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
         final WeakReference<DatasourcesView> view;
 
