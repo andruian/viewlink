@@ -40,7 +40,6 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
     private MapViewPort lastRefreshedArea = null;
 
-    public final int MIN_DIST_DATA_REFRESH = 200; // Minimal distance in meters to trigger data refresh
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
 
     public MainPresenter(MainMvpView view) {
@@ -201,10 +200,10 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
     @Override
     public void onMapCameraIdle(GoogleMap googleMap) {
         if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD && prefAutoRefreshMarkers) {
-            if (lastRefreshedArea != null){
+            if (lastRefreshedArea != null) {
                 LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
                 MapViewPort newViewPort = new MapViewPort(bounds.northeast, bounds.southwest);
-                if (lastRefreshedArea.contains(newViewPort.getMustBeVisiblePort())){
+                if (lastRefreshedArea.contains(newViewPort.getMustBeVisiblePort())) {
                     Log.v("MainPresenter", "onMapCameraIdle - new viewport is contained in the old, not refreshing");
                     return;
                 }
@@ -222,18 +221,13 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
 
     @Override
     public void onLocationChanged(Location newLocation) {
-        float metersDelta = 0;
-        if (lastLocation != null)
-            metersDelta = newLocation.distanceTo(lastLocation);
+        // When the location changes, call the map camera idle method, because that is only
+        // called by the view when the user moves it manually - but in this case we want to update
+        // it. We still dont want to call the onCameraIdle on every map movement though, for
+        // example tapping a marker makes the camera move and we do not want to refresh markers then.
 
-        // TODo maybe do not refresh on location changed but camera changed?
-        // Automatically refresh data around user only if camera is following him - otherwise they can click the button when needed
-        if (view != null && view.isCameraFollowing()) {
-            if (lastLocation == null || metersDelta > MIN_DIST_DATA_REFRESH) {
-                refreshMarkers(newLocation.getLatitude(), newLocation.getLongitude());
-                lastLocation = newLocation;
-            }
-        }
+        if (view.isCameraFollowing() && view.getMap() != null)
+            onMapCameraIdle(view.getMap());
     }
 
     @Override
@@ -257,7 +251,7 @@ public class MainPresenter extends BasePresenterImpl implements MainMvpPresenter
             return;
         }
 
-        if (view.getMap() != null){
+        if (view.getMap() != null) {
             LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
             lastRefreshedArea = new MapViewPort(bounds.northeast, bounds.southwest);
         }
