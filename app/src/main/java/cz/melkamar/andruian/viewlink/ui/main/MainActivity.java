@@ -50,11 +50,11 @@ import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainMvpView, LocationListener, OnMapReadyCallback {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainView, LocationListener, OnMapReadyCallback {
 
     private final static String TAG_MAP_POSITION = "map_position";
 
-    private MainMvpPresenter presenter;
+    private MainPresenterImpl presenter;
     private LocationHelper locationHelper;
     private GoogleMap map;
     private MultiClusterListener<Place> clusterListener;
@@ -98,7 +98,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        presenter = new MainPresenter(this);
+        presenter = new MainPresenterImpl(this);
         locationHelper = new LocationHelper(this, this);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -433,7 +433,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onResume() {
         super.onResume();
         float zoom = restoreMapPosition();
-        if (zoom > MainPresenter.AUTO_ZOOM_THRESHOLD) {
+        if (zoom > MainPresenterImpl.AUTO_ZOOM_THRESHOLD) {
             updateMarkersWhenPossible();
         }
     }

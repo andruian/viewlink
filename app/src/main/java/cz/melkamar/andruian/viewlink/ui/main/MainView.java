@@ -12,7 +12,7 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseView;
  * Created by Martin on 11.03.2018.
  */
 
-public interface MainMvpView extends BaseView {
+public interface MainView extends BaseView {
     void showManageDatasourcesActivity();
     void setKeepMapCentered(boolean keepCentered);
     void showDataDefsInDrawer(List<DataDef> dataDefList);
