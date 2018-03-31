@@ -134,7 +134,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             SwitchCompat switchButton = menuItemView.findViewById(R.id.nav_switch);
             switchButton.setChecked(dataDef.isEnabled());
-//            presenter.setSwitchButtonColor(switchButton, dataDef, dataDef.isEnabled());
+            setSwitchButtonColor(switchButton, dataDef, dataDef.isEnabled());
             switchButton.setOnCheckedChangeListener((compoundButton, b) -> {
                 presenter.dataDefSwitchClicked(switchButton, (int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
             });
