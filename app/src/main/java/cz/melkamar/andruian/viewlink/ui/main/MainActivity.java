@@ -187,12 +187,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     @Override
-    public void clearMapMarkers() {
-        // TODO
-//        map.getProjection().getVisibleRegion().
-    }
-
-    @Override
     public void clearMapMarkers(DataDef dataDef) {
         Log.d("MainActivity", "clearMapMarkers - removing markers for" + dataDef.getUri());
 
@@ -276,7 +270,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-    public void updateMarkersWhenPossible(){
+    public void updateMarkersWhenPossible() {
         if (map == null) {
             updateMarkersWhenPossible = true;
             return;
@@ -339,7 +333,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             clusterListener.onInfoWindowClick(marker);
         });
 
-        if (updateMarkersWhenPossible){
+        if (updateMarkersWhenPossible) {
             Log.d("MainActivity", "onMapReady - updating places");
             presenter.onUpdatePlacesButtonClicked();
         }
@@ -445,7 +439,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             double lng = Double.longBitsToDouble(prefs.getLong("long", 0));
             float zoom = prefs.getFloat("zoom", 10);
             boolean keepCentered = prefs.getBoolean("keepCentered", true);
-            Log.d("MainActivity", "onResume - restoring map position: " + lat + "," + lng + "(" + zoom + "). Center: " + keepCentered+". map: "+map);
+            Log.d("MainActivity", "onResume - restoring map position: " + lat + "," + lng + "(" + zoom + "). Center: " + keepCentered + ". map: " + map);
 
             setKeepMapCentered(keepCentered);
 

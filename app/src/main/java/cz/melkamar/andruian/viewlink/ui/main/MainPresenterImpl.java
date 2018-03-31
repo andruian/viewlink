@@ -95,43 +95,6 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         new RefreshDdfInDrawerAT(view, this).execute();
     }
 
-    private static class RefreshDdfInDrawerAT extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
-        private final MainView view;
-        private final MainPresenterImpl presenter;
-
-        private RefreshDdfInDrawerAT(MainView view, MainPresenterImpl presenter) {
-            this.view = view;
-            this.presenter = presenter;
-        }
-
-        @Override
-        protected AsyncTaskResult<List<DataDef>> doInBackground(Void... voids) {
-            try {
-                return new AsyncTaskResult<>(DaoHelper.readAllDatadefs(view.getViewLinkApplication().getAppDatabase()));
-            } catch (Exception e) {
-                return new AsyncTaskResult<>(e);
-            }
-        }
-
-        @Override
-        protected void onPostExecute(AsyncTaskResult<List<DataDef>> result) {
-            if (result.hasError()) {
-                Log.w("refDatadefsShownDrawer", "An error occurred", result.getError());
-            } else {
-                for (DataDef dataDef : result.getResult()) {
-                    Log.v("refreshDatadefsSID", dataDef.toString());
-                }
-                presenter.dataDefsShownInDrawer = result.getResult();
-                view.showDataDefsInDrawer(result.getResult());
-
-                if (presenter.isRefreshMarkersWhenDdfReady()) {
-                    Log.d("MainPresenterImpl", "RefreshDdfInDrawerAT - refreshing shown markers");
-                    presenter.onUpdatePlacesButtonClicked();
-                }
-            }
-        }
-    }
-
     private double getRadiusFromMap() {
         // Calculate radius to show as the distance from the middle of the map to the border
         //  - whichever direction is longer
@@ -220,7 +183,6 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 view.showUpdatePlacesButton();
             }
         }
-//        map.getCameraPosition().zoom
     }
 
     @Override
@@ -371,6 +333,43 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
             Log.d("postDdfUpdate", "Saved datadef");
 
+        }
+    }
+
+    private static class RefreshDdfInDrawerAT extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
+        private final MainView view;
+        private final MainPresenterImpl presenter;
+
+        private RefreshDdfInDrawerAT(MainView view, MainPresenterImpl presenter) {
+            this.view = view;
+            this.presenter = presenter;
+        }
+
+        @Override
+        protected AsyncTaskResult<List<DataDef>> doInBackground(Void... voids) {
+            try {
+                return new AsyncTaskResult<>(DaoHelper.readAllDatadefs(view.getViewLinkApplication().getAppDatabase()));
+            } catch (Exception e) {
+                return new AsyncTaskResult<>(e);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(AsyncTaskResult<List<DataDef>> result) {
+            if (result.hasError()) {
+                Log.w("refDatadefsShownDrawer", "An error occurred", result.getError());
+            } else {
+                for (DataDef dataDef : result.getResult()) {
+                    Log.v("refreshDatadefsSID", dataDef.toString());
+                }
+                presenter.dataDefsShownInDrawer = result.getResult();
+                view.showDataDefsInDrawer(result.getResult());
+
+                if (presenter.isRefreshMarkersWhenDdfReady()) {
+                    Log.d("MainPresenterImpl", "RefreshDdfInDrawerAT - refreshing shown markers");
+                    presenter.onUpdatePlacesButtonClicked();
+                }
+            }
         }
     }
 }

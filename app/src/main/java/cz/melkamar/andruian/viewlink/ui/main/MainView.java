@@ -16,7 +16,6 @@ public interface MainView extends BaseView {
     void showManageDatasourcesActivity();
     void setKeepMapCentered(boolean keepCentered);
     void showDataDefsInDrawer(List<DataDef> dataDefList);
-    void clearMapMarkers();
     void clearMapMarkers(DataDef dataDef);
     void addMapMarkers(DataDef dataDef, List<Place> places);
     void replaceMapMarkers(DataDef dataDef, List<Place> places);
