@@ -2,6 +2,8 @@ package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,6 +41,7 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 import cz.melkamar.andruian.viewlink.ui.placedetail.PlaceDetailActivity;
 import cz.melkamar.andruian.viewlink.ui.settings.SettingsActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
+import cz.melkamar.andruian.viewlink.util.Util;
 
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainView, OnMapReadyCallback {
@@ -48,8 +51,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private GoogleMap map;
     private MultiClusterListener<Place> clusterListener;
     Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
-
-    private int lastCameraMoveReason = 0;
 
     @BindView(R.id.fab)
     protected FloatingActionButton fab;
@@ -133,7 +134,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             SwitchCompat switchButton = menuItemView.findViewById(R.id.nav_switch);
             switchButton.setChecked(dataDef.isEnabled());
-            presenter.setSwitchButtonColor(switchButton, dataDef, dataDef.isEnabled());
+//            presenter.setSwitchButtonColor(switchButton, dataDef, dataDef.isEnabled());
             switchButton.setOnCheckedChangeListener((compoundButton, b) -> {
                 presenter.dataDefSwitchClicked(switchButton, (int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
             });
@@ -141,6 +142,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             i++;
         }
+    }
+
+    /**
+     * Change color of the navigation drawer switch button. When disabled, use predefined gray values.
+     * When enabled, use the {@link DataDef} marker color as the thumb color and calculate a slightly
+     * darker version for the track color.
+     */
+    @Override
+    public void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled) {
+        float hsv[] = new float[]{dataDef.getMarkerColor(), 1, 0.8f};
+        int trackColor = Color.HSVToColor(hsv);
+
+        switchButton.getThumbDrawable().setColorFilter(
+                enabled ? Util.colorFromHue(dataDef.getMarkerColor())
+                        : getResources().getColor(R.color.switch_disabled_thumb), PorterDuff.Mode.MULTIPLY);
+
+        switchButton.getTrackDrawable().setColorFilter(
+                enabled ? trackColor :
+                        getResources().getColor(R.color.switch_disabled_track), PorterDuff.Mode.MULTIPLY);
     }
 
     @Override
@@ -233,26 +253,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         googleMap.setOnCameraMoveStartedListener(reason -> {
             Log.v("MainActivity", "onMapCameraMoved " + reason);
-            lastCameraMoveReason = reason;
-
-            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-                Log.d("cameraMovedListener", "stopping centering camera");
-                setKeepMapCenteredIcons(false);
-                presenter.onMapCameraMoved(map, reason);
-            }
-
-
+            presenter.onMapCameraMoved(map, reason);
         });
 
         // CLUSTERS
         clusterListener = new MultiClusterListener<>();
         googleMap.setOnCameraIdleListener(() ->
         {
-            Log.v("MainActivity", "onCameraIdle - lastReason " + lastCameraMoveReason);
-            if (lastCameraMoveReason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-                presenter.onMapCameraIdle(map);
-                clusterListener.onCameraIdle();
-            }
+            Log.v("MainActivity", "onCameraIdle");
+            presenter.onMapCameraIdle(map);
         });
 
         googleMap.setOnInfoWindowClickListener(marker -> {
@@ -263,7 +272,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         presenter.onMapReady(map);
     }
 
-
+    @Override
+    public void reclusterMarkers() {
+        clusterListener.onCameraIdle();
+    }
 
     /*
      ***********************************************************************************************

@@ -1,5 +1,7 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
+import android.support.v7.widget.SwitchCompat;
+
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.List;
@@ -23,5 +25,7 @@ public interface MainView extends BaseView {
     void hideProgressBar();
     void showUpdatePlacesButton();
     void hideUpdatePlacesButton();
+    void reclusterMarkers();
+    void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled);
     GoogleMap getMap();
 }

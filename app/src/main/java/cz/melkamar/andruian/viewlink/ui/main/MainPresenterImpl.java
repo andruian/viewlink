@@ -3,8 +3,6 @@ package cz.melkamar.andruian.viewlink.ui.main;
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
@@ -26,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
 import cz.melkamar.andruian.viewlink.data.place.IndexServerPlaceFetcher;
@@ -38,7 +35,6 @@ import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import cz.melkamar.andruian.viewlink.util.LocationHelper;
-import cz.melkamar.andruian.viewlink.util.Util;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -57,6 +53,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
     private MapViewPort lastRefreshedArea = null;
     private Map<DataDef, FetchPlacesAT> fetchPlacesTasks = new HashMap<>();
+    private int lastCameraMoveReason = 0;
 
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
     public static final int AUTO_ZOOM_THRESHOLD = 13;
@@ -151,7 +148,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShownInDrawer.get(itemId));
         DataDef dataDef = dataDefsShownInDrawer.get(itemId);
         dataDef.setEnabled(enabled);
-        setSwitchButtonColor(switchButton, dataDef, enabled);
+        view.setSwitchButtonColor(switchButton, dataDef, enabled);
 
         new SaveDataDefATask(dataDefsShownInDrawer.get(itemId), view.getViewLinkApplication().getAppDatabase()).execute();
 
@@ -170,24 +167,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         }
     }
 
-    /**
-     * Change color of the navigation drawer switch button. When disabled, use predefined gray values.
-     * When enabled, use the {@link DataDef} marker color as the thumb color and calculate a slightly
-     * darker version for the track color.
-     */
-    @Override
-    public void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled) {
-        float hsv[] = new float[]{dataDef.getMarkerColor(), 1, 0.8f};
-        int trackColor = Color.HSVToColor(hsv);
 
-        switchButton.getThumbDrawable().setColorFilter(
-                enabled ? Util.colorFromHue(dataDef.getMarkerColor())
-                        : view.getActivity().getResources().getColor(R.color.switch_disabled_thumb), PorterDuff.Mode.MULTIPLY);
-
-        switchButton.getTrackDrawable().setColorFilter(
-                enabled ? trackColor :
-                        view.getActivity().getResources().getColor(R.color.switch_disabled_track), PorterDuff.Mode.MULTIPLY);
-    }
 
     private void fetchNewPlaces(MainView view, DataDef dataDef, double latitude, double longitude, double radius) {
         Log.i("fetchNewPlaces", dataDef.getUri() + " at " + latitude + "," + longitude + " (" + radius + ")");
@@ -263,15 +243,27 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
     @Override
     public void onMapCameraMoved(GoogleMap map, int reason) {
-        if (view != null) {
-            if (!shouldKeepMapCentered && !prefAutoRefreshMarkers) {
-                view.showUpdatePlacesButton();
+        lastCameraMoveReason = reason;
+
+        if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+            Log.d("cameraMovedListener", "stopping centering camera");
+
+            if (view != null) {
+                if (!shouldKeepMapCentered && !prefAutoRefreshMarkers) {
+                    view.showUpdatePlacesButton();
+                }
+                view.setKeepMapCenteredIcons(false);
             }
         }
     }
 
     @Override
     public void onMapCameraIdle(GoogleMap googleMap) {
+        Log.v("MainPresenterImpl", "onCameraIdle - lastReason " + lastCameraMoveReason);
+        if (lastCameraMoveReason != GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+            return;
+        }
+
         if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD && prefAutoRefreshMarkers) {
             if (lastRefreshedArea != null) {
                 LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
@@ -290,6 +282,8 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         } else {
             view.showUpdatePlacesButton();
         }
+
+        view.reclusterMarkers();
     }
 
 
