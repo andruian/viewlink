@@ -134,7 +134,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             SwitchCompat switchButton = menuItemView.findViewById(R.id.nav_switch);
             switchButton.setChecked(dataDef.isEnabled());
-            setSwitchButtonColor(switchButton, dataDef, dataDef.isEnabled());
+            setSwitchButtonColor(switchButton, dataDef.getMarkerColor(), dataDef.isEnabled());
             switchButton.setOnCheckedChangeListener((compoundButton, b) -> {
                 presenter.dataDefSwitchClicked(switchButton, (int) compoundButton.getTag(R.id.tag_switch_drawer_pos), b);
             });
@@ -150,12 +150,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * darker version for the track color.
      */
     @Override
-    public void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled) {
-        float hsv[] = new float[]{dataDef.getMarkerColor(), 1, 0.8f};
+    public void setSwitchButtonColor(SwitchCompat switchButton, float color, boolean enabled) {
+        float hsv[] = new float[]{color, 1, 0.8f};
         int trackColor = Color.HSVToColor(hsv);
 
         switchButton.getThumbDrawable().setColorFilter(
-                enabled ? Util.colorFromHue(dataDef.getMarkerColor())
+                enabled ? Util.colorFromHue(color)
                         : getResources().getColor(R.color.switch_disabled_thumb), PorterDuff.Mode.MULTIPLY);
 
         switchButton.getTrackDrawable().setColorFilter(

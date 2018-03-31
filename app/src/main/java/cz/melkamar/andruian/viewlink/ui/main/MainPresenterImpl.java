@@ -148,7 +148,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         Log.d("dataDefSwitchClicked", "Enabled: " + enabled + "  for uri " + dataDefsShownInDrawer.get(itemId));
         DataDef dataDef = dataDefsShownInDrawer.get(itemId);
         dataDef.setEnabled(enabled);
-        view.setSwitchButtonColor(switchButton, dataDef, enabled);
+        view.setSwitchButtonColor(switchButton, dataDef.getMarkerColor(), enabled);
 
         new SaveDataDefATask(dataDefsShownInDrawer.get(itemId), view.getViewLinkApplication().getAppDatabase()).execute();
 
