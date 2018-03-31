@@ -36,7 +36,6 @@ import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
-import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 import cz.melkamar.andruian.viewlink.ui.placedetail.PlaceDetailActivity;
 import cz.melkamar.andruian.viewlink.ui.settings.SettingsActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
@@ -44,7 +43,6 @@ import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainView, OnMapReadyCallback {
 
-    private final static String TAG_MAP_POSITION = "map_position";
 
     private MainPresenter presenter;
     private GoogleMap map;
@@ -85,88 +83,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-
-        presenter = new MainPresenter() {
-            @Override
-            public BaseView getBaseView() {
-                return null;
-            }
-
-            @Override
-            public void manageDataSources() {
-
-            }
-
-            @Override
-            public void onViewAttached(MainView view) {
-
-            }
-
-            @Override
-            public void onViewDetached() {
-
-            }
-
-            @Override
-            public void onFabClicked() {
-
-            }
-
-            @Override
-            public void refreshDatadefsShownInDrawer() {
-
-            }
-
-            @Override
-            public void onPlacesFetched(DataDef dataDef) {
-
-            }
-
-            @Override
-            public void dataDefSwitchClicked(SwitchCompat switchButton, int itemId, boolean enabled) {
-
-            }
-
-            @Override
-            public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-            }
-
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-
-            }
-
-            @Override
-            public void onMapCameraMoved(GoogleMap googleMap, int reason) {
-
-            }
-
-            @Override
-            public void onMapCameraIdle(GoogleMap googleMap) {
-
-            }
-
-            @Override
-            public void onUpdatePlacesButtonClicked() {
-
-            }
-
-            @Override
-            public void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled) {
-
-            }
-
-            @Override
-            public void onSaveMapPosition() {
-
-            }
-
-            @Override
-            public void onRestoreMapPosition() {
-
-            }
-        };
         presenter = new MainPresenterImpl(this);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -226,12 +142,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             i++;
         }
     }
-
-    /*
-     ***********************************************************************************************
-     * MAP and markers related functionality
-     */
-
 
     @Override
     public void clearMapMarkers(DataDef dataDef) {
@@ -310,16 +220,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public GoogleMap getMap() {
         return map;
     }
-
-//    @Override
-//    public void updateMarkersWhenPossible() {
-//        if (map == null) {
-//            updateMarkersWhenPossible = true;
-//            return;
-//        }
-//
-//        presenter.onUpdatePlacesButtonClicked();
-//    }
 
     @SuppressLint("MissingPermission")
     @Override
