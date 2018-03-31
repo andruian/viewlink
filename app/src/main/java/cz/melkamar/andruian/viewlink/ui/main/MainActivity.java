@@ -2,10 +2,7 @@ package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -22,13 +19,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.HashMap;
@@ -40,30 +33,24 @@ import butterknife.BindDrawable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
-import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
+import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 import cz.melkamar.andruian.viewlink.ui.placedetail.PlaceDetailActivity;
 import cz.melkamar.andruian.viewlink.ui.settings.SettingsActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
-import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainView, LocationListener, OnMapReadyCallback {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainView, OnMapReadyCallback {
 
     private final static String TAG_MAP_POSITION = "map_position";
 
-    private MainPresenterImpl presenter;
-    private LocationHelper locationHelper;
+    private MainPresenter presenter;
     private GoogleMap map;
     private MultiClusterListener<Place> clusterListener;
     Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
 
-    private boolean centerMapOnNextLocation = false;
-    private boolean keepMapCentered = false;
-    private CameraPosition preferredCameraPosition = null; // If non-null, set map to this position as soon as possible (after it's loaded)
-    private boolean updateMarkersWhenPossible = false;
     private int lastCameraMoveReason = 0;
 
     @BindView(R.id.fab)
@@ -98,8 +85,89 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+
+        presenter = new MainPresenter() {
+            @Override
+            public BaseView getBaseView() {
+                return null;
+            }
+
+            @Override
+            public void manageDataSources() {
+
+            }
+
+            @Override
+            public void onViewAttached(MainView view) {
+
+            }
+
+            @Override
+            public void onViewDetached() {
+
+            }
+
+            @Override
+            public void onFabClicked() {
+
+            }
+
+            @Override
+            public void refreshDatadefsShownInDrawer() {
+
+            }
+
+            @Override
+            public void onPlacesFetched(DataDef dataDef) {
+
+            }
+
+            @Override
+            public void dataDefSwitchClicked(SwitchCompat switchButton, int itemId, boolean enabled) {
+
+            }
+
+            @Override
+            public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+            }
+
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+
+            }
+
+            @Override
+            public void onMapCameraMoved(GoogleMap googleMap, int reason) {
+
+            }
+
+            @Override
+            public void onMapCameraIdle(GoogleMap googleMap) {
+
+            }
+
+            @Override
+            public void onUpdatePlacesButtonClicked() {
+
+            }
+
+            @Override
+            public void setSwitchButtonColor(SwitchCompat switchButton, DataDef dataDef, boolean enabled) {
+
+            }
+
+            @Override
+            public void onSaveMapPosition() {
+
+            }
+
+            @Override
+            public void onRestoreMapPosition() {
+
+            }
+        };
         presenter = new MainPresenterImpl(this);
-        locationHelper = new LocationHelper(this, this);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -109,39 +177,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mapFragment.getMapAsync(this);
 
         presenter.refreshDatadefsShownInDrawer();
-        // TODO on activity resume check already-displayed colors of markers vs what is defined in DataDefs - in case the user changed a color
     }
 
-    public void centerCamera() {
-        centerMapOnNextLocation = false;
-        if (!locationHelper.isReportingGps()) {
-            try {
-                locationHelper.startReportingGps();
-            } catch (PermissionException e) {
-                Log.w("centerMapOCLoc", "GPS not permitted", e);
-                showMessage("GPS permission not granted. Cannot provide location.");
-                return;
-            }
-        }
-
-        if (map != null && locationHelper.getLastKnownLocation() != null) {
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(
-                    new LatLng(locationHelper.getLastKnownLocation().getLatitude(),
-                            locationHelper.getLastKnownLocation().getLongitude()));
-            map.animateCamera(cameraUpdate, 500, null);
-        } else {
-            centerMapOnNextLocation = true;
-        }
-    }
-
+    /**
+     * Set icons to reflect the camera following or not following the user.
+     * This affects the FAB button icon.
+     *
+     * @param keepCentered
+     */
     @Override
-    public void setKeepMapCentered(boolean keepCentered) {
-        Log.d("setKeepMapCentered", keepCentered + "");
-        keepMapCentered = keepCentered;
-
+    public void setKeepMapCenteredIcons(boolean keepCentered) {
         if (keepCentered) {
             fab.setImageDrawable(iconGpsLocked);
-            centerCamera();
         } else {
             fab.setImageDrawable(iconGpsSearching);
         }
@@ -260,45 +307,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-    public boolean isCameraFollowing() {
-        return keepMapCentered;
-    }
-
-    @Override
     public GoogleMap getMap() {
         return map;
     }
 
-    @Override
-    public void updateMarkersWhenPossible() {
-        if (map == null) {
-            updateMarkersWhenPossible = true;
-            return;
-        }
-
-        presenter.onUpdatePlacesButtonClicked();
-    }
+//    @Override
+//    public void updateMarkersWhenPossible() {
+//        if (map == null) {
+//            updateMarkersWhenPossible = true;
+//            return;
+//        }
+//
+//        presenter.onUpdatePlacesButtonClicked();
+//    }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.v("onMapReady", "onMapReady");
+        Log.v("MainActivity", "onMapReady");
         this.map = googleMap;
-        if (!locationHelper.checkPermissions()) {
-            locationHelper.requestPermissions();
-            Log.w("onMapReady", "Requesting permissions");
-            return;
-        }
-
-        Log.d("onMapReady", "Permissions ok. PreferredCameraPosition: " + preferredCameraPosition);
-        googleMap.setMyLocationEnabled(true); // Permissions are always granted here
-//        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.747283, 13.387336), 15), 250, null);
-        if (preferredCameraPosition == null) {
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266, 14.43346828222275), 17));
-            setKeepMapCentered(true);
-        } else {
-            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition));
-        }
 
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -310,7 +337,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
                 Log.d("cameraMovedListener", "stopping centering camera");
-                setKeepMapCentered(false);
+                setKeepMapCenteredIcons(false);
                 presenter.onMapCameraMoved(map, reason);
             }
 
@@ -333,10 +360,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             clusterListener.onInfoWindowClick(marker);
         });
 
-        if (updateMarkersWhenPossible) {
-            Log.d("MainActivity", "onMapReady - updating places");
-            presenter.onUpdatePlacesButtonClicked();
-        }
+        presenter.onMapReady(map);
     }
 
 
@@ -373,19 +397,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        try {
-            locationHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        } catch (PermissionException e) {
-            Log.w("req perms result", "GPS not permitted.", e);
-            showMessage("GPS permission not granted. Cannot provide location.");
-            return;
-        }
-
-        switch (requestCode) {
-            case LocationHelper.LOC_REQUEST_MAP:
-                if (map != null) map.setMyLocationEnabled(true);
-                break;
-        }
+        presenter.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -415,99 +427,30 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onStart() {
         super.onStart();
         presenter.onViewAttached(this);
-
-        try {
-            locationHelper.startReportingGps();
-        } catch (PermissionException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        float zoom = restoreMapPosition();
-        if (zoom > MainPresenterImpl.AUTO_ZOOM_THRESHOLD) {
-            updateMarkersWhenPossible();
-        }
+        presenter.onRestoreMapPosition();
     }
 
-    protected float restoreMapPosition() {
-        SharedPreferences prefs = this.getSharedPreferences("com.ex.app.loc", MODE_PRIVATE);
-        if (prefs.contains("lat") && prefs.contains("long") && prefs.contains("zoom")) {
-            double lat = Double.longBitsToDouble(prefs.getLong("lat", 0));
-            double lng = Double.longBitsToDouble(prefs.getLong("long", 0));
-            float zoom = prefs.getFloat("zoom", 10);
-            boolean keepCentered = prefs.getBoolean("keepCentered", true);
-            Log.d("MainActivity", "onResume - restoring map position: " + lat + "," + lng + "(" + zoom + "). Center: " + keepCentered + ". map: " + map);
-
-            setKeepMapCentered(keepCentered);
-
-            if (map != null) {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom));
-            } else {
-                preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lng), zoom);
-            }
-            return zoom;
-        } else {
-            Log.d("MainActivity", "onResume - not restoring map position");
-            return -1;
-        }
-    }
 
     @Override
     protected void onPause() {
         super.onPause();
-        saveMapPosition();
+        presenter.onSaveMapPosition();
     }
 
-    protected void saveMapPosition() {
-        if (map != null) {
-            SharedPreferences prefs = this.getSharedPreferences("com.ex.app.loc", MODE_PRIVATE);
-            prefs.edit()
-                    .putLong("lat", Double.doubleToRawLongBits(map.getCameraPosition().target.latitude))
-                    .putLong("long", Double.doubleToRawLongBits(map.getCameraPosition().target.longitude))
-                    .putFloat("zoom", map.getCameraPosition().zoom)
-                    .putBoolean("keepCentered", keepMapCentered)
-                    .apply();
-        }
-    }
 
     @Override
     protected void onStop() {
         super.onStop();
-        locationHelper.stopReportingGps();
         presenter.onViewDetached();
     }
 
     @Override
     public void showManageDatasourcesActivity() {
         startActivity(new Intent(this, DatasourcesActivity.class));
-    }
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            Log.v("onLocationChanged", "[" + location.getLatitude() + "," + location.getLongitude() + "] keepCentered: " + keepMapCentered + " | centerOnNextLoc: " + centerMapOnNextLocation);
-            if (keepMapCentered) centerMapOnNextLocation = true;
-            if (centerMapOnNextLocation) centerCamera();
-            presenter.onLocationChanged(location);
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
     }
 }

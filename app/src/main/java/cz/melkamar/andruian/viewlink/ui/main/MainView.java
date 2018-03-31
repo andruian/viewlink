@@ -14,7 +14,7 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 public interface MainView extends BaseView {
     void showManageDatasourcesActivity();
-    void setKeepMapCentered(boolean keepCentered);
+    void setKeepMapCenteredIcons(boolean keepCentered);
     void showDataDefsInDrawer(List<DataDef> dataDefList);
     void clearMapMarkers(DataDef dataDef);
     void addMapMarkers(DataDef dataDef, List<Place> places);
@@ -23,12 +23,5 @@ public interface MainView extends BaseView {
     void hideProgressBar();
     void showUpdatePlacesButton();
     void hideUpdatePlacesButton();
-    boolean isCameraFollowing();
     GoogleMap getMap();
-
-    /**
-     * Update map markers as soon as possible. If map is already created, request updating
-     * immediately. If map does not exist, set a flag which is checked when the map becomes ready.
-     */
-    void updateMarkersWhenPossible();
 }

@@ -1,14 +1,24 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
+import android.Manifest;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
+import android.location.LocationListener;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -22,11 +32,15 @@ import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
 import cz.melkamar.andruian.viewlink.data.place.IndexServerPlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.SparqlPlaceFetcher;
+import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
+import cz.melkamar.andruian.viewlink.util.LocationHelper;
 import cz.melkamar.andruian.viewlink.util.Util;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Martin Melka on 11.03.2018.
@@ -35,7 +49,8 @@ import cz.melkamar.andruian.viewlink.util.Util;
 public class MainPresenterImpl extends BasePresenterImpl implements MainPresenter {
     private MainView view;
     private List<DataDef> dataDefsShownInDrawer = null; // To keep track of what is shown, so we can enable/disable it
-    private Location lastLocation = null;
+
+    private LocationHelper locationHelper;
 
     private boolean prefAutoRefreshMarkers = true;
     private boolean refreshMarkersWhenDdfReady = false; // If true, refresh markers shown as soon as datadefs are loaded
@@ -45,10 +60,12 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
     public static final int AUTO_ZOOM_THRESHOLD = 13;
+    public static final String KEY_SHAREDPREFS = "cz.melkamar.andruian.viewlink.PREFERENCES";
 
     public MainPresenterImpl(MainView view) {
         super(view);
         this.view = view;
+        locationHelper = new LocationHelper(view.getActivity(), new MainLocationListener(this));
         updatePrefs();
     }
 
@@ -72,12 +89,18 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     @Override
     public void onViewAttached(MainView view) {
         this.view = view;
+        try {
+            locationHelper.startReportingGps();
+        } catch (PermissionException e) {
+            e.printStackTrace();
+        }
         updatePrefs();
     }
 
     @Override
     public void onViewDetached() {
         this.view = null;
+        locationHelper.stopReportingGps();
         for (FetchPlacesAT fetchPlacesAT : fetchPlacesTasks.values()) {
             Log.v("MainPresenterImpl", "onViewDetached - cancelling fetch task for " + fetchPlacesAT.dataDef.getUri());
             fetchPlacesAT.cancel(true);
@@ -86,8 +109,15 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
     @Override
     public void onFabClicked() {
-        view.setKeepMapCentered(true);
+        keepCameraCentered();
     }
+
+    public void keepCameraCentered() {
+        view.setKeepMapCenteredIcons(true);
+        shouldKeepMapCentered = true;
+        centerCamera();
+    }
+
 
     @Override
     public void refreshDatadefsShownInDrawer() {
@@ -166,8 +196,8 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 new SparqlPlaceFetcher()
         );
         FetchPlacesAT task = fetchPlacesTasks.get(dataDef);
-        if (task != null){
-            Log.v("MainPresenterImpl", "fetchNewPlaces - cancelling task for "+dataDef.getUri());
+        if (task != null) {
+            Log.v("MainPresenterImpl", "fetchNewPlaces - cancelling task for " + dataDef.getUri());
             task.cancel(true);
         }
         task = new FetchPlacesAT(placeFetcher, view, this, dataDef, latitude, longitude, radius);
@@ -177,9 +207,64 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        try {
+            locationHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        } catch (PermissionException e) {
+            Log.w("req perms result", "GPS not permitted.", e);
+            view.showMessage("GPS permission not granted. Cannot provide location.");
+            return;
+        }
+
+        switch (requestCode) {
+            case LocationHelper.LOC_REQUEST:
+                setMapMyLocationEnabled();
+                break;
+
+        }
+    }
+
+    private boolean mapFinishedSetup = false;
+
+    private void setMapMyLocationEnabled() {
+        if (ActivityCompat.checkSelfPermission(view.getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(view.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if (view.getMap() != null) {
+            view.getMap().setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.v("MainPresenterImpl", "onMapReady");
+
+        if (!locationHelper.checkPermissions()) {
+            locationHelper.requestPermissions();
+            Log.w("onMapReady", "Requesting permissions");
+        }
+
+        setMapMyLocationEnabled();
+
+        if (preferredCameraPosition == null) {
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.07644607071266, 14.43346828222275), 17));
+            keepCameraCentered();
+        } else {
+            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(preferredCameraPosition));
+        }
+
+        if (updateMarkersWhenPossible) {
+            Log.d("MainPresenterImpl", "onMapReady - updating places");
+            refreshMarkers();
+        }
+
+        mapFinishedSetup = true;
+    }
+
+    @Override
     public void onMapCameraMoved(GoogleMap map, int reason) {
         if (view != null) {
-            if (!view.isCameraFollowing() && !prefAutoRefreshMarkers) {
+            if (!shouldKeepMapCentered && !prefAutoRefreshMarkers) {
                 view.showUpdatePlacesButton();
             }
         }
@@ -207,25 +292,121 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         }
     }
 
-    @Override
-    public void onLocationChanged(Location newLocation) {
+
+    private boolean centerMapOnNextLocation = false;
+    private boolean shouldKeepMapCentered = false;
+    private CameraPosition preferredCameraPosition = null; // If non-null, set map to this position as soon as possible (after it's loaded)
+    private boolean updateMarkersWhenPossible = false;
+
+    public void onLocationChanged(Location location) {
         // When the location changes, call the map camera idle method, because that is only
         // called by the view when the user moves it manually - but in this case we want to update
         // it. We still dont want to call the onCameraIdle on every map movement though, for
         // example tapping a marker makes the camera move and we do not want to refresh markers then.
 
-        if (view.isCameraFollowing() && view.getMap() != null)
+        if (!shouldKeepMapCentered && view.getMap() != null)
             onMapCameraIdle(view.getMap());
+
+
+        if (location != null) {
+            Log.v("onLocationChanged", "[" + location.getLatitude() + "," + location.getLongitude() + "] keepCentered: " + shouldKeepMapCentered + " | centerOnNextLoc: " + centerMapOnNextLocation);
+            if (shouldKeepMapCentered) centerMapOnNextLocation = true;
+            if (centerMapOnNextLocation) centerCamera();
+        }
+    }
+
+    public void centerCamera() {
+        centerMapOnNextLocation = false;
+        if (!locationHelper.isReportingGps()) {
+            try {
+                locationHelper.startReportingGps();
+            } catch (PermissionException e) {
+                Log.w("centerMapOCLoc", "GPS not permitted", e);
+                view.showMessage("GPS permission not granted. Cannot provide location.");
+                return;
+            }
+        }
+
+        if (view.getMap() != null && locationHelper.getLastKnownLocation() != null) {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(
+                    new LatLng(locationHelper.getLastKnownLocation().getLatitude(),
+                            locationHelper.getLastKnownLocation().getLongitude()));
+            view.getMap().animateCamera(cameraUpdate, 500, null);
+        } else {
+            centerMapOnNextLocation = true;
+        }
     }
 
     @Override
     public void onUpdatePlacesButtonClicked() {
         if (view.getMap() != null) {
-            LatLng mapPosition = view.getMap().getCameraPosition().target;
-            refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+            refreshMarkers();
         } else {
-            view.updateMarkersWhenPossible();
+            updateMarkersWhenPossible = true;
         }
+    }
+
+    @Override
+    public void onSaveMapPosition() {
+        if (!mapFinishedSetup) return;
+
+        Log.d("MainPresenterImpl", "onSaveMapPosition");
+        GoogleMap map = view.getMap();
+
+        if (map != null) {
+            SharedPreferences prefs = view.getActivity().getSharedPreferences(KEY_SHAREDPREFS, MODE_PRIVATE);
+            prefs.edit()
+                    .putLong("lat", Double.doubleToRawLongBits(map.getCameraPosition().target.latitude))
+                    .putLong("long", Double.doubleToRawLongBits(map.getCameraPosition().target.longitude))
+                    .putFloat("zoom", map.getCameraPosition().zoom)
+                    .putBoolean("keepCentered", shouldKeepMapCentered)
+                    .apply();
+        }
+    }
+
+    @Override
+    public void onRestoreMapPosition() {
+        SharedPreferences prefs = view.getActivity().getSharedPreferences(KEY_SHAREDPREFS, MODE_PRIVATE);
+        if (prefs.contains("lat") && prefs.contains("long") && prefs.contains("zoom")) {
+            long latL = prefs.getLong("lat", Long.MAX_VALUE);
+            long lngL = prefs.getLong("long", Long.MAX_VALUE);
+
+            // Default values in case nothing was saved
+            double lat = defaultLat;
+            double lng = defaultLng;
+            float zoom = prefs.getFloat("zoom", defaultZoom);
+            if (latL != Long.MAX_VALUE) {
+                lat = Double.longBitsToDouble(latL);
+                lng = Double.longBitsToDouble(lngL);
+            }
+
+            boolean keepCentered = prefs.getBoolean("keepCentered", true);
+            Log.d("MainPresenterImpl", "onResume - restoring map position: " + lat + "," + lng + "(" + zoom + "). Center: " + keepCentered + ". map: " + view.getMap());
+
+            view.setKeepMapCenteredIcons(keepCentered);
+
+            if (view.getMap() != null) {
+                view.getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom));
+            } else {
+                preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lng), zoom);
+            }
+
+            if (zoom > AUTO_ZOOM_THRESHOLD) {
+                refreshMarkers(lat, lng);
+            }
+        } else {
+            Log.d("MainPresenterImpl", "onResume - not restoring map position");
+            preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(defaultLat, defaultLng), defaultZoom);
+        }
+    }
+
+    private static final double defaultLat = 50.072445;
+    private static final double defaultLng = 14.438272;
+    private static final float defaultZoom = 15;
+
+    private void refreshMarkers() {
+        LatLng mapPosition = view.getMap().getCameraPosition().target;
+        refreshMarkers(mapPosition.latitude, mapPosition.longitude);
     }
 
     /**
@@ -370,6 +551,35 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                     presenter.onUpdatePlacesButtonClicked();
                 }
             }
+        }
+    }
+
+    private static class MainLocationListener implements LocationListener {
+        private final MainPresenterImpl presenter;
+
+        private MainLocationListener(MainPresenterImpl presenter) {
+            this.presenter = presenter;
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.v("MainLocationListener", "onLocationChanged");
+            presenter.onLocationChanged(location);
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
         }
     }
 }

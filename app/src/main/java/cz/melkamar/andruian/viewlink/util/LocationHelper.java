@@ -27,8 +27,7 @@ public class LocationHelper implements LocationListener {
     private Location lastKnownLocation = null;
     private LocationManager locationManager = null;
 
-    public final static int LOC_REQUEST_CODE = 1;
-    public final static int LOC_REQUEST_MAP = 2;
+    public final static int LOC_REQUEST = 1;
 
     /**
      * Create a new {@link LocationHelper}.
@@ -49,6 +48,8 @@ public class LocationHelper implements LocationListener {
      * @throws PermissionException Thrown when permissions are denied.
      */
     public void startReportingGps() throws PermissionException {
+        Log.v("LocationHelper", "startReportingGps");
+
         Criteria criteria = new Criteria();
         String provider = locationManager.getBestProvider(criteria, false);
         if (ActivityCompat.checkSelfPermission(activity,
@@ -66,7 +67,7 @@ public class LocationHelper implements LocationListener {
 
     public void stopReportingGps() {
         Log.i("LocationHelper", "stopReportingGps");
-        if (locationManager!=null) {
+        if (locationManager != null) {
             Log.d("LocationHelper", "removing updates");
             locationManager.removeUpdates(this);
         }
@@ -82,8 +83,9 @@ public class LocationHelper implements LocationListener {
      * Request Location permissions. The activity will be called back by the Android framework.
      */
     public void requestPermissions() {
+        Log.v("Locationhelper", "requestPermissions");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOC_REQUEST_CODE);
+            activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOC_REQUEST);
         }
     }
 
@@ -96,18 +98,13 @@ public class LocationHelper implements LocationListener {
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) throws PermissionException {
+        Log.v("Locationhelper", "onRequestPermissionsResult "+requestCode);
         switch (requestCode) {
-            case LOC_REQUEST_CODE:
+            case LOC_REQUEST:
                 if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     throw new PermissionException("GPS not allowed.");
                 } else {
                     startReportingGps();
-                }
-                break;
-
-            case LOC_REQUEST_MAP:
-                if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    throw new PermissionException("GPS not allowed.");
                 }
                 break;
         }
