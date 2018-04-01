@@ -30,7 +30,7 @@ public class IndexServerPlaceFetcher {
 
         String queryUri = dataDef.getIndexServer().getUri() + "/api/query";
 
-        NetHelper netHelper = NetHelperProvider.getNetHelper();
+        NetHelper netHelper = NetHelperProvider.getProvider().getInstance();
         double kmRadius = Util.convertRadiusToKilometers(latitude, longitude, radius);
 
         AsyncTaskResult<String> result = netHelper.httpGet(queryUri,

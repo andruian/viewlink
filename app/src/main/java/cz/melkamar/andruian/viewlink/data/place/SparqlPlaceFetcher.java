@@ -85,7 +85,7 @@ public class SparqlPlaceFetcher {
         }
         String query = getSparqlQuery(queryTemplate, dataDef, classToLocPaths.get(0), selectProperties, latitude, longitude, radius);
 
-        NetHelper netHelper = NetHelperProvider.getNetHelper();
+        NetHelper netHelper = NetHelperProvider.getProvider().getInstance();
         AsyncTaskResult<String> result = netHelper.httpPost(
                 dataDef.getSourceClassDef().getSparqlEndpoint(),
                 new KeyVal[]{new KeyVal("query", query)},
