@@ -10,11 +10,13 @@ public class ViewLinkApplication extends MultiDexApplication {
 //    private DaoSession daoSession;
 //    @BindString(R.string.database_id) String DB_ID;
 
+    public static final String DB_NAME = "cz.melkamar.andruian.viewlink.database";
+
     private AppDatabase appDatabase;
     @Override
     public void onCreate() {
         super.onCreate();
-        appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "mydbname").fallbackToDestructiveMigration().build();
+        appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, DB_NAME).fallbackToDestructiveMigration().build();
     }
 
     public AppDatabase getAppDatabase() {

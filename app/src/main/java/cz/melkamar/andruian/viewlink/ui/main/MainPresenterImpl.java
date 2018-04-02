@@ -26,10 +26,8 @@ import java.util.Map;
 
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
-import cz.melkamar.andruian.viewlink.data.place.IndexServerPlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcherProvider;
-import cz.melkamar.andruian.viewlink.data.place.SparqlPlaceFetcher;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
@@ -262,6 +260,8 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
             return;
         }
 
+        view.reclusterMarkers();
+
         if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD && prefAutoRefreshMarkers) {
             if (lastRefreshedArea != null) {
                 LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
@@ -280,8 +280,6 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         } else {
             view.showUpdatePlacesButton();
         }
-
-        view.reclusterMarkers();
     }
 
 

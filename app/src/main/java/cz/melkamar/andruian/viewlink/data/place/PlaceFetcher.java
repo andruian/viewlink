@@ -38,7 +38,7 @@ public class PlaceFetcher {
         } catch (PlaceFetchException e) {
             lastException = e;
             Log.i("fetchPlaces", "Could not fetch places from the index server", e);
-            view.showMessage("An error occurred when fetching data from the index server. "+e.getMessage());
+//            view.showMessage("An error occurred when fetching data from the index server. "+e.getMessage());
         } catch (IndexServerNotDefinedException e) {
             e.printStackTrace();
             Log.i("fetchPlaces", "Index server not defined", e);

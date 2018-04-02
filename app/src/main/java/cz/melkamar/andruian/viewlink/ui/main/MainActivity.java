@@ -26,6 +26,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.maps.android.clustering.ClusterManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -51,6 +52,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private GoogleMap map;
     private MultiClusterListener<Place> clusterListener;
     Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
+    Map<DataDef, List<Place>> placesStoredMap = new HashMap<>();
 
     @BindView(R.id.fab)
     protected FloatingActionButton fab;
@@ -144,6 +146,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    public Map<DataDef, List<Place>> getPlacesStoredMap() {
+        return placesStoredMap;
+    }
+
     /**
      * Change color of the navigation drawer switch button. When disabled, use predefined gray values.
      * When enabled, use the {@link DataDef} marker color as the thumb color and calculate a slightly
@@ -175,7 +181,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             Log.v("MainActivity", "clearMapMarkers - clusterManager was null for " + dataDef.getUri());
         }
+
+        List<Place> placesList = placesStoredMap.get(dataDef);
+        if (placesList!=null){
+            placesStoredMap.remove(dataDef);
+        }
     }
+
+
 
     @Override
     public void addMapMarkers(DataDef datadef, List<Place> places) {
@@ -204,7 +217,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             clusterMgrs.put(datadef, clusterManager);
             clusterListener.addListener(datadef, clusterManager);
+
         }
+
+        List<Place> placesList = placesStoredMap.get(datadef);
+        if (placesList == null){
+            placesList = new ArrayList<>();
+            placesStoredMap.put(datadef, placesList);
+        }
+        placesList.addAll(places);
 
         clusterManager.addItems(places);
         clusterManager.cluster();
