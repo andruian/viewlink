@@ -10,6 +10,7 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.google.android.gms.maps.model.Marker;
 import cz.melkamar.andruian.ddfparser.model.*;
 import cz.melkamar.andruian.viewlink.data.DataDefHelper;
 import cz.melkamar.andruian.viewlink.data.DataDefHelperProvider;
@@ -130,6 +131,7 @@ public class MainActivityTest {
         onView(withId(R.id.nav_view))
                 .perform(NavigationViewActions.navigateTo(R.id.nav_manage_sources));
 
+        // TODO maybe deleting all existing datadefs is necessary here?
         // Check no data defs shown
         onView(withId(R.id.datadefs_rv)).check(new RecyclerViewItemCountAssertion(0));
 
@@ -147,10 +149,13 @@ public class MainActivityTest {
         // Return to main activity
         onView(withContentDescription(R.string.abc_action_bar_up_description)).perform(click());
 
-        // TODO mock away places fetcher
-
         // Check that a marker is shown by reading the ClusterManager
         Assert.assertEquals(1, mActivityRule.getActivity().getClusterMgrs().values().size());
         Assert.assertEquals(1, mActivityRule.getActivity().getClusterMgrs().values().iterator().next().getMarkerCollection().getMarkers().size());
+
+        Marker marker = mActivityRule.getActivity().getClusterMgrs().values().iterator().next().getMarkerCollection().getMarkers().iterator().next();
+        Assert.assertEquals(50, marker.getPosition().latitude, 0.000001);
+        Assert.assertEquals(14, marker.getPosition().longitude, 0.000001);
+        Assert.assertEquals("http://fake.place/uri", marker.getTitle());
     }
 }
