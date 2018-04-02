@@ -13,6 +13,10 @@ import android.support.test.runner.AndroidJUnit4;
 import cz.melkamar.andruian.ddfparser.model.*;
 import cz.melkamar.andruian.viewlink.data.DataDefHelper;
 import cz.melkamar.andruian.viewlink.data.DataDefHelperProvider;
+import cz.melkamar.andruian.viewlink.data.persistence.ParserDatadefPersistor;
+import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
+import cz.melkamar.andruian.viewlink.data.place.PlaceFetcherProvider;
+import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,13 +28,12 @@ import cz.melkamar.andruian.viewlink.ui.main.MainActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.Any;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -42,6 +45,7 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCom
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * Created by Martin Melka on 12.03.2018.
@@ -50,24 +54,40 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MainActivityTest {
-    @Rule
-    public IntentsTestRule<MainActivity> mActivityRule =
+    @Rule public IntentsTestRule<MainActivity> mActivityRule =
             new IntentsTestRule<MainActivity>(MainActivity.class);
 
-    @Mock
-    DataDefHelper dataDefHelperMock;
+    @Mock DataDefHelper dataDefHelperMock;
+    @Mock PlaceFetcher placeFetcherMock;
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
 
     private String ddfUrl = "http://fake.url/something";
+    private List<DataDef> fakeDdfs;
 
     @Before
     public void setUp() throws Exception {
-//        Mockito.when(dataDefHelperMock.getDataDefs(anyString(), any())).thenAnswer(i -> new DataDef(i.getArgument(0), i.getArgument(0),i.getArgument(0)));
-        Mockito.when(dataDefHelperMock.getDataDefs(ddfUrl)).thenReturn(new AsyncTaskResult<>(createFakeDdf()));
+        fakeDdfs = createFakeDdf();
+        Mockito
+                .when(dataDefHelperMock.getDataDefs(ddfUrl))
+                .thenReturn(new AsyncTaskResult<>(fakeDdfs));
         DataDefHelperProvider.getProvider().setInstance(dataDefHelperMock);
+
+        Mockito
+                .when(placeFetcherMock.fetchPlaces(any(), any(), any(), any(), any()))
+                .thenReturn(new ArrayList<>(
+                        Arrays.stream(new Place[]{new Place(
+                                "http://fake.place/uri",
+                                "http://fake.location.place/uri",
+                                50,
+                                14,
+                                "http://source.class",
+                                ParserDatadefPersistor.transDataDefToLocal(fakeDdfs.get(0)),
+                                null
+                        )}).collect(Collectors.toList())
+                ));
+        PlaceFetcherProvider.getProvider().setInstance(placeFetcherMock);
     }
 
     private List<DataDef> createFakeDdf() {

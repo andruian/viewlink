@@ -16,14 +16,9 @@ public class PlaceFetcher {
     private IndexServerPlaceFetcher indexServerPlaceFetcher;
     private SparqlPlaceFetcher sparqlPlaceFetcher;
 
-    public PlaceFetcher(IndexServerPlaceFetcher indexServerPlaceFetcher, SparqlPlaceFetcher sparqlPlaceFetcher) {
+    PlaceFetcher(IndexServerPlaceFetcher indexServerPlaceFetcher, SparqlPlaceFetcher sparqlPlaceFetcher) {
         this.indexServerPlaceFetcher = indexServerPlaceFetcher;
         this.sparqlPlaceFetcher = sparqlPlaceFetcher;
-    }
-
-    public PlaceFetcher() {
-        this.indexServerPlaceFetcher = new IndexServerPlaceFetcher();
-        this.sparqlPlaceFetcher = new SparqlPlaceFetcher();
     }
 
     /**
