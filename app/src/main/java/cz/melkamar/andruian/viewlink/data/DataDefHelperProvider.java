@@ -4,23 +4,15 @@ package cz.melkamar.andruian.viewlink.data;
  * Created by Martin Melka on 11.03.2018.
  */
 
-public class DataDefHelperProvider {
-    private static DataDefHelper dataDefHelper;
+public class DataDefHelperProvider extends Factory<DataDefHelper> {
+    private static DataDefHelperProvider provider = new DataDefHelperProvider();
 
-    public static DataDefHelper getDataDefHelper() {
-        if (dataDefHelper == null) {
-            dataDefHelper = new DataDefHelperImpl(
-                    NetHelperProvider.getNetHelper());
-            // TODO refactor this, allow mocking - use dagger?
-        }
-        return dataDefHelper;
+    public static DataDefHelperProvider getProvider() {
+        return provider;
     }
 
-
-    /**
-     * Used for mocking in tests.
-     */
-    public static void setDataDefHelper(DataDefHelper dataDefHelper){
-        DataDefHelperProvider.dataDefHelper = dataDefHelper;
+    @Override
+    protected DataDefHelper getDefaultInstance() {
+        return new DataDefHelperImpl(NetHelperProvider.getProvider().getInstance());
     }
 }

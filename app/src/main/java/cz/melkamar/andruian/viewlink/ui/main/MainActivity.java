@@ -361,6 +361,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         presenter.onViewDetached();
     }
 
+    public Map<DataDef, ClusterManager<Place>> getClusterMgrs() {
+        return clusterMgrs;
+    }
+
     @Override
     public void showManageDatasourcesActivity() {
         startActivity(new Intent(this, DatasourcesActivity.class));

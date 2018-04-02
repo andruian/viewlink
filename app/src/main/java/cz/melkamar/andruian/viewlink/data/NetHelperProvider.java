@@ -4,21 +4,15 @@ package cz.melkamar.andruian.viewlink.data;
  * Created by Martin Melka on 12.03.2018.
  */
 
-public class NetHelperProvider {
-    private static NetHelper netHelper;
+public class NetHelperProvider extends Factory<NetHelper> {
+    private static NetHelperProvider provider = new NetHelperProvider();
 
-    public static NetHelper getNetHelper() {
-        if (netHelper == null) {
-            netHelper = new NetHelperImpl();
-        }
-        return netHelper;
+    public static NetHelperProvider getProvider() {
+        return provider;
     }
 
-    /**
-     * Used for mocking in tests.
-     * @param netHelper
-     */
-    public static void setNetHelper(NetHelper netHelper){
-        NetHelperProvider.netHelper = netHelper;
+    @Override
+    protected NetHelper getDefaultInstance() {
+        return new NetHelperImpl();
     }
 }

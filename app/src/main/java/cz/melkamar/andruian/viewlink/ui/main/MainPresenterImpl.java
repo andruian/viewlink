@@ -28,6 +28,7 @@ import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
 import cz.melkamar.andruian.viewlink.data.place.IndexServerPlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
+import cz.melkamar.andruian.viewlink.data.place.PlaceFetcherProvider;
 import cz.melkamar.andruian.viewlink.data.place.SparqlPlaceFetcher;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
@@ -171,10 +172,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
     private void fetchNewPlaces(MainView view, DataDef dataDef, double latitude, double longitude, double radius) {
         Log.i("fetchNewPlaces", dataDef.getUri() + " at " + latitude + "," + longitude + " (" + radius + ")");
-        PlaceFetcher placeFetcher = new PlaceFetcher(
-                new IndexServerPlaceFetcher(),
-                new SparqlPlaceFetcher()
-        );
+        PlaceFetcher placeFetcher = PlaceFetcherProvider.getProvider().getInstance();
         FetchPlacesAT task = fetchPlacesTasks.get(dataDef);
         if (task != null) {
             Log.v("MainPresenterImpl", "fetchNewPlaces - cancelling task for " + dataDef.getUri());

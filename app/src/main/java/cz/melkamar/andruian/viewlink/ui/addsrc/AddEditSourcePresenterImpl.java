@@ -44,7 +44,7 @@ public class AddEditSourcePresenterImpl extends BasePresenterImpl implements Add
         public FetchDataDefsTask(WeakReference<AddEditSourceView> view, String dataDefUrl) {
             this.view = view;
             this.dataDefUrl = dataDefUrl;
-            this.dataDefHelper = DataDefHelperProvider.getDataDefHelper();
+            this.dataDefHelper = DataDefHelperProvider.getProvider().getInstance();
         }
 
         @Override
