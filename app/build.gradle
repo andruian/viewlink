@@ -39,6 +39,9 @@ android {
     dexOptions {
         additionalParameters = ['--core-library']
     }
+    testOptions {
+        execution 'ANDROID_TEST_ORCHESTRATOR'
+    }
 }
 
 
@@ -98,4 +101,9 @@ dependencies {
     implementation 'net.sf.supercsv:super-csv:2.4.0'
     // Marker groups
     implementation 'com.google.maps.android:android-maps-utils:0.5'
+
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestUtil 'com.android.support.test:orchestrator:1.0.1'
+
+
 }
