@@ -1,5 +1,6 @@
 package cz.melkamar.andruian.viewlink;
 
+import android.app.Activity;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
@@ -9,6 +10,7 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.util.Log;
 
 import org.hamcrest.Matchers;
@@ -23,11 +25,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import cz.melkamar.andruian.ddfparser.model.ClassToLocPath;
@@ -47,6 +46,7 @@ import cz.melkamar.andruian.viewlink.ui.main.MainActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -57,6 +57,7 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCom
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.runner.lifecycle.Stage.RESUMED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 
@@ -81,7 +82,7 @@ public class MainActivityTest {
     private List<DataDef> fakeDdfs;
 
     @BeforeClass
-    public static void beforeClass(){
+    public static void beforeClass() {
         InstrumentationRegistry.getTargetContext().deleteDatabase(ViewLinkApplication.DB_NAME);
     }
 
@@ -150,9 +151,6 @@ public class MainActivityTest {
         onView(withId(R.id.nav_view))
                 .perform(NavigationViewActions.navigateTo(R.id.nav_manage_sources));
 
-        // TODO maybe deleting all existing datadefs is necessary here?
-
-
         // Check no data defs shown
 //        onView(withId(R.id.datadefs_rv)).check(new RecyclerViewItemCountAssertion(0));
         onView(withId(R.id.datadefs_rv)).check(matches(Matchers.not(isDisplayed())));
@@ -178,13 +176,26 @@ public class MainActivityTest {
         // Check that a marker is shown by reading the ClusterManager
         // TODO here it is 0 for some reason, even though addmapmarkers correctly called
         Log.v("CHECK", "CHECK");
-        Assert.assertEquals(1, mActivityRule.getActivity().getPlacesStoredMap().size());
-        Assert.assertEquals(1, mActivityRule.getActivity().getPlacesStoredMap().values().iterator().next().size());
+        MainActivity activity = (MainActivity) getActivityInstance();
+        Assert.assertEquals(1, activity.getPlacesStoredMap().size());
+        Assert.assertEquals(1, activity.getPlacesStoredMap().values().iterator().next().size());
 //        IdlingRegistry.getInstance().unregister(waitResource);
 
-        Place place = mActivityRule.getActivity().getPlacesStoredMap().values().iterator().next().iterator().next();
+        Place place = activity.getPlacesStoredMap().values().iterator().next().iterator().next();
         Assert.assertEquals(50, place.getPosition().latitude, 0.000001);
         Assert.assertEquals(14, place.getPosition().longitude, 0.000001);
         Assert.assertEquals("http://fake.place/uri", place.getTitle());
+    }
+
+    private Activity getActivityInstance() {
+        final Activity[] currentActivity = {null};
+        getInstrumentation().runOnMainSync(() -> {
+            Collection<Activity> resumedActivities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(RESUMED);
+            if (resumedActivities.iterator().hasNext()) {
+                currentActivity[0] = resumedActivities.iterator().next();
+            }
+        });
+
+        return currentActivity[0];
     }
 }
