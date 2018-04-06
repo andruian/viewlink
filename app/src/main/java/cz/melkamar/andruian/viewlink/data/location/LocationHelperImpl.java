@@ -1,4 +1,4 @@
-package cz.melkamar.andruian.viewlink.util;
+package cz.melkamar.andruian.viewlink.data.location;
 
 import android.Manifest;
 import android.content.Context;
@@ -20,23 +20,21 @@ import cz.melkamar.andruian.viewlink.exception.PermissionException;
  * A helper class for Location management. It handles asking for permissions and sending updates
  * about location change to a specified {@link LocationListener}.
  */
-public class LocationHelper implements LocationListener {
+public class LocationHelperImpl implements LocationListener, LocationHelper {
     private final AppCompatActivity activity;
     private final LocationListener listener;
     private boolean reportingGps = false;
     private Location lastKnownLocation = null;
     private LocationManager locationManager = null;
 
-    public final static int LOC_REQUEST = 1;
-
     /**
-     * Create a new {@link LocationHelper}.
+     * Create a new {@link LocationHelperImpl}.
      *
      * @param activity         The activity requesting location. It must override the {@link AppCompatActivity#onRequestPermissionsResult(int, String[], int[])} method.
-     *                         This method shall call {@link LocationHelper#onRequestPermissionsResult(int, String[], int[])} with the given parameters.
+     *                         This method shall call {@link LocationHelperImpl#onRequestPermissionsResult(int, String[], int[])} with the given parameters.
      * @param locationListener A listener where GPS updates will be sent to.
      */
-    public LocationHelper(AppCompatActivity activity, LocationListener locationListener) {
+    public LocationHelperImpl(AppCompatActivity activity, LocationListener locationListener) {
         this.activity = activity;
         this.listener = locationListener;
         this.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
@@ -47,6 +45,7 @@ public class LocationHelper implements LocationListener {
      *
      * @throws PermissionException Thrown when permissions are denied.
      */
+    @Override
     public void startReportingGps() throws PermissionException {
         Log.v("LocationHelper", "startReportingGps");
 
@@ -65,6 +64,7 @@ public class LocationHelper implements LocationListener {
         reportingGps = true;
     }
 
+    @Override
     public void stopReportingGps() {
         Log.i("LocationHelper", "stopReportingGps");
         if (locationManager != null) {
@@ -73,6 +73,7 @@ public class LocationHelper implements LocationListener {
         }
     }
 
+    @Override
     public boolean checkPermissions() {
         return !(ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -82,6 +83,7 @@ public class LocationHelper implements LocationListener {
     /**
      * Request Location permissions. The activity will be called back by the Android framework.
      */
+    @Override
     public void requestPermissions() {
         Log.v("Locationhelper", "requestPermissions");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -90,15 +92,17 @@ public class LocationHelper implements LocationListener {
     }
 
     /**
-     * Indicate whether this {@link LocationHelper} is sending location updates to its listener. In other words,
-     * indicate whether {@link LocationHelper#startReportingGps()} was called.
+     * Indicate whether this {@link LocationHelperImpl} is sending location updates to its listener. In other words,
+     * indicate whether {@link LocationHelperImpl#startReportingGps()} was called.
      */
+    @Override
     public boolean isReportingGps() {
         return reportingGps;
     }
 
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) throws PermissionException {
-        Log.v("Locationhelper", "onRequestPermissionsResult "+requestCode);
+        Log.v("Locationhelper", "onRequestPermissionsResult " + requestCode);
         switch (requestCode) {
             case LOC_REQUEST:
                 if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -132,7 +136,15 @@ public class LocationHelper implements LocationListener {
 
     }
 
+    @Override
     public Location getLastKnownLocation() {
         return lastKnownLocation;
+    }
+
+    public static class LocationHelperImplFactory implements LocationHelperFactory {
+        @Override
+        public LocationHelper create(AppCompatActivity activity, LocationListener listener) {
+            return new LocationHelperImpl(activity, listener);
+        }
     }
 }

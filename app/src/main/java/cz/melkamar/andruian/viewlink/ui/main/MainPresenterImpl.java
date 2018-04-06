@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cz.melkamar.andruian.viewlink.data.location.LocationHelper;
+import cz.melkamar.andruian.viewlink.data.location.LocationHelperProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 import cz.melkamar.andruian.viewlink.data.persistence.DaoHelper;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
@@ -33,7 +35,6 @@ import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
-import cz.melkamar.andruian.viewlink.util.LocationHelper;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -61,7 +62,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     public MainPresenterImpl(MainView view) {
         super(view);
         this.view = view;
-        locationHelper = new LocationHelper(view.getActivity(), new MainLocationListener(this));
+        locationHelper = LocationHelperProvider.getProvider().getInstance(view.getActivity(), new MainLocationListener(this));
         updatePrefs();
     }
 
@@ -167,7 +168,6 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     }
 
 
-
     private void fetchNewPlaces(MainView view, DataDef dataDef, double latitude, double longitude, double radius) {
         Log.i("fetchNewPlaces", dataDef.getUri() + " at " + latitude + "," + longitude + " (" + radius + ")");
         PlaceFetcher placeFetcher = PlaceFetcherProvider.getProvider().getInstance();
@@ -256,7 +256,8 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     @Override
     public void onMapCameraIdle(GoogleMap googleMap) {
         Log.v("MainPresenterImpl", "onCameraIdle - lastReason " + lastCameraMoveReason);
-        if (lastCameraMoveReason != GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+        if (lastCameraMoveReason != GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE &&
+                lastCameraMoveReason != GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION) {
             return;
         }
 
@@ -294,18 +295,22 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         // it. We still dont want to call the onCameraIdle on every map movement though, for
         // example tapping a marker makes the camera move and we do not want to refresh markers then.
 
-        if (!shouldKeepMapCentered && view.getMap() != null)
-            onMapCameraIdle(view.getMap());
+//        if (view.getMap() != null)
+//            onMapCameraIdle(view.getMap());
 
 
         if (location != null) {
-            Log.v("onLocationChanged", "[" + location.getLatitude() + "," + location.getLongitude() + "] keepCentered: " + shouldKeepMapCentered + " | centerOnNextLoc: " + centerMapOnNextLocation);
+            Log.v("onLocationChanged", "[" + location.getLatitude() + "," + location.getLongitude() + "] shouldKeepMapCentered: " + shouldKeepMapCentered + " | centerOnNextLoc: " + centerMapOnNextLocation);
             if (shouldKeepMapCentered) centerMapOnNextLocation = true;
             if (centerMapOnNextLocation) centerCamera();
         }
     }
 
+    // For testing - to read the camera position. Cannot read map directly because not on main thread
+    public LatLng lastCameraUpdatePosition;
+
     public void centerCamera() {
+        Log.v("MainPresenterImpl", "centerCamera");
         centerMapOnNextLocation = false;
         if (!locationHelper.isReportingGps()) {
             try {
@@ -318,9 +323,9 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         }
 
         if (view.getMap() != null && locationHelper.getLastKnownLocation() != null) {
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(
-                    new LatLng(locationHelper.getLastKnownLocation().getLatitude(),
-                            locationHelper.getLastKnownLocation().getLongitude()));
+            lastCameraUpdatePosition = new LatLng(locationHelper.getLastKnownLocation().getLatitude(),
+                    locationHelper.getLastKnownLocation().getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(lastCameraUpdatePosition);
             view.getMap().animateCamera(cameraUpdate, 500, null);
         } else {
             centerMapOnNextLocation = true;
@@ -507,6 +512,10 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         }
     }
 
+    public void setDataDefsShownInDrawer(List<DataDef> datadefs) {
+        this.dataDefsShownInDrawer = datadefs;
+    }
+
     private static class RefreshDdfInDrawerAT extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
         private final MainView view;
         private final MainPresenterImpl presenter;
@@ -533,7 +542,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 for (DataDef dataDef : result.getResult()) {
                     Log.v("refreshDatadefsSID", dataDef.toString());
                 }
-                presenter.dataDefsShownInDrawer = result.getResult();
+                presenter.setDataDefsShownInDrawer(result.getResult());
                 view.showDataDefsInDrawer(result.getResult());
 
                 if (presenter.isRefreshMarkersWhenDdfReady()) {

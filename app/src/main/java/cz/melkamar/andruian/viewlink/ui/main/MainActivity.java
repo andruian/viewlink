@@ -390,4 +390,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void showManageDatasourcesActivity() {
         startActivity(new Intent(this, DatasourcesActivity.class));
     }
+
+    public MainPresenter getPresenter(){
+        return this.presenter;
+    }
 }
