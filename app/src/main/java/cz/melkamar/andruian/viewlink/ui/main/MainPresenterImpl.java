@@ -243,11 +243,10 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
         if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
             Log.d("cameraMovedListener", "stopping centering camera");
-
+            shouldKeepMapCentered = false;
+            centerMapOnNextLocation = false;
             if (view != null) {
-                if (!shouldKeepMapCentered && !prefAutoRefreshMarkers) {
-                    view.showUpdatePlacesButton();
-                }
+                view.showUpdatePlacesButton();
                 view.setKeepMapCenteredIcons(false);
             }
         }

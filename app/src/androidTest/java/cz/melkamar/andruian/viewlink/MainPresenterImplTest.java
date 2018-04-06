@@ -4,6 +4,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.GeneralSwipeAction;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Swipe;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v7.app.AppCompatActivity;
@@ -74,12 +78,7 @@ public class MainPresenterImplTest {
         SystemClock.sleep(1000);
         onView(withId(R.id.fab)).perform(ViewActions.click());
 
-        Location location = new Location("");
-        location.setLatitude(0.5);
-        location.setLongitude(1.4);
-        Mockito.when(locationHelperMock.getLastKnownLocation()).thenReturn(location);
-
-        mActivityRule.runOnUiThread(() -> locListener.onLocationChanged(location));
+        mockLocation(0.5, 1.4);
         SystemClock.sleep(2500);
 
 
@@ -105,12 +104,7 @@ public class MainPresenterImplTest {
 
 
         // Change location to somewhere to clear map refresh viewport
-        Location location = new Location("");
-        location.setLatitude(50.5);
-        location.setLongitude(25.4);
-        Mockito.when(locationHelperMock.getLastKnownLocation()).thenReturn(location);
-
-        mActivityRule.runOnUiThread(() -> locListener.onLocationChanged(location));
+        mockLocation(50.5, 25.4);
         SystemClock.sleep(2500);
 
         // Set up fake datadef
@@ -124,12 +118,7 @@ public class MainPresenterImplTest {
                 .thenReturn(new ArrayList<>());
 
         // Change location to tested position
-        Location testLocation = new Location("");
-        testLocation.setLatitude(0.5);
-        testLocation.setLongitude(1.4);
-        Mockito.when(locationHelperMock.getLastKnownLocation()).thenReturn(testLocation);
-
-        mActivityRule.runOnUiThread(() -> locListener.onLocationChanged(testLocation));
+        mockLocation(0.5, 1.4);
         SystemClock.sleep(2500);
 
         Assert.assertNotNull(presenter.lastCameraUpdatePosition);
@@ -144,5 +133,36 @@ public class MainPresenterImplTest {
                         anyDouble());
     }
 
+    /**
+     * Check that the camera does not follow the user location after the map is dragged.
+     */
+    @Test
+    public void cameraDoesNotFollowAfterDrag() throws Throwable {
+        SystemClock.sleep(1000);
+        onView(withId(R.id.fab)).perform(ViewActions.click());
 
+        mockLocation(0.5, 1.4);
+        SystemClock.sleep(2500);
+
+        // Disable location centering and change location
+        onView(withId(R.id.map)).perform(new GeneralSwipeAction(
+                Swipe.SLOW, GeneralLocation.CENTER, GeneralLocation.TOP_CENTER, Press.FINGER
+        ));
+        mockLocation(50.5, 21.4);
+
+        // Assert that the last camera update position is the first one
+        MainActivity activity = (MainActivity) getActivityInstance();
+        MainPresenterImpl presenter = (MainPresenterImpl) activity.getPresenter();
+        Assert.assertNotNull(presenter.lastCameraUpdatePosition);
+        Assert.assertEquals(0.5, presenter.lastCameraUpdatePosition.latitude, 0.1);
+        Assert.assertEquals(1.4, presenter.lastCameraUpdatePosition.longitude, 0.1);
+    }
+
+    private void mockLocation(double latitude, double longitude) throws Throwable {
+        Location location = new Location("");
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        Mockito.when(locationHelperMock.getLastKnownLocation()).thenReturn(location);
+        mActivityRule.runOnUiThread(() -> locListener.onLocationChanged(location));
+    }
 }
