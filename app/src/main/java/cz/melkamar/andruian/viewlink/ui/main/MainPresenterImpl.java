@@ -20,11 +20,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import cz.melkamar.andruian.viewlink.data.location.LocationHelper;
 import cz.melkamar.andruian.viewlink.data.location.LocationHelperProvider;
@@ -34,9 +32,6 @@ import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcherProvider;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
-import cz.melkamar.andruian.viewlink.model.place.MapElement;
-import cz.melkamar.andruian.viewlink.model.place.Place;
-import cz.melkamar.andruian.viewlink.model.place.PlaceCluster;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
@@ -476,35 +471,8 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
         @Override
         protected AsyncTaskResult<PlaceFetcher.FetchPlacesResult> doInBackground(Void... voids) {
-            Random random = new Random();
             try {
-                // TODO mocked
-//                PlaceFetcher.FetchPlacesResult result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
-
-
-                PlaceFetcher.FetchPlacesResult result = null;
-                if (random.nextBoolean()) {
-                    List<MapElement> elements = new ArrayList<>();
-                    for (int i = 0; i < 50; i++) {
-                        elements.add(new PlaceCluster(50.079673 + random.nextDouble() * 0.01, 14.45400 + random.nextDouble() * 0.01, random.nextInt(100), dataDef));
-                    }
-                    result = new PlaceFetcher.FetchPlacesResult(
-                            PlaceFetcher.FetchPlacesResult.RESULT_TYPE_CLUSTERS,
-                            elements
-                    );
-
-                } else {
-                    List<MapElement> elements = new ArrayList<>();
-                    for (int i = 0; i < 50; i++) {
-                        elements.add(new Place("xxx", "xxx", 50.079673 + random.nextDouble() * 0.01, 14.45400 + random.nextDouble() * 0.01,
-                                "xxx", dataDef, "xxx"));
-                    }
-                    result = new PlaceFetcher.FetchPlacesResult(
-                            PlaceFetcher.FetchPlacesResult.RESULT_TYPE_PLACES,
-                            elements
-                    );
-                }
-
+                PlaceFetcher.FetchPlacesResult result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
                 return new AsyncTaskResult<>(result);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import cz.melkamar.andruian.viewlink.Constants;
 import cz.melkamar.andruian.viewlink.data.NetHelper;
 import cz.melkamar.andruian.viewlink.data.NetHelperProvider;
 import cz.melkamar.andruian.viewlink.exception.IndexServerNotDefinedException;
@@ -40,7 +41,8 @@ public class IndexServerPlaceFetcher {
                         new KeyVal("lat", latitude + ""),
                         new KeyVal("long", longitude + ""),
                         new KeyVal("r", kmRadius + ""),
-                        new KeyVal("type", dataDef.getSourceClassDef().getClassUri() + "")
+                        new KeyVal("type", dataDef.getSourceClassDef().getClassUri() + ""),
+                        new KeyVal("clusterLimit", Constants.CLUSTERING_THRESHOLD + "")
                 });
 
         if (result.hasError()) {
