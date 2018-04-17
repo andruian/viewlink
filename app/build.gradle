@@ -89,6 +89,9 @@ dependencies {
     //
     // Both of these are necessary for the rdf4j parser to work
     //
+    androidTestUtil 'com.android.support.test:orchestrator:1.0.1'
+
+    testCompile 'org.json:json:20080701'
     implementation 'xerces:xercesImpl:2.11.0'
     implementation 'cz.melkamar.andruian:ddfparser:1.0.7'
     implementation 'android.arch.persistence.room:runtime:1.0.0'
@@ -100,7 +103,4 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:0.5'
 
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestUtil 'com.android.support.test:orchestrator:1.0.1'
-
-
 }

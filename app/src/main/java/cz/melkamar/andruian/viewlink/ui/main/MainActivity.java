@@ -1,10 +1,14 @@
 package cz.melkamar.andruian.viewlink.ui.main;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -15,16 +19,24 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.ui.IconGenerator;
+import com.google.maps.android.ui.SquareTextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +65,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private MultiClusterListener<Place> clusterListener;
     Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
     Map<DataDef, List<Place>> placesStoredMap = new HashMap<>();
+    Map<DataDef, List<Marker>> preclusteredMarkers = new HashMap<>();
 
     @BindView(R.id.fab)
     protected FloatingActionButton fab;
@@ -183,15 +196,65 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         List<Place> placesList = placesStoredMap.get(dataDef);
-        if (placesList!=null){
+        if (placesList != null) {
             placesStoredMap.remove(dataDef);
+        }
+
+        List<Marker> preclusteredMarkersList = preclusteredMarkers.get(dataDef);
+        if (preclusteredMarkersList !=null){
+            Log.v("MainActivity", "clearMapMarkers - preclusteredMarkers exist: "+preclusteredMarkersList.size());
+            for (Marker marker : preclusteredMarkersList) {
+                marker.remove();
+            }
+            preclusteredMarkers.remove(dataDef);
+        }
+    }
+
+    static class ClusterIconGenerator {
+        private final IconGenerator mIconGenerator;
+        private final ShapeDrawable mColoredCircleBackground;
+        private final float mDensity;
+
+        private SparseArray<BitmapDescriptor> mIcons = new SparseArray();
+
+        public ClusterIconGenerator(Context context) {
+            mIconGenerator = new IconGenerator(context);
+            mColoredCircleBackground = new ShapeDrawable(new OvalShape());
+            mDensity = context.getResources().getDisplayMetrics().density;
+
+            SquareTextView squareTextView = new SquareTextView(context);
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(-2, -2);
+            squareTextView.setLayoutParams(layoutParams);
+            squareTextView.setId(com.google.maps.android.R.id.amu_text);
+            int twelveDpi = (int) (12.0F * this.mDensity);
+            squareTextView.setPadding(twelveDpi, twelveDpi, twelveDpi, twelveDpi);
+            this.mIconGenerator.setContentView(squareTextView);
+
+            mIconGenerator.setTextAppearance(com.google.maps.android.R.style.amu_ClusterIcon_TextAppearance);
+
+            ShapeDrawable outline = new ShapeDrawable(new OvalShape());
+            outline.getPaint().setColor(Color.parseColor("#FFFFFF"));
+            LayerDrawable background = new LayerDrawable(new Drawable[]{outline, this.mColoredCircleBackground});
+            int strokeWidth = (int) (this.mDensity * 3.0F);
+            background.setLayerInset(1, strokeWidth, strokeWidth, strokeWidth, strokeWidth);
+            mIconGenerator.setBackground(background);
+        }
+
+        public BitmapDescriptor getDescriptor(int color, String text) {
+            BitmapDescriptor descriptor = (BitmapDescriptor) this.mIcons.get(color);
+            if (descriptor == null) {
+                this.mColoredCircleBackground.getPaint().setColor(color);
+                descriptor = BitmapDescriptorFactory.fromBitmap(this.mIconGenerator.makeIcon(text));
+                this.mIcons.put(color, descriptor);
+            }
+
+            return descriptor;
         }
     }
 
 
-
     @Override
-    public void addMapMarkers(DataDef datadef, List<Place> places) {
+    public void addMapMarkers(DataDef datadef, List<Place> places, boolean preclustered) {
         if (map == null) {
             Log.e("addMapMarkers", "map is null!");
             return;
@@ -202,6 +265,27 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         Log.d("addMapMarkers", "Adding " + places.size() + " markers");
+
+        // if preclustered, add one marker per server-cluster
+        // use https://stackoverflow.com/questions/36137333/display-the-number-of-clustered-markers-exactly maybe to create icon to drawzt
+        if (preclustered) {
+            ClusterIconGenerator iconGenerator = new ClusterIconGenerator(this);
+            List<Marker> preclusteredMarkersOfDatadef =preclusteredMarkers.get(datadef);
+            if (preclusteredMarkersOfDatadef == null) {
+                preclusteredMarkersOfDatadef = new ArrayList<>();
+                preclusteredMarkers.put(datadef, preclusteredMarkersOfDatadef);
+            }
+
+            for (Place place : places) {
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(place.getPosition());
+                markerOptions.icon(iconGenerator.getDescriptor(Util.colorFromHue(datadef.getMarkerColor()), "666"));
+
+                Marker marker = map.addMarker(markerOptions);
+                preclusteredMarkersOfDatadef.add(marker);
+            }
+            return;
+        }
 
 
         ClusterManager<Place> clusterManager = clusterMgrs.get(datadef);
@@ -221,7 +305,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         List<Place> placesList = placesStoredMap.get(datadef);
-        if (placesList == null){
+        if (placesList == null) {
             placesList = new ArrayList<>();
             placesStoredMap.put(datadef, placesList);
         }
@@ -232,9 +316,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-    public void replaceMapMarkers(DataDef dataDef, List<Place> places) {
+    public void replaceMapMarkers(DataDef dataDef, List<Place> places, boolean preclustered) {
         clearMapMarkers(dataDef);
-        addMapMarkers(dataDef, places);
+        addMapMarkers(dataDef, places, preclustered);
     }
 
     @Override
@@ -391,7 +475,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         startActivity(new Intent(this, DatasourcesActivity.class));
     }
 
-    public MainPresenter getPresenter(){
+    public MainPresenter getPresenter() {
         return this.presenter;
     }
 }

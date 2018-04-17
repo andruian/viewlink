@@ -1,0 +1,44 @@
+{
+  "responseType": 1,
+  "responseBody": [
+    {
+      "iri": "http://src.com/consonant/https%3A%2F%2Fruian.linked.opendata.cz%2Fzdroj%2Fadresní-místa%2F22655883",
+      "type": "http://example.org/SourceObjectConsonant",
+      "locationObjectIri": "https://ruian.linked.opendata.cz/zdroj/adresní-místa/22655883",
+      "label": "Holandská 18",
+      "properties": {
+        "StreetName": "Holandská",
+        "PSC": "10100",
+        "StreetNum": "18"
+      },
+      "latPos": 50.069716,
+      "longPos": 14.454531
+    },
+    {
+      "iri": "http://src.com/consonant/https%3A%2F%2Fruian.linked.opendata.cz%2Fzdroj%2Fadresní-místa%2F22658122",
+      "type": "http://example.org/SourceObjectConsonant",
+      "locationObjectIri": "https://ruian.linked.opendata.cz/zdroj/adresní-místa/22658122",
+      "label": "Žitomírská 15",
+      "properties": {
+        "StreetName": "Žitomírská",
+        "PSC": "10100",
+        "StreetNum": "15"
+      },
+      "latPos": 50.06922,
+      "longPos": 14.455931
+    },
+    {
+      "iri": "http://src.com/consonant/https%3A%2F%2Fruian.linked.opendata.cz%2Fzdroj%2Fadresní-místa%2F22658131",
+      "type": "http://example.org/SourceObjectConsonant",
+      "locationObjectIri": "https://ruian.linked.opendata.cz/zdroj/adresní-místa/22658131",
+      "label": "Žitomírská 17",
+      "properties": {
+        "StreetName": "Žitomírská",
+        "PSC": "10100",
+        "StreetNum": "17"
+      },
+      "latPos": 50.069378,
+      "longPos": 14.455989
+    }
+  ]
+}

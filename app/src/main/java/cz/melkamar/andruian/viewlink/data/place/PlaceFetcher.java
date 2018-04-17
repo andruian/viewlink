@@ -3,13 +3,16 @@ package cz.melkamar.andruian.viewlink.data.place;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.melkamar.andruian.viewlink.exception.IndexServerNotDefinedException;
 import cz.melkamar.andruian.viewlink.exception.PlaceFetchException;
 import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.place.MapElement;
 import cz.melkamar.andruian.viewlink.model.place.Place;
+import cz.melkamar.andruian.viewlink.model.place.PlaceCluster;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
 
 public class PlaceFetcher {
@@ -31,7 +34,7 @@ public class PlaceFetcher {
      * @param radius
      * @return
      */
-    public List<Place> fetchPlaces(BaseView view, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException {
+    public FetchPlacesResult fetchPlaces(BaseView view, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException {
         Exception lastException = null;
         try {
             return indexServerPlaceFetcher.fetchPlaces(dataDef, latitude, longitude, radius);
@@ -56,5 +59,38 @@ public class PlaceFetcher {
         }
 
         throw new PlaceFetchException(lastException.getMessage(), lastException);
+    }
+
+    public static class FetchPlacesResult {
+        public static final int RESULT_TYPE_PLACES = 0;
+        public static final int RESULT_TYPE_CLUSTERS = 1;
+
+        public final int resultType;
+        public final List<MapElement> places;
+
+        public FetchPlacesResult(int resultType, List<MapElement> places) {
+            this.resultType = resultType;
+            this.places = places;
+        }
+
+        public List<Place> getPlaces() {
+            if (resultType != RESULT_TYPE_PLACES)
+                throw new IllegalArgumentException("The result is not RESULT_TYPE_PLACES.");
+            List<Place> result = new ArrayList<>(places.size());
+            for (MapElement place : places) {
+                result.add((Place) place);
+            }
+            return result;
+        }
+
+        public List<PlaceCluster> getClusters() {
+            if (resultType != RESULT_TYPE_CLUSTERS)
+                throw new IllegalArgumentException("The result is not RESULT_TYPE_CLUSTERS.");
+            List<PlaceCluster> result = new ArrayList<>(places.size());
+            for (MapElement place : places) {
+                result.add((PlaceCluster) place);
+            }
+            return result;
+        }
     }
 }

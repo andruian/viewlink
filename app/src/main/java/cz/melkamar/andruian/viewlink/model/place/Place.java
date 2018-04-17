@@ -9,7 +9,7 @@ import java.util.List;
 
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
-public class Place implements Serializable, ClusterItem {
+public class Place extends MapElement implements Serializable, ClusterItem {
     private final String uri;
     private final String locationObjectUri;
     private final double latitude;

@@ -44,18 +44,22 @@ public interface MainView extends BaseView {
     /**
      * Show places on the map and associate them with a data definition.
      *
-     * @param dataDef The data definition to associate with the markers.
-     * @param places  The places for which to show markers on the map.
+     * @param dataDef      The data definition to associate with the markers.
+     * @param places       The places for which to show markers on the map.
+     * @param preclustered If true, the places passed as a parameter represent clusters. The clustering
+     *                     has been done on the server side because too many places matched.
      */
-    void addMapMarkers(DataDef dataDef, List<Place> places);
+    void addMapMarkers(DataDef dataDef, List<Place> places, boolean preclustered);
 
     /**
      * Replace existing map markers of a particular data definition with new ones.
      *
-     * @param dataDef The data definition for which to replace the markers.
-     * @param places  The places for which to show markers on the map.
+     * @param dataDef      The data definition for which to replace the markers.
+     * @param places       The places for which to show markers on the map.
+     * @param preclustered If true, the places passed as a parameter represent clusters. The clustering
+     *                     has been done on the server side because too many places matched.
      */
-    void replaceMapMarkers(DataDef dataDef, List<Place> places);
+    void replaceMapMarkers(DataDef dataDef, List<Place> places, boolean preclustered);
 
     /**
      * Show a loading progress bar for when the places are being fetched.

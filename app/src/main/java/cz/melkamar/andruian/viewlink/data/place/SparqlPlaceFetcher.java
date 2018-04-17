@@ -20,6 +20,7 @@ import cz.melkamar.andruian.viewlink.exception.ReservedNameUsedException;
 import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
+import cz.melkamar.andruian.viewlink.model.place.MapElement;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.model.place.Property;
 import cz.melkamar.andruian.viewlink.ui.base.BaseView;
@@ -29,14 +30,17 @@ import cz.melkamar.andruian.viewlink.util.Util;
 
 public class SparqlPlaceFetcher {
 
-    public List<Place> fetchPlaces(BaseView baseView, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException, ReservedNameUsedException, IOException {
+    public PlaceFetcher.FetchPlacesResult fetchPlaces(BaseView baseView, DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException, ReservedNameUsedException, IOException {
         Log.v("SparqlPlaceFetcher", "fetchPlaces ["+latitude+","+longitude+"("+radius+") for "+dataDef);
         String placesCsv = getPlacesRawCsv(baseView, dataDef, latitude, longitude, radius);
-        return placesFromCsv(placesCsv, dataDef);
+        return new PlaceFetcher.FetchPlacesResult(
+                PlaceFetcher.FetchPlacesResult.RESULT_TYPE_PLACES,
+                placesFromCsv(placesCsv, dataDef)
+        );
     }
 
-    private List<Place> placesFromCsv(String csv, DataDef dataDef) throws IOException {
-        List<Place> result = new ArrayList<>();
+    private List<MapElement> placesFromCsv(String csv, DataDef dataDef) throws IOException {
+        List<MapElement> result = new ArrayList<>();
 
         ICsvListReader listReader = new CsvListReader(new StringReader(csv), CsvPreference.STANDARD_PREFERENCE);
         List<String> header = listReader.read();

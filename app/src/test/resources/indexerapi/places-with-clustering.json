@@ -1,0 +1,25 @@
+{
+  "responseType": 2,
+  "responseBody": [
+    {
+      "placesCount": 1,
+      "latPos": 50.07072687149048,
+      "longPos": 14.455454349517822
+    },
+    {
+      "placesCount": 1,
+      "latPos": 50.070555210113525,
+      "longPos": 14.457128047943115
+    },
+    {
+      "placesCount": 1,
+      "latPos": 50.07042646408081,
+      "longPos": 14.455368518829346
+    },
+    {
+      "placesCount": 2,
+      "latPos": 50.07038354873657,
+      "longPos": 14.455196857452393
+    }
+  ]
+}

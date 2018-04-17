@@ -20,9 +20,11 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import cz.melkamar.andruian.viewlink.data.location.LocationHelper;
 import cz.melkamar.andruian.viewlink.data.location.LocationHelperProvider;
@@ -456,8 +458,11 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
         @Override
         protected AsyncTaskResult<List<Place>> doInBackground(Void... voids) {
+            Random random = new Random();
             try {
-                List<Place> result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
+//                List<Place> result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
+                List<Place> result = new ArrayList<>();
+                result.add(new Place("foouri", "locuri", 50.079673+random.nextDouble()*0.001, 14.454004, "bla", dataDef, "nothing"));
                 return new AsyncTaskResult<>(result);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -479,7 +484,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
             Log.v("postFetchPlaces", "Got " + result.getResult().size() + " places from datadef" + dataDef.getUri());
             // TODO for production do not delete markers - just add new ones - merge
-            view.replaceMapMarkers(dataDef, result.getResult());
+            view.replaceMapMarkers(dataDef, result.getResult(), true); // TODO do not always send true
         }
     }
 
