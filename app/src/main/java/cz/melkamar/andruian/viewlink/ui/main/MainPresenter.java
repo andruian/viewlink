@@ -5,6 +5,7 @@ import android.support.v7.widget.SwitchCompat;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenter;
 
@@ -45,8 +46,9 @@ public interface MainPresenter extends BasePresenter {
      * Called when places defined by the given data definition are downloaded.
      *
      * @param dataDef
+     * @param result
      */
-    void onPlacesFetched(DataDef dataDef);
+    void onPlacesFetched(DataDef dataDef, PlaceFetcher.FetchPlacesResult result);
 
     /**
      * Called when a DataDef switch in the navigation drawer is clicked.

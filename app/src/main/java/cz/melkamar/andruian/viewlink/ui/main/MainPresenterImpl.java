@@ -59,6 +59,14 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     private Map<DataDef, FetchPlacesAT> fetchPlacesTasks = new HashMap<>();
     private int lastCameraMoveReason = 0;
 
+    /**
+     * For each shown datadef keep track of whether markers or clusters are shown.
+     * This is used to determine if zooming in should trigger a map refresh.
+     *
+     * TODO maybe keep a separate MapViewPort so that each DataDef is refreshed independently?
+     */
+    private Map<DataDef, Integer> mapElementTypesShown = new HashMap<>();
+
     public static final String KEY_PREF_AUTO_REFRESH = "settings_autorefresh_map";
     public static final int AUTO_ZOOM_THRESHOLD = 13;
     public static final String KEY_SHAREDPREFS = "cz.melkamar.andruian.viewlink.PREFERENCES";
@@ -271,8 +279,12 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
                 MapViewPort newViewPort = new MapViewPort(bounds.northeast, bounds.southwest);
                 if (lastRefreshedArea.contains(newViewPort.getMustBeVisiblePort())) {
-                    Log.v("MainPresenterImpl", "onMapCameraIdle - new viewport is contained in the old, not refreshing");
-                    return;
+                    if (mapElementTypesShown.containsValue(PlaceFetcher.FetchPlacesResult.RESULT_TYPE_CLUSTERS)){
+                        Log.v("MainPresenterImpl", "onMapCameraIdle - new viewport is contained in the old but clusters shown, refreshing");
+                    } else {
+                        Log.v("MainPresenterImpl", "onMapCameraIdle - new viewport is contained in the old, not refreshing");
+                        return;
+                    }
                 }
                 Log.v("MainPresenterImpl", "onMapCameraIdle - new viewport is NOT contained in the old, refreshing");
             } else {
@@ -433,10 +445,14 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     }
 
     @Override
-    public void onPlacesFetched(DataDef dataDef) {
+    public void onPlacesFetched(DataDef dataDef, PlaceFetcher.FetchPlacesResult result) {
         fetchPlacesTasks.remove(dataDef);
         if (fetchPlacesTasks.size() == 0)
             view.hideProgressBar();
+
+        if (result!=null){
+            mapElementTypesShown.put(dataDef, result.resultType);
+        }
     }
 
     private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<PlaceFetcher.FetchPlacesResult>> {
@@ -465,30 +481,31 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 // TODO mocked
 //                PlaceFetcher.FetchPlacesResult result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
 
+
+                PlaceFetcher.FetchPlacesResult result = null;
                 if (random.nextBoolean()) {
                     List<MapElement> elements = new ArrayList<>();
                     for (int i = 0; i < 50; i++) {
                         elements.add(new PlaceCluster(50.079673 + random.nextDouble() * 0.01, 14.45400 + random.nextDouble() * 0.01, random.nextInt(100), dataDef));
                     }
-                    PlaceFetcher.FetchPlacesResult result = new PlaceFetcher.FetchPlacesResult(
+                    result = new PlaceFetcher.FetchPlacesResult(
                             PlaceFetcher.FetchPlacesResult.RESULT_TYPE_CLUSTERS,
                             elements
                     );
 
-                    return new AsyncTaskResult<>(result);
                 } else {
                     List<MapElement> elements = new ArrayList<>();
                     for (int i = 0; i < 50; i++) {
                         elements.add(new Place("xxx", "xxx", 50.079673 + random.nextDouble() * 0.01, 14.45400 + random.nextDouble() * 0.01,
                                 "xxx", dataDef, "xxx"));
                     }
-                    PlaceFetcher.FetchPlacesResult result = new PlaceFetcher.FetchPlacesResult(
+                    result = new PlaceFetcher.FetchPlacesResult(
                             PlaceFetcher.FetchPlacesResult.RESULT_TYPE_PLACES,
                             elements
                     );
-
-                    return new AsyncTaskResult<>(result);
                 }
+
+                return new AsyncTaskResult<>(result);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new AsyncTaskResult<>(e);
@@ -497,9 +514,9 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
         @Override
         protected void onPostExecute(AsyncTaskResult<PlaceFetcher.FetchPlacesResult> result) {
-            presenter.onPlacesFetched(dataDef);
-
             if (result.hasError()) {
+                presenter.onPlacesFetched(dataDef, null);
+
                 if (view != null)
                     view.showMessage("An error occurred when fetching places: " + result.getError().getMessage());
 
@@ -508,6 +525,8 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
             }
 
             Log.v("postFetchPlaces", "Got " + result.getResult().places.size() + " elements. Type: " + result.getResult().resultType + "from datadef" + dataDef.getUri());
+            presenter.onPlacesFetched(dataDef, result.getResult());
+
             // TODO for production do not delete markers - just add new ones - merge
             view.replaceMapMarkers(dataDef, result.getResult());
         }
