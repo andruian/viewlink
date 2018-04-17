@@ -34,7 +34,9 @@ import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.data.place.PlaceFetcherProvider;
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
+import cz.melkamar.andruian.viewlink.model.place.MapElement;
 import cz.melkamar.andruian.viewlink.model.place.Place;
+import cz.melkamar.andruian.viewlink.model.place.PlaceCluster;
 import cz.melkamar.andruian.viewlink.ui.base.BasePresenterImpl;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
@@ -437,7 +439,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
             view.hideProgressBar();
     }
 
-    private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<List<Place>>> {
+    private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<PlaceFetcher.FetchPlacesResult>> {
         private final PlaceFetcher placeFetcher;
         private final MainView view;
         private final MainPresenter presenter;
@@ -457,13 +459,36 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         }
 
         @Override
-        protected AsyncTaskResult<List<Place>> doInBackground(Void... voids) {
+        protected AsyncTaskResult<PlaceFetcher.FetchPlacesResult> doInBackground(Void... voids) {
             Random random = new Random();
             try {
-//                List<Place> result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
-                List<Place> result = new ArrayList<>();
-                result.add(new Place("foouri", "locuri", 50.079673+random.nextDouble()*0.001, 14.454004, "bla", dataDef, "nothing"));
-                return new AsyncTaskResult<>(result);
+                // TODO mocked
+//                PlaceFetcher.FetchPlacesResult result = placeFetcher.fetchPlaces(view, dataDef, latitude, longitude, radius);
+
+                if (random.nextBoolean()) {
+                    List<MapElement> elements = new ArrayList<>();
+                    for (int i = 0; i < 50; i++) {
+                        elements.add(new PlaceCluster(50.079673 + random.nextDouble() * 0.01, 14.45400 + random.nextDouble() * 0.01, random.nextInt(100), dataDef));
+                    }
+                    PlaceFetcher.FetchPlacesResult result = new PlaceFetcher.FetchPlacesResult(
+                            PlaceFetcher.FetchPlacesResult.RESULT_TYPE_CLUSTERS,
+                            elements
+                    );
+
+                    return new AsyncTaskResult<>(result);
+                } else {
+                    List<MapElement> elements = new ArrayList<>();
+                    for (int i = 0; i < 50; i++) {
+                        elements.add(new Place("xxx", "xxx", 50.079673 + random.nextDouble() * 0.01, 14.45400 + random.nextDouble() * 0.01,
+                                "xxx", dataDef, "xxx"));
+                    }
+                    PlaceFetcher.FetchPlacesResult result = new PlaceFetcher.FetchPlacesResult(
+                            PlaceFetcher.FetchPlacesResult.RESULT_TYPE_PLACES,
+                            elements
+                    );
+
+                    return new AsyncTaskResult<>(result);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 return new AsyncTaskResult<>(e);
@@ -471,7 +496,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         }
 
         @Override
-        protected void onPostExecute(AsyncTaskResult<List<Place>> result) {
+        protected void onPostExecute(AsyncTaskResult<PlaceFetcher.FetchPlacesResult> result) {
             presenter.onPlacesFetched(dataDef);
 
             if (result.hasError()) {
@@ -482,9 +507,9 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 return;
             }
 
-            Log.v("postFetchPlaces", "Got " + result.getResult().size() + " places from datadef" + dataDef.getUri());
+            Log.v("postFetchPlaces", "Got " + result.getResult().places.size() + " elements. Type: " + result.getResult().resultType + "from datadef" + dataDef.getUri());
             // TODO for production do not delete markers - just add new ones - merge
-            view.replaceMapMarkers(dataDef, result.getResult(), true); // TODO do not always send true
+            view.replaceMapMarkers(dataDef, result.getResult());
         }
     }
 

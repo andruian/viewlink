@@ -19,7 +19,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,8 +47,10 @@ import butterknife.BindDrawable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.melkamar.andruian.viewlink.R;
+import cz.melkamar.andruian.viewlink.data.place.PlaceFetcher;
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 import cz.melkamar.andruian.viewlink.model.place.Place;
+import cz.melkamar.andruian.viewlink.model.place.PlaceCluster;
 import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 import cz.melkamar.andruian.viewlink.ui.placedetail.PlaceDetailActivity;
 import cz.melkamar.andruian.viewlink.ui.settings.SettingsActivity;
@@ -201,8 +202,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         List<Marker> preclusteredMarkersList = preclusteredMarkers.get(dataDef);
-        if (preclusteredMarkersList !=null){
-            Log.v("MainActivity", "clearMapMarkers - preclusteredMarkers exist: "+preclusteredMarkersList.size());
+        if (preclusteredMarkersList != null) {
+            Log.v("MainActivity", "clearMapMarkers - preclusteredMarkers exist: " + preclusteredMarkersList.size());
             for (Marker marker : preclusteredMarkersList) {
                 marker.remove();
             }
@@ -215,7 +216,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         private final ShapeDrawable mColoredCircleBackground;
         private final float mDensity;
 
-        private SparseArray<BitmapDescriptor> mIcons = new SparseArray();
+//        private SparseArray<BitmapDescriptor> mIcons = new SparseArray();
 
         public ClusterIconGenerator(Context context) {
             mIconGenerator = new IconGenerator(context);
@@ -241,52 +242,46 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         public BitmapDescriptor getDescriptor(int color, String text) {
-            BitmapDescriptor descriptor = (BitmapDescriptor) this.mIcons.get(color);
-            if (descriptor == null) {
+//            BitmapDescriptor descriptor = (BitmapDescriptor) this.mIcons.get(color);
+//            if (descriptor == null) {
                 this.mColoredCircleBackground.getPaint().setColor(color);
-                descriptor = BitmapDescriptorFactory.fromBitmap(this.mIconGenerator.makeIcon(text));
-                this.mIcons.put(color, descriptor);
-            }
+                return BitmapDescriptorFactory.fromBitmap(this.mIconGenerator.makeIcon(text));
+//                this.mIcons.put(color, descriptor);
+//            }
 
-            return descriptor;
+//            return descriptor;
         }
     }
 
-
     @Override
-    public void addMapMarkers(DataDef datadef, List<Place> places, boolean preclustered) {
+    public void addMapMarkers(DataDef datadef, PlaceFetcher.FetchPlacesResult fetchResult) {
+        Log.d("MainActivity", "addMapMarkers - fetchResult type " + fetchResult.resultType);
+
         if (map == null) {
             Log.e("addMapMarkers", "map is null!");
             return;
         }
-        if (places == null || places.isEmpty()) {
-            Log.d("addMapMarkers", "List empty.");
+        switch (fetchResult.resultType) {
+            case PlaceFetcher.FetchPlacesResult.RESULT_TYPE_PLACES:
+                addMapPlaces(datadef, fetchResult);
+                break;
+
+            case PlaceFetcher.FetchPlacesResult.RESULT_TYPE_CLUSTERS:
+                addMapClusters(datadef, fetchResult);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown fetchResult type: " + fetchResult.resultType);
+        }
+    }
+
+    public void addMapPlaces(DataDef datadef, PlaceFetcher.FetchPlacesResult fetchResult) {
+        if (fetchResult == null || fetchResult.getPlaces().isEmpty()) {
+            Log.d("addMapPlaces", "List empty.");
             return;
         }
 
-        Log.d("addMapMarkers", "Adding " + places.size() + " markers");
-
-        // if preclustered, add one marker per server-cluster
-        // use https://stackoverflow.com/questions/36137333/display-the-number-of-clustered-markers-exactly maybe to create icon to drawzt
-        if (preclustered) {
-            ClusterIconGenerator iconGenerator = new ClusterIconGenerator(this);
-            List<Marker> preclusteredMarkersOfDatadef =preclusteredMarkers.get(datadef);
-            if (preclusteredMarkersOfDatadef == null) {
-                preclusteredMarkersOfDatadef = new ArrayList<>();
-                preclusteredMarkers.put(datadef, preclusteredMarkersOfDatadef);
-            }
-
-            for (Place place : places) {
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(place.getPosition());
-                markerOptions.icon(iconGenerator.getDescriptor(Util.colorFromHue(datadef.getMarkerColor()), "666"));
-
-                Marker marker = map.addMarker(markerOptions);
-                preclusteredMarkersOfDatadef.add(marker);
-            }
-            return;
-        }
-
+        Log.d("addMapPlaces", "Adding " + fetchResult.getPlaces().size() + " markers");
 
         ClusterManager<Place> clusterManager = clusterMgrs.get(datadef);
         if (clusterManager == null) {
@@ -309,16 +304,36 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             placesList = new ArrayList<>();
             placesStoredMap.put(datadef, placesList);
         }
-        placesList.addAll(places);
+        placesList.addAll(fetchResult.getPlaces());
 
-        clusterManager.addItems(places);
+        clusterManager.addItems(fetchResult.getPlaces());
         clusterManager.cluster();
     }
 
+    private void addMapClusters(DataDef datadef, PlaceFetcher.FetchPlacesResult fetchResult) {
+        Log.d("addMapClusters", "Adding " + fetchResult.getClusters().size() + " cluster markers");
+
+        ClusterIconGenerator iconGenerator = new ClusterIconGenerator(this);
+        List<Marker> preclusteredMarkersOfDatadef = preclusteredMarkers.get(datadef);
+        if (preclusteredMarkersOfDatadef == null) {
+            preclusteredMarkersOfDatadef = new ArrayList<>();
+            preclusteredMarkers.put(datadef, preclusteredMarkersOfDatadef);
+        }
+
+        for (PlaceCluster cluster : fetchResult.getClusters()) {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(cluster.getPosition());
+            markerOptions.icon(iconGenerator.getDescriptor(Util.colorFromHue(datadef.getMarkerColor()), String.valueOf(cluster.placesCount)));
+
+            Marker marker = map.addMarker(markerOptions);
+            preclusteredMarkersOfDatadef.add(marker);
+        }
+    }
+
     @Override
-    public void replaceMapMarkers(DataDef dataDef, List<Place> places, boolean preclustered) {
+    public void replaceMapMarkers(DataDef dataDef, PlaceFetcher.FetchPlacesResult fetchResult) {
         clearMapMarkers(dataDef);
-        addMapMarkers(dataDef, places, preclustered);
+        addMapMarkers(dataDef, fetchResult);
     }
 
     @Override

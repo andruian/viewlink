@@ -1,5 +1,7 @@
 package cz.melkamar.andruian.viewlink.model.place;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
 /**
@@ -19,5 +21,9 @@ public class PlaceCluster extends MapElement {
         this.longitude = longitude;
         this.placesCount = placesCount;
         this.parentDataDef = parentDataDef;
+    }
+
+    public LatLng getPosition() {
+        return new LatLng(latitude, longitude);
     }
 }
