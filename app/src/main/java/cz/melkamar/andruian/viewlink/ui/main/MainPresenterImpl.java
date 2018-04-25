@@ -57,7 +57,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     /**
      * For each shown datadef keep track of whether markers or clusters are shown.
      * This is used to determine if zooming in should trigger a map refresh.
-     *
+     * <p>
      * TODO maybe keep a separate MapViewPort so that each DataDef is refreshed independently?
      */
     private Map<DataDef, Integer> mapElementTypesShown = new HashMap<>();
@@ -160,7 +160,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         new SaveDataDefATask(dataDefsShownInDrawer.get(itemId), view.getViewLinkApplication().getAppDatabase()).execute();
 
         if (enabled) {
-            if (view.getMap() != null && view.getMap().getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD) {
+            if (view.getMap() != null) {
                 Log.d("dataDefSwitchClicked", "fetching places. Radius: " + getRadiusFromMap());
                 fetchNewPlaces(view, dataDefsShownInDrawer.get(itemId),
                         view.getMap().getCameraPosition().target.latitude,
@@ -179,10 +179,14 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         Log.i("fetchNewPlaces", dataDef.getUri() + " at " + latitude + "," + longitude + " (" + radius + ")");
         PlaceFetcher placeFetcher = PlaceFetcherProvider.getProvider().getInstance();
         FetchPlacesAT task = fetchPlacesTasks.get(dataDef);
-        if (task != null) {
-            Log.v("MainPresenterImpl", "fetchNewPlaces - cancelling task for " + dataDef.getUri());
-            task.cancel(true);
-        }
+
+        // TODO handle cancelling a running request. The following still waits for the request to
+        // finish, but then cancels it before it can return a result. Also, it results in the
+        // request falling back to the slow naive query.
+//        if (task != null) {
+//            Log.v("MainPresenterImpl", "fetchNewPlaces - cancelling task for " + dataDef.getUri());
+//            task.cancel(true);
+//        }
         task = new FetchPlacesAT(placeFetcher, view, this, dataDef, latitude, longitude, radius);
         fetchPlacesTasks.put(dataDef, task);
         task.execute();
@@ -269,12 +273,12 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
         view.reclusterMarkers();
 
-        if (googleMap.getCameraPosition().zoom > AUTO_ZOOM_THRESHOLD && prefAutoRefreshMarkers) {
+        if (prefAutoRefreshMarkers) {
             if (lastRefreshedArea != null) {
                 LatLngBounds bounds = view.getMap().getProjection().getVisibleRegion().latLngBounds;
                 MapViewPort newViewPort = new MapViewPort(bounds.northeast, bounds.southwest);
                 if (lastRefreshedArea.contains(newViewPort.getMustBeVisiblePort())) {
-                    if (mapElementTypesShown.containsValue(PlaceFetcher.FetchPlacesResult.RESULT_TYPE_CLUSTERS)){
+                    if (mapElementTypesShown.containsValue(PlaceFetcher.FetchPlacesResult.RESULT_TYPE_CLUSTERS)) {
                         Log.v("MainPresenterImpl", "onMapCameraIdle - new viewport is contained in the old but clusters shown, refreshing");
                     } else {
                         Log.v("MainPresenterImpl", "onMapCameraIdle - new viewport is contained in the old, not refreshing");
@@ -396,9 +400,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lng), zoom);
             }
 
-            if (zoom > AUTO_ZOOM_THRESHOLD) {
-                refreshMarkers(lat, lng);
-            }
+            refreshMarkers(lat, lng);
         } else {
             Log.d("MainPresenterImpl", "onResume - not restoring map position");
             preferredCameraPosition = CameraPosition.fromLatLngZoom(new LatLng(defaultLat, defaultLng), defaultZoom);
@@ -440,17 +442,24 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     }
 
     @Override
-    public void onPlacesFetched(DataDef dataDef, PlaceFetcher.FetchPlacesResult result) {
-        fetchPlacesTasks.remove(dataDef);
+    public void onPlacesFetched(DataDef dataDef, PlaceFetcher.FetchPlacesResult result, FetchPlacesAT task) {
+        FetchPlacesAT t = fetchPlacesTasks.get(dataDef);
+        // Only remove the datadef entry from running tasks is the task that just ended is the last one
+        // When multiple tasks overlap, wait for the latest one. It may not always be the longest running,
+        // but until we figure out how to immediately cancel a running task, this will have to do.
+        if (t == task) {
+            fetchPlacesTasks.remove(dataDef);
+        }
+
         if (fetchPlacesTasks.size() == 0)
             view.hideProgressBar();
 
-        if (result!=null){
+        if (result != null) {
             mapElementTypesShown.put(dataDef, result.resultType);
         }
     }
 
-    private static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<PlaceFetcher.FetchPlacesResult>> {
+    static class FetchPlacesAT extends AsyncTask<Void, Void, AsyncTaskResult<PlaceFetcher.FetchPlacesResult>> {
         private final PlaceFetcher placeFetcher;
         private final MainView view;
         private final MainPresenter presenter;
@@ -483,7 +492,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         @Override
         protected void onPostExecute(AsyncTaskResult<PlaceFetcher.FetchPlacesResult> result) {
             if (result.hasError()) {
-                presenter.onPlacesFetched(dataDef, null);
+                presenter.onPlacesFetched(dataDef, null, this);
 
                 if (view != null)
                     view.showMessage("An error occurred when fetching places: " + result.getError().getMessage());
@@ -493,7 +502,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
             }
 
             Log.v("postFetchPlaces", "Got " + result.getResult().places.size() + " elements. Type: " + result.getResult().resultType + "from datadef" + dataDef.getUri());
-            presenter.onPlacesFetched(dataDef, result.getResult());
+            presenter.onPlacesFetched(dataDef, result.getResult(), this);
 
             // TODO for production do not delete markers - just add new ones - merge
             view.replaceMapMarkers(dataDef, result.getResult());
