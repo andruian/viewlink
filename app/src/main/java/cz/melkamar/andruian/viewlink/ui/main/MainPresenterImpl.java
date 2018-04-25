@@ -291,9 +291,51 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
             }
 
             LatLng mapPosition = view.getMap().getCameraPosition().target;
-            refreshMarkers(mapPosition.latitude, mapPosition.longitude);
+            new RefreshMarkersDelayedAT(mapPosition.latitude, mapPosition.longitude, this).execute();
         } else {
             view.showUpdatePlacesButton();
+        }
+    }
+
+    RefreshMarkersDelayedAT lastDelayedRefreshTask = null;
+
+    /**
+     * This is used when the user moves a map. Instead of calling the refresh method directly,
+     * we first want to wait a small period of time to make sure no further movement will happen.
+     *
+     * 1. set presenter's lastDelayedRefreshTask to the asynctask object
+     * 2. wait some time
+     * 3. compare the lastDelayedRefreshTask to self. If matching, refresh. If not, other task is
+     *    already running, so do nothing.
+     */
+    static class RefreshMarkersDelayedAT extends AsyncTask<Void, Void, Void> {
+        private final double lat;
+        private final double lng;
+        private final MainPresenterImpl presenter;
+
+        RefreshMarkersDelayedAT(double lat, double lng, MainPresenterImpl presenter) {
+            this.lat = lat;
+            this.lng = lng;
+            this.presenter = presenter;
+            presenter.lastDelayedRefreshTask = this;
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (presenter.lastDelayedRefreshTask == this){
+                presenter.refreshMarkers(lat, lng);
+            }
         }
     }
 
