@@ -34,7 +34,9 @@ public class NetHelperImpl implements NetHelper {
     public AsyncTaskResult<String> httpGet(String url, KeyVal[] params, KeyVal... headers) {
         try {
             Log.v("httpGet", "url:" + url + " | params: " + Arrays.toString(params) + " | keyVals: " + Arrays.toString(headers));
+            url = url.trim();
 
+            if (!url.startsWith("http")) url = "http://"+url;
             HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
             for (KeyVal param : params) {
                 urlBuilder.addQueryParameter(param.name, param.value);
@@ -82,6 +84,7 @@ public class NetHelperImpl implements NetHelper {
         try {
             Log.v("httpPost", "url:" + url + " | data: " + Arrays.toString(data) + " | keyVals: " + Arrays.toString(headers));
 
+            if (!url.startsWith("http")) url = "http://"+url;
             Request.Builder builder = new Request.Builder().url(url);
             if (headers != null) {
                 for (KeyVal keyVal : headers) {
