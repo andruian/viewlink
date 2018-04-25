@@ -251,6 +251,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
     @Override
     public void onMapCameraMoved(GoogleMap map, int reason) {
         lastCameraMoveReason = reason;
+        lastDelayedRefreshTask = null;
 
         if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
             Log.d("cameraMovedListener", "stopping centering camera");
@@ -324,7 +325,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                Thread.sleep(300);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
