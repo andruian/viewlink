@@ -31,7 +31,7 @@ public class DatasourcesPresenterImpl extends BasePresenterImpl implements Datas
     public void refreshDatadefsShown() {
         Log.i("refreshDatadefsShInDr", "Loading new datadefs from the database.");
 //        view.showMessage("Loading new datadefs from the database.");
-        new ReadDatadefsTask(view).execute();
+        new ReadDatadefsTask(view).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override

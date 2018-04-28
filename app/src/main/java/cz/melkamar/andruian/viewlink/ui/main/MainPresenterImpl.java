@@ -391,6 +391,8 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
 
     @Override
     public void onUpdatePlacesButtonClicked() {
+        if (view == null) return;
+
         if (view.getMap() != null) {
             refreshMarkers();
         } else {
