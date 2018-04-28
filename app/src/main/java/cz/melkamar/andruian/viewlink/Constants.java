@@ -7,4 +7,6 @@ public class Constants {
      * This value effectively corresponds to an index server's /api/query?clusterLimit parameter.
      */
     public static final int CLUSTERING_THRESHOLD = 1000;
+
+    public static final int FORCE_CLUSTER_RADIUS_THRESHOLD = 5;
 }

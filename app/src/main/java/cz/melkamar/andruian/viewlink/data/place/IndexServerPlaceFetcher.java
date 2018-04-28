@@ -42,7 +42,8 @@ public class IndexServerPlaceFetcher {
                         new KeyVal("long", longitude + ""),
                         new KeyVal("r", kmRadius + ""),
                         new KeyVal("type", dataDef.getSourceClassDef().getClassUri() + ""),
-                        new KeyVal("clusterLimit", Constants.CLUSTERING_THRESHOLD + "")
+                        new KeyVal("clusterLimit", Constants.CLUSTERING_THRESHOLD + ""),
+                        new KeyVal("forceCluster", kmRadius > Constants.FORCE_CLUSTER_RADIUS_THRESHOLD ? "true" : "false")
                 });
 
         if (result.hasError()) {
