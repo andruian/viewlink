@@ -47,8 +47,9 @@ public interface MainPresenter extends BasePresenter {
      *
      * @param dataDef
      * @param result
+     * @param task
      */
-    void onPlacesFetched(DataDef dataDef, PlaceFetcher.FetchPlacesResult result);
+    void onPlacesFetched(DataDef dataDef, PlaceFetcher.FetchPlacesResult result, MainPresenterImpl.FetchPlacesAT task);
 
     /**
      * Called when a DataDef switch in the navigation drawer is clicked.
