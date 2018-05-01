@@ -14,10 +14,6 @@ import cz.melkamar.andruian.ddfparser.model.DataDef;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import cz.melkamar.andruian.viewlink.util.KeyVal;
 
-/**
- * Created by Martin Melka on 11.03.2018.
- */
-
 public class DataDefHelperImpl implements DataDefHelper {
     private final NetHelper netHelper;
 

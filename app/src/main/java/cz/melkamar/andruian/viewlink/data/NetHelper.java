@@ -4,22 +4,18 @@ import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import cz.melkamar.andruian.viewlink.util.KeyVal;
 
 /**
- * Created by Martin Melka on 11.03.2018.
+ * An interface for functionality related to network communication.
  */
-
 public interface NetHelper {
+    /**
+     * Perform a HTTP GET request and return the result wrapped in an {@link AsyncTaskResult} so that it may
+     * be easily consumed when running from inside an asynctask.
+     */
     AsyncTaskResult<String> httpGet(String url, KeyVal[] data, KeyVal... headers);
-    void getHttpFileAsync(String url, HttpRequestCallback callback);
 
+    /**
+     * Perform a HTTP POST request and return the result wrapped in an {@link AsyncTaskResult} so that it may
+     * be easily consumed when running from inside an asynctask.
+     */
     AsyncTaskResult<String> httpPost(String url, KeyVal[] data, KeyVal... headers);
-    void httpPostAsync(HttpRequestCallback callback, String url, String data, KeyVal... headers);
-    // TODO maybe get rid of async versions? Just make the caller handle it.
-
-    interface HttpRequestCallback {
-        void onRequestFinished(AsyncTaskResult<String> result);
-    }
-
-//    interface HttpPostListener {
-//        void onRequestFinished(AsyncTaskResult<Response> result);
-//    }
 }

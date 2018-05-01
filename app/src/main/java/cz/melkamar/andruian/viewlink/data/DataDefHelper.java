@@ -6,9 +6,14 @@ import cz.melkamar.andruian.ddfparser.model.DataDef;
 import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 
 /**
- * Created by Martin Melka on 11.03.2018.
+ * An interface for functionality related to data definitions.
  */
-
 public interface DataDefHelper {
+    /**
+     * Parse a list of data definitions from a RDF file at a given URL.
+     *
+     * @param url URL of a file to parse for data definitions.
+     * @return
+     */
     AsyncTaskResult<List<DataDef>> getDataDefs(String url);
 }
