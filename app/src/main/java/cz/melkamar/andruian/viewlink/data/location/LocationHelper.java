@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 
 import cz.melkamar.andruian.viewlink.exception.PermissionException;
 
+/**
+ * An interface for a helper class providing access to the device's location.
+ */
 public interface LocationHelper {
     int LOC_REQUEST = 1;
 

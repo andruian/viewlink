@@ -64,6 +64,9 @@ public class LocationHelperImpl implements LocationListener, LocationHelper {
         reportingGps = true;
     }
 
+    /**
+     * Stop reporting new device location to the listener.
+     */
     @Override
     public void stopReportingGps() {
         Log.i("LocationHelper", "stopReportingGps");
@@ -73,6 +76,11 @@ public class LocationHelperImpl implements LocationListener, LocationHelper {
         }
     }
 
+    /**
+     * Check whether location permission is granted to the app.
+     *
+     * @return True if the permission is granted, false otherwise.
+     */
     @Override
     public boolean checkPermissions() {
         return !(ActivityCompat.checkSelfPermission(activity,
@@ -100,6 +108,13 @@ public class LocationHelperImpl implements LocationListener, LocationHelper {
         return reportingGps;
     }
 
+    /**
+     * Callback for when permission request is resolved by the user, either accepting or denying the request.
+     * @param requestCode The code of the request. This is passed to the Android framework in {@link LocationHelperImpl#requestPermissions()}.
+     * @param permissions
+     * @param grantResults The results if the permission request.
+     * @throws PermissionException Thrown when the permission request was denied.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) throws PermissionException {
         Log.v("Locationhelper", "onRequestPermissionsResult " + requestCode);
@@ -114,7 +129,10 @@ public class LocationHelperImpl implements LocationListener, LocationHelper {
         }
     }
 
-
+    /**
+     * Called whenever the location of the device changes.
+     * @param location The new location of the device.
+     */
     @Override
     public void onLocationChanged(Location location) {
         lastKnownLocation = location;

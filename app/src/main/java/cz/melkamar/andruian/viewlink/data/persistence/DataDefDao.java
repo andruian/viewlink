@@ -21,9 +21,6 @@ public interface DataDefDao {
     @Delete
     void delete(DataDef dataDef);
 
-    @Query("DELETE FROM DataDef")
-    void deleteAll();
-
     @Update
     void update(DataDef dataDef);
 }

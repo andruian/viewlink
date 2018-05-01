@@ -3,6 +3,12 @@ package cz.melkamar.andruian.viewlink.data.location;
 import android.location.LocationListener;
 import android.support.v7.app.AppCompatActivity;
 
+/**
+ * A provider class of {@link LocationHelper} instances.
+ *
+ * The default provided class is {@link LocationHelperImpl}, but other implementations may be used instead.
+ * This is useful for mocking during testing.
+ */
 public class LocationHelperProvider {
     private static LocationHelperProvider provider = new LocationHelperProvider();
 

@@ -8,6 +8,9 @@ import java.util.List;
 
 import cz.melkamar.andruian.viewlink.model.datadef.ClassToLocPath;
 
+/**
+ * A DAO interface for {@link ClassToLocPath} manipulation using Android Room.
+ */
 @Dao
 public interface ClassToLocPathDao {
     @Query("SELECT * FROM classtolocpath WHERE parentDatadefUri=:dataDefUri")

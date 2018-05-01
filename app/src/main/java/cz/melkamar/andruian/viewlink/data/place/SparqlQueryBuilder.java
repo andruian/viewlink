@@ -15,6 +15,11 @@ import cz.melkamar.andruian.viewlink.model.datadef.PropertyPath;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.util.MapFormat;
 
+/**
+ * A class responsible for populating a SPARQL template with required and optional parameters.
+ *
+ * It builds the naive SPARQL query - the only query required in the app.
+ */
 public class SparqlQueryBuilder {
     public static final Set<String> RESERVED_VAR_NAMES = new HashSet<>(Arrays.asList("dataObj",
             "locationObj",

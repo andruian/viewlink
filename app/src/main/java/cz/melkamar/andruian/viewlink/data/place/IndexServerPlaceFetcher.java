@@ -24,7 +24,26 @@ import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import cz.melkamar.andruian.viewlink.util.KeyVal;
 import cz.melkamar.andruian.viewlink.util.Util;
 
+/**
+ * This class facilitates querying an index server and parsing the resulting data.
+ */
 public class IndexServerPlaceFetcher {
+    /**
+     * Execute a spatial query at an index server defined in the provided data definition object.
+     *
+     * The result in case of a successful query may be a list of places or a list of clusters - for that reason it is
+     * wrapped in the {@link cz.melkamar.andruian.viewlink.data.place.PlaceFetcher.FetchPlacesResult} class.
+     *
+     * @param dataDef   The data definition object specifying which index server to talk to.
+     * @param latitude  The latitude coordinate of the point around which to query data.
+     * @param longitude The longitude coordinate of the point around which to query data.
+     * @param radius    The radius in which to query for data, in kilometers.
+     * @return A {@link cz.melkamar.andruian.viewlink.data.place.PlaceFetcher.FetchPlacesResult} object containing the
+     *         result of the query.
+     * @throws PlaceFetchException            When an exception occurs while querying the server.
+     * @throws IndexServerNotDefinedException When no index server is defined in the data definition. This exception
+     *                                        should be handled gracefully and a naive non-indexed query should be used instead.
+     */
     public PlaceFetcher.FetchPlacesResult fetchPlaces(DataDef dataDef, double latitude, double longitude, double radius) throws PlaceFetchException, IndexServerNotDefinedException {
         Log.v("IndexServerPlaceFetcher", "fetchPlaces [" + latitude + "," + longitude + "(" + radius + ") for " + dataDef);
         if (dataDef.getIndexServer() == null) {

@@ -17,6 +17,13 @@ import cz.melkamar.andruian.viewlink.model.datadef.PropertyPath;
 import cz.melkamar.andruian.viewlink.model.datadef.SelectProperty;
 import cz.melkamar.andruian.viewlink.model.datadef.SourceClassDef;
 
+/**
+ * This class is responsible for converting and persisting {@link cz.melkamar.andruian.ddfparser.model.DataDef}
+ * instances produced by the ddfparser library into local {@link DataDef} instances.
+ *
+ * Also, due to the way Room works, hierarchies of objects need to be saved separately, so this
+ * class handles saving all objects that form the {@link DataDef} hierarchy.
+ */
 public class ParserDatadefPersistor {
     /**
      * Persist a DataDef obtained from the parser as a local bunch of objects.
