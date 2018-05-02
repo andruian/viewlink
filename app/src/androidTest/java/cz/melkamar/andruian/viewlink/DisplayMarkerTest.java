@@ -100,17 +100,18 @@ public class DisplayMarkerTest {
 
         Mockito
                 .when(placeFetcherMock.fetchPlaces(any(), any(), anyDouble(), anyDouble(), anyDouble()))
-                .thenReturn(new ArrayList<>(
-                        Arrays.stream(new Place[]{new Place(
-                                "http://fake.place/uri",
-                                "http://fake.location.place/uri",
-                                50,
-                                14,
-                                "http://source.class",
-                                ParserDatadefPersistor.transDataDefToLocal(fakeDdfs.get(0)),
-                                null
-                        )}).collect(Collectors.toList())
-                ));
+                .thenReturn(
+                        new PlaceFetcher.FetchPlacesResult(PlaceFetcher.FetchPlacesResult.RESULT_TYPE_PLACES,
+                                new ArrayList<>(Arrays.stream(new Place[]{new Place(
+                                        "http://fake.place/uri",
+                                        "http://fake.location.place/uri",
+                                        50,
+                                        14,
+                                        "http://source.class",
+                                        ParserDatadefPersistor.transDataDefToLocal(fakeDdfs.get(0)),
+                                        null
+                                )}).collect(Collectors.toList())
+                                )));
 //        ;
         PlaceFetcherProvider.getProvider().setInstance(placeFetcherMock);
     }

@@ -115,7 +115,7 @@ public class MainPresenterImplTest {
         presenter.setDataDefsShownInDrawer(fakeDdfs);
         Mockito
                 .when(placeFetcherMock.fetchPlaces(any(), any(), anyDouble(), anyDouble(), anyDouble()))
-                .thenReturn(new ArrayList<>());
+                .thenReturn(new PlaceFetcher.FetchPlacesResult(PlaceFetcher.FetchPlacesResult.RESULT_TYPE_PLACES, new ArrayList<>()));
 
         // Change location to tested position
         mockLocation(0.5, 1.4);
