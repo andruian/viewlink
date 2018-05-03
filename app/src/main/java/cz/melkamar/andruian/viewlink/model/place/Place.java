@@ -9,6 +9,11 @@ import java.util.List;
 
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
+/**
+ * A class representing a single concrete place from the "source" dataset.
+ *
+ * A place is linked to a location object through its IRI and keeps a reference to its parent data definition object.
+ */
 public class Place extends MapElement implements Serializable, ClusterItem {
     private final String uri;
     private final String locationObjectUri;

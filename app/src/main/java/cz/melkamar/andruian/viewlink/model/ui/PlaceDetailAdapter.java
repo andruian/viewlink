@@ -22,6 +22,13 @@ import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.ui.placedetail.PlaceDetailActivity;
 
+/**
+ * An adapter for a {@link RecyclerView} to display a detail of {@link Place} a object.
+ *
+ * This adapter is used in the Place detail screen after tapping on a marker. The number of elements in the adapter
+ * is variable depending on the number of custom properties defined for the given place type. It will always contain
+ * some basic info, however, such as its IRI, location, label...
+ */
 public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.DataDefViewHolder> {
     private final Place place;
     private final PlaceDetailActivity activity;

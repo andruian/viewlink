@@ -25,6 +25,11 @@ import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesPresenter;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesPresenterImpl;
 import cz.melkamar.andruian.viewlink.util.Util;
 
+/**
+ * An adapter for a {@link RecyclerView} to display a list of {@link DataDef} objects.
+ *
+ * This adapter is used in the Manage datasources screen.
+ */
 public class DataDefAdapter extends RecyclerView.Adapter<DataDefAdapter.DataDefViewHolder> {
     private List<DataDef> dataDefs;
     private final DatasourcesPresenter presenter;
