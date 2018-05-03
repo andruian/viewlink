@@ -375,7 +375,6 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 locationHelper.startReportingGps();
             } catch (PermissionException e) {
                 Log.w("centerMapOCLoc", "GPS not permitted", e);
-                view.showMessage(view.getActivity().getString(R.string.gps_not_granted));
                 return;
             }
         }

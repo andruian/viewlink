@@ -3,8 +3,8 @@
     <SwitchPreference
         android:defaultValue="true"
         android:key="settings_autorefresh_map"
-        android:summaryOn="Map markers are updated automaticall when the map is moved by the user."
-        android:summaryOff="Map markers are updated only when a refresh button is clicked."
-        android:title="Update map markers automatically" />
+        android:summaryOn="@string/pref_autorefresh_on"
+        android:summaryOff="@string/pref_autorefresh_off"
+        android:title="@string/pref_autorefresh_title" />
 
 </PreferenceScreen>

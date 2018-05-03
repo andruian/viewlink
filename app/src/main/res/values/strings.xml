@@ -194,4 +194,7 @@
     <string name="menu_header_configuration">Configuration</string>
     <string name="menu_manage_data_sources">Manage data sources</string>
     <string name="menu_settings">Settings</string>
+    <string name="pref_autorefresh_on">Map markers are updated automatically when the map is moved.</string>
+    <string name="pref_autorefresh_off">Map markers are updated only when a refresh button is clicked.</string>
+    <string name="pref_autorefresh_title">Update map markers automatically</string>
 </resources>

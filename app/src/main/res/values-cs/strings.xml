@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">ViewLink</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Nastavení</string>
+    <string name="title_activity_datasources">Zdroje dat</string>
+    <string name="title_activity_add_edit_source">Přidat zdroj dat</string>
+
+    <string name="database_id">cz.melkamar.andruian.viewlink.db</string>
+    <string name="title_activity_place_detail">PlaceDetailActivity</string>
+    <string name="title_activity_settings">Nastavení</string>
+
+    <string name="object_iri">IRI objektu</string>
+    <string name="open_in_browser">Otevřít v prohlížeči</string>
+    <string name="object_location">Pozice objektu</string>
+    <string name="open_in_maps">Otevřít v mapách</string>
+    <string name="location_object_iri">IRI lokačního objektu</string>
+    <string name="object_type">Typ objektu</string>
+    <string name="containing_data_definition">Zdrojová definice dat</string>
+    <string name="fetching_data_source">Stahuji definice dat</string>
+    <string name="contacting_uri">Kontaktuji URI:</string>
+    <string name="error_occurred">Nastala chyba</string>
+    <string name="gps_not_granted">Nemám povolení k GPS. Nelze určit polohu.</string>
+    <string name="error_fetching_places">Nastala chyba během stahování dat:</string>
+    <string name="datasource_url">URL datového zdroje</string>
+    <string name="no_datasources_configured">Žádné datové zdroje</string>
+    <string name="show_places_in_this_area">Zobraz místa v této lokaci</string>
+    <string name="data_definition_markers_color">Barva značek pro datovou definici</string>
+    <string name="logo">Logo</string>
+    <string name="button_delete">Smazat</string>
+    <string name="menu_header_configuration">Možnosti</string>
+    <string name="menu_manage_data_sources">Spravovat datové zdroje</string>
+    <string name="menu_settings">Nastavení</string>
+    <string name="pref_autorefresh_on">Značky na mapě se aktualizují automaticky, když je mapou pohnuto.</string>
+    <string name="pref_autorefresh_off">Značky na mapách se aktualizují manuálně po stisknutí tlačítka.</string>
+    <string name="pref_autorefresh_title">Automatická aktualizace značek</string>
+</resources>
