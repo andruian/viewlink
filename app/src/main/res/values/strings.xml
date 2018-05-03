@@ -173,4 +173,11 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="object_iri">Object IRI</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="object_location">Object location</string>
+    <string name="open_in_maps">Open in maps</string>
+    <string name="location_object_iri">Location object IRI</string>
+    <string name="object_type">Object type</string>
+    <string name="containing_data_definition">Containing data definition</string>
 </resources>

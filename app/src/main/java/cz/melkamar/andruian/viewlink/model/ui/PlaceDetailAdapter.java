@@ -74,11 +74,11 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
         public void bindDataDef() {
             switch (getAdapterPosition()) {
                 case 0:
-                    labelTV.setText("Object IRI");
+                    labelTV.setText(R.string.object_iri);
                     valueTV.setText(place.getUri());
 
                     showButton(true);
-                    button.setText("Open in browser");
+                    button.setText(R.string.open_in_browser);
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setData(Uri.parse(place.getUri()));
@@ -87,11 +87,11 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     break;
 
                 case 1:
-                    labelTV.setText("Object location");
+                    labelTV.setText(R.string.object_location);
                     valueTV.setText(place.getLatitude() + ", " + place.getLongitude());
 
                     showButton(true);
-                    button.setText("Open in maps");
+                    button.setText(R.string.open_in_maps);
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
                                 String.format(Locale.ENGLISH, "geo:%f,%f?q=%f,%f(%s)",
@@ -105,11 +105,11 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     break;
 
                 case 2:
-                    labelTV.setText("Location object IRI");
+                    labelTV.setText(R.string.location_object_iri);
                     valueTV.setText(place.getLocationObjectUri());
 
                     showButton(true);
-                    button.setText("Open in browser");
+                    button.setText(R.string.open_in_browser);
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setData(Uri.parse(place.getLocationObjectUri()));
@@ -117,17 +117,17 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     });
                     break;
                 case 3:
-                    labelTV.setText("Object type");
+                    labelTV.setText(R.string.object_type);
                     valueTV.setText(place.getClassType());
                     showButton(false);
 
                     break;
                 case 4:
-                    labelTV.setText("Containing data definition");
+                    labelTV.setText(R.string.containing_data_definition);
                     valueTV.setText(place.getParentDatadef().getUri());
 
                     showButton(true);
-                    button.setText("Open in browser");
+                    button.setText(R.string.open_in_browser);
                     button.setOnClickListener(view -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setData(Uri.parse(place.getParentDatadef().getUri()));
@@ -140,7 +140,7 @@ public class PlaceDetailAdapter extends RecyclerView.Adapter<PlaceDetailAdapter.
                     valueTV.setText(value);
                     if (URLUtil.isValidUrl(value)) {
                         showButton(true);
-                        button.setText("Open in browser");
+                        button.setText(R.string.open_in_browser);
                         button.setOnClickListener(view -> {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setData(Uri.parse(value));
