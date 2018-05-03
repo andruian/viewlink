@@ -40,7 +40,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:backgroundTint="?attr/colorBackgroundFloating"
-        android:text="Show places in this area"
+        android:text="@string/show_places_in_this_area"
         android:textColor="@color/colorAccent"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"

@@ -6,16 +6,16 @@
     <group android:checkableBehavior="single" android:id="@+id/nav_group_datasources">
     </group>
     <group android:orderInCategory="999">
-        <item android:title="Configuration">
+        <item android:title="@string/menu_header_configuration">
             <menu>
                 <item
                     android:id="@+id/nav_manage_sources"
                     android:icon="@drawable/ic_room_black_24dp"
-                    android:title="Manage data sources" />
+                    android:title="@string/menu_manage_data_sources" />
                 <item
                     android:id="@+id/nav_settings"
                     android:icon="@drawable/ic_menu_manage"
-                    android:title="Settings" />
+                    android:title="@string/menu_settings" />
             </menu>
         </item>
     </group>

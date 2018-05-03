@@ -18,6 +18,6 @@
         android:layout_height="80dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:src="@drawable/map"
-    />
+        android:contentDescription="@string/logo"/>
 
 </LinearLayout>

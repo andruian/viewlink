@@ -185,4 +185,13 @@
     <string name="error_occurred">An error occurred.</string>
     <string name="gps_not_granted">GPS permission not granted. Cannot provide location.</string>
     <string name="error_fetching_places">An error occurred when fetching places:</string>
+    <string name="datasource_url">Datasource url</string>
+    <string name="no_datasources_configured">No datasources configured</string>
+    <string name="show_places_in_this_area">Show places in this area</string>
+    <string name="data_definition_markers_color">Color of the data definition markers</string>
+    <string name="logo">Logo</string>
+    <string name="button_delete">Delete</string>
+    <string name="menu_header_configuration">Configuration</string>
+    <string name="menu_manage_data_sources">Manage data sources</string>
+    <string name="menu_settings">Settings</string>
 </resources>
