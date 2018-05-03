@@ -180,4 +180,9 @@
     <string name="location_object_iri">Location object IRI</string>
     <string name="object_type">Object type</string>
     <string name="containing_data_definition">Containing data definition</string>
+    <string name="fetching_data_source">Fetching data source</string>
+    <string name="contacting_uri">Contacting URI:</string>
+    <string name="error_occurred">An error occurred.</string>
+    <string name="gps_not_granted">GPS permission not granted. Cannot provide location.</string>
+    <string name="error_fetching_places">An error occurred when fetching places:</string>
 </resources>

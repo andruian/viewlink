@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.data.location.LocationHelper;
 import cz.melkamar.andruian.viewlink.data.location.LocationHelperProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
@@ -38,7 +39,7 @@ import cz.melkamar.andruian.viewlink.util.AsyncTaskResult;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
- * Created by Martin Melka on 11.03.2018.
+ * TODO document this.
  */
 
 public class MainPresenterImpl extends BasePresenterImpl implements MainPresenter {
@@ -199,7 +200,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
             locationHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
         } catch (PermissionException e) {
             Log.w("req perms result", "GPS not permitted.", e);
-            view.showMessage("GPS permission not granted. Cannot provide location.");
+            view.showMessage(view.getActivity().getString(R.string.gps_not_granted));
             return;
         }
 
@@ -374,7 +375,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 locationHelper.startReportingGps();
             } catch (PermissionException e) {
                 Log.w("centerMapOCLoc", "GPS not permitted", e);
-                view.showMessage("GPS permission not granted. Cannot provide location.");
+                view.showMessage(view.getActivity().getString(R.string.gps_not_granted));
                 return;
             }
         }
@@ -540,7 +541,7 @@ public class MainPresenterImpl extends BasePresenterImpl implements MainPresente
                 presenter.onPlacesFetched(dataDef, null, this);
 
                 if (view != null)
-                    view.showMessage("An error occurred when fetching places: " + result.getError().getMessage());
+                    view.showMessage(view.getActivity().getString(R.string.error_fetching_places) + result.getError().getMessage());
 
                 Log.w("FetchPlacesAT", "onPostExecute", result.getError());
                 return;

@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.melkamar.andruian.viewlink.R;
 import cz.melkamar.andruian.viewlink.data.DataDefHelper;
 import cz.melkamar.andruian.viewlink.data.DataDefHelperProvider;
 import cz.melkamar.andruian.viewlink.data.persistence.ParserDatadefPersistor;
@@ -31,10 +32,11 @@ public class AddEditSourcePresenterImpl extends BasePresenterImpl implements Add
     @Override
     public void onConfirmButtonClicked() {
         String uri = view.getSrcUri();
-
-        view.showLoadingDialog("Fetching data source", "Contacting URI: " + uri);
+        view.showLoadingDialog(view.getActivity().getString(R.string.fetching_data_source),
+                view.getActivity().getString(R.string.contacting_uri) + uri);
         new FetchDataDefsTask(new WeakReference<>(view), uri).execute();
     }
+
 
     /**
      * Asynctask that will fetch a remote RDF file and parse data definitions from it using the ddfparser library.
@@ -45,7 +47,7 @@ public class AddEditSourcePresenterImpl extends BasePresenterImpl implements Add
         private final String dataDefUrl;
 
         /**
-         * @param view The View corresponding to this presenter.
+         * @param view       The View corresponding to this presenter.
          * @param dataDefUrl The URL where a file of data definitions can be downloaded.
          */
         public FetchDataDefsTask(WeakReference<AddEditSourceView> view, String dataDefUrl) {
@@ -86,7 +88,7 @@ public class AddEditSourcePresenterImpl extends BasePresenterImpl implements Add
                 Log.i("addDatadef", result.getError().getMessage(), result.getError());
                 if (_view != null) {
                     _view.dismissLoadingDialog();
-                    _view.showError("An error occurred.", result.getError().getMessage());
+                    _view.showError(_view.getActivity().getString(R.string.error_occurred), result.getError().getMessage());
                 }
             } else {
                 if (_view != null) {
