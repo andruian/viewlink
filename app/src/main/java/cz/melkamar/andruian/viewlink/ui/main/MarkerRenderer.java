@@ -13,6 +13,12 @@ import cz.melkamar.andruian.viewlink.model.place.Place;
 import cz.melkamar.andruian.viewlink.util.Util;
 
 
+/**
+ * A class implementing some custom rendering options for client-side marker clustering.
+ *
+ * See the <a href="https://developers.google.com/maps/documentation/android-sdk/utility/marker-clustering">
+ * Google Maps Android Marker Clustering Utility</a> for more details.
+ */
 public class MarkerRenderer extends DefaultClusterRenderer<Place> {
     private final DataDef dataDef;
 
@@ -24,7 +30,7 @@ public class MarkerRenderer extends DefaultClusterRenderer<Place> {
     @Override
     protected void onBeforeClusterItemRendered(Place place, MarkerOptions markerOptions) {
         markerOptions.title(place.getDisplayName())
-                    .icon(BitmapDescriptorFactory.defaultMarker(place.getParentDatadef().getMarkerColor()));
+                .icon(BitmapDescriptorFactory.defaultMarker(place.getParentDatadef().getMarkerColor()));
 
         super.onBeforeClusterItemRendered(place, markerOptions);
     }

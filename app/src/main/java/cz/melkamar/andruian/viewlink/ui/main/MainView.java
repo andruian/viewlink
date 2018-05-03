@@ -42,16 +42,18 @@ public interface MainView extends BaseView {
     void clearMapMarkers(DataDef dataDef);
 
     /**
-     * Show places on the map and associate them with a data definition.
-     * @param dataDef      The data definition to associate with the markers.
-     * @param fetchResult       The places for which to show markers on the map.
+     * Show elements (markers or clusters) on the map and associate them with a data definition.
+     *
+     * @param dataDef     The data definition to associate with the markers.
+     * @param fetchResult The places for which to show markers on the map.
      */
     void addMapMarkers(DataDef dataDef, PlaceFetcher.FetchPlacesResult fetchResult);
 
     /**
      * Replace existing map markers of a particular data definition with new ones.
-     * @param dataDef      The data definition for which to replace the markers.
-     * @param fetchResult       The places for which to show markers on the map.
+     *
+     * @param dataDef     The data definition for which to replace the markers.
+     * @param fetchResult The places for which to show markers on the map.
      */
     void replaceMapMarkers(DataDef dataDef, PlaceFetcher.FetchPlacesResult fetchResult);
 
@@ -87,6 +89,10 @@ public interface MainView extends BaseView {
 
     /**
      * Set a color of a switch in the drawer navigation menu.
+     *
+     * Change color of the navigation drawer switch button. When disabled, use predefined gray values.
+     * When enabled, use the {@link DataDef} marker color as the thumb color and calculate a slightly
+     * darker version for the track color.
      *
      * @param switchButton The button whose color to change.
      * @param color        The new color of the button.

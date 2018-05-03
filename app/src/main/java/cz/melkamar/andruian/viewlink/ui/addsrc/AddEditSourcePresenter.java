@@ -5,5 +5,8 @@ package cz.melkamar.andruian.viewlink.ui.addsrc;
  */
 
 public interface AddEditSourcePresenter {
+    /**
+     * Invoked when the confirm button is tapped.
+     */
     void onConfirmButtonClicked();
 }

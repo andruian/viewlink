@@ -25,13 +25,21 @@ public class Util {
         return text.toString();
     }
 
+    /**
+     * Convert the radius of a circle defined in WGS84 into kilometers. This is approximate.
+     *
+     * @param lat    The latitude of the center of a circle in WGS84.
+     * @param lng    The longitude of the center of a circle in WGS84.
+     * @param radius The radius of the circle in WGS84.
+     * @return The approximate radius of the circle in kilometers.
+     */
     public static float convertRadiusToKilometers(double lat, double lng, double radius) {
         float[] result = new float[1];
         Location.distanceBetween(lat, lng, lat + radius, lng, result);
         return result[0] / 1000;
     }
 
-    public static int colorFromHue(float hue){
+    public static int colorFromHue(float hue) {
         return Color.HSVToColor(new float[]{hue, 1, 1});
     }
 }

@@ -10,7 +10,14 @@ import java.util.Map;
 
 import cz.melkamar.andruian.viewlink.model.datadef.DataDef;
 
-public class MultiClusterListener<T> implements GoogleMap.OnCameraIdleListener, GoogleMap.OnInfoWindowClickListener {
+/**
+ * A class dispatching map events to multiple listeners.
+ *
+ * {@link GoogleMap} only allows one listener for events at a time. However, the application requires multiple
+ * listeners, as there is one separate {@link ClusterManager} per each data definition shown. This class may be
+ * registered as the single listener of {@link GoogleMap} and it will dispatch events to arbitrary number of listeners.
+ */
+public class MultiClusterListener implements GoogleMap.OnCameraIdleListener, GoogleMap.OnInfoWindowClickListener {
     Map<DataDef, ClusterManager> managers;
 
     public MultiClusterListener() {

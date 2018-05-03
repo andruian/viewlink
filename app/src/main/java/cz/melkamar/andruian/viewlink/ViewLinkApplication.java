@@ -7,9 +7,6 @@ import cz.melkamar.andruian.viewlink.data.persistence.AppDatabase;
 
 
 public class ViewLinkApplication extends MultiDexApplication {
-//    private DaoSession daoSession;
-//    @BindString(R.string.database_id) String DB_ID;
-
     public static final String DB_NAME = "cz.melkamar.andruian.viewlink.database";
 
     private AppDatabase appDatabase;

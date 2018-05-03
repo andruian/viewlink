@@ -15,8 +15,6 @@ import cz.melkamar.andruian.viewlink.ui.base.BaseActivity;
 
 public class AddEditSourceActivity extends BaseActivity implements AddEditSourceView {
 
-    public static final String TAG_RESULT_DATASOURCE = "datasource";
-
     private AddEditSourcePresenter presenter;
 
     @BindView(R.id.new_datasource_url) EditText srcUri;
@@ -28,18 +26,13 @@ public class AddEditSourceActivity extends BaseActivity implements AddEditSource
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_source);
         ButterKnife.bind(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         presenter = new AddEditSourcePresenterImpl(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onConfirmButtonClicked();
-            }
-        });
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> presenter.onConfirmButtonClicked());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 

@@ -9,7 +9,12 @@ import android.widget.Toast;
 
 import cz.melkamar.andruian.viewlink.ViewLinkApplication;
 
-
+/**
+ * A base for all activities in ViewLink.
+ *
+ * It implements most lifecycle methods and just logs them for debugging. Also provides a shortcut to
+ * get a reference to a {@link ViewLinkApplication} instance.
+ */
 public abstract class BaseActivity extends AppCompatActivity implements BaseView {
 
     protected ProgressDialog progressDialog;
@@ -71,6 +76,9 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseView
         Log.v("Lifecycle", getClass()+" - onSaveInstanceState");
     }
 
+    /**
+     * Show a modal loading dialog with the given text.
+     */
     @Override
     public void showLoadingDialog(String title, String message) {
         dismissLoadingDialog();
@@ -82,6 +90,9 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseView
         progressDialog.show();
     }
 
+    /**
+     * Hide a previously shown modal loading dialog. Do nothing if no dialog is currently shown.
+     */
     @Override
     public void dismissLoadingDialog() {
         if (progressDialog != null) {

@@ -36,11 +36,18 @@ public class AddEditSourcePresenterImpl extends BasePresenterImpl implements Add
         new FetchDataDefsTask(new WeakReference<>(view), uri).execute();
     }
 
+    /**
+     * Asynctask that will fetch a remote RDF file and parse data definitions from it using the ddfparser library.
+     */
     private static class FetchDataDefsTask extends AsyncTask<Void, Void, AsyncTaskResult<List<DataDef>>> {
         private WeakReference<AddEditSourceView> view;
         private DataDefHelper dataDefHelper;
         private final String dataDefUrl;
 
+        /**
+         * @param view The View corresponding to this presenter.
+         * @param dataDefUrl The URL where a file of data definitions can be downloaded.
+         */
         public FetchDataDefsTask(WeakReference<AddEditSourceView> view, String dataDefUrl) {
             this.view = view;
             this.dataDefUrl = dataDefUrl;

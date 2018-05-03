@@ -57,13 +57,13 @@ import cz.melkamar.andruian.viewlink.ui.settings.SettingsActivity;
 import cz.melkamar.andruian.viewlink.ui.srcmgr.DatasourcesActivity;
 import cz.melkamar.andruian.viewlink.util.Util;
 
-
+/**
+ * The main activity of the application, showing the map of places.
+ */
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainView, OnMapReadyCallback {
-
-
     private MainPresenter presenter;
     private GoogleMap map;
-    private MultiClusterListener<Place> clusterListener;
+    private MultiClusterListener clusterListener;
     Map<DataDef, ClusterManager<Place>> clusterMgrs = new HashMap<>();
     Map<DataDef, List<Place>> placesStoredMap = new HashMap<>();
     Map<DataDef, List<Marker>> preclusteredMarkers = new HashMap<>();
@@ -164,11 +164,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return placesStoredMap;
     }
 
-    /**
-     * Change color of the navigation drawer switch button. When disabled, use predefined gray values.
-     * When enabled, use the {@link DataDef} marker color as the thumb color and calculate a slightly
-     * darker version for the track color.
-     */
     @Override
     public void setSwitchButtonColor(SwitchCompat switchButton, float color, boolean enabled) {
         float hsv[] = new float[]{color, 1, 0.8f};
@@ -211,12 +206,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    /**
+     * A class for generating cluster icons.
+     *
+     * This is required for the case of server-side clustering, as client-side clusters are completely handled by the
+     * support library.
+     */
     static class ClusterIconGenerator {
         private final IconGenerator mIconGenerator;
         private final ShapeDrawable mColoredCircleBackground;
         private final float mDensity;
-
-//        private SparseArray<BitmapDescriptor> mIcons = new SparseArray();
 
         public ClusterIconGenerator(Context context) {
             mIconGenerator = new IconGenerator(context);
@@ -242,14 +241,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         public BitmapDescriptor getDescriptor(int color, String text) {
-//            BitmapDescriptor descriptor = (BitmapDescriptor) this.mIcons.get(color);
-//            if (descriptor == null) {
-                this.mColoredCircleBackground.getPaint().setColor(color);
-                return BitmapDescriptorFactory.fromBitmap(this.mIconGenerator.makeIcon(text));
-//                this.mIcons.put(color, descriptor);
-//            }
-
-//            return descriptor;
+            this.mColoredCircleBackground.getPaint().setColor(color);
+            return BitmapDescriptorFactory.fromBitmap(this.mIconGenerator.makeIcon(text));
         }
     }
 
@@ -275,6 +268,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    /**
+     * Add places to the map. The caller must ensure that the fetchResult parameter indeed contains places and not
+     * clusters, otherwise {@link IllegalArgumentException} is thrown.
+     *
+     * @param datadef The data definition associated with the places.
+     * @param fetchResult The result containing places to be shown.
+     */
     public void addMapPlaces(DataDef datadef, PlaceFetcher.FetchPlacesResult fetchResult) {
         if (fetchResult == null || fetchResult.getPlaces().isEmpty()) {
             Log.d("addMapPlaces", "List empty.");
@@ -310,6 +310,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         clusterManager.cluster();
     }
 
+    /**
+     * Add clusters to the map. The caller must ensure that the fetchResult parameter indeed contains clusters and not
+     * places, otherwise {@link IllegalArgumentException} is thrown.
+     *
+     * @param datadef The data definition associated with the places.
+     * @param fetchResult The result containing clusters to be shown.
+     */
     private void addMapClusters(DataDef datadef, PlaceFetcher.FetchPlacesResult fetchResult) {
         Log.d("addMapClusters", "Adding " + fetchResult.getClusters().size() + " cluster markers");
 
@@ -377,7 +384,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         });
 
         // CLUSTERS
-        clusterListener = new MultiClusterListener<>();
+        clusterListener = new MultiClusterListener();
         googleMap.setOnCameraIdleListener(() ->
         {
             Log.v("MainActivity", "onCameraIdle");
@@ -479,10 +486,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onStop() {
         super.onStop();
         presenter.onViewDetached();
-    }
-
-    public Map<DataDef, ClusterManager<Place>> getClusterMgrs() {
-        return clusterMgrs;
     }
 
     @Override

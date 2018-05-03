@@ -2,6 +2,11 @@ package cz.melkamar.andruian.viewlink.ui.main;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ * A class representing a viewport of the map.
+ *
+ * It is described by its bounding box, the bottom leftmost coordinate (sw) and the top rightmost coordinate (ne).
+ */
 public class MapViewPort {
     private final double neLat;
     private final double neLng;
